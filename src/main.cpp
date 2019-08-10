@@ -11,7 +11,7 @@
 #include "DisjointSetForest.hpp"
 #include "Puzzle.hpp"
 
-constexpr int n = 8;
+constexpr int n = 16;
 constexpr int N = n * n;
 
 constexpr double EPSILON = 1e-6;
@@ -103,7 +103,7 @@ cv::Mat reconstruct_image(const cv::Mat& original, const std::vector<std::vector
 
 int main(int argc, char* argv[])
 {
-	cv::Mat img = cv::imread("img/lena.png");
+	cv::Mat img = cv::imread("img/retro_pepe.png");
 	if (img.empty())
 	{
 		std::cout << "ouch" << std::endl;
@@ -173,7 +173,7 @@ int main(int argc, char* argv[])
 		return e1.weight < e2.weight;
 	});
 
-	DisjointSetForest<N> dsf;
+	DisjointSetForest dsf(N);
 
 	cv::namedWindow("src", cv::WINDOW_FREERATIO);
 	cv::imshow("src", img);

@@ -1,16 +1,14 @@
 #pragma once
 
-#include <algorithm>
-#include <array>
+#include <algorithm> // do we need this?
 #include <vector>
 
-template <std::size_t N>
 class DisjointSetForest
 {
 	private:
 		struct Coords
 		{
-			int x, y; // maybe mirror y-coordinate?
+			int x, y;
 			
 			Coords& operator+=(const Coords& other)
 			{
@@ -43,7 +41,7 @@ class DisjointSetForest
 			{
 				if (this->y != other.y)
 				{
-					return this->y > other.y;
+					return this->y < other.y;
 				}
 
 				return this->x < other.x;
@@ -52,20 +50,20 @@ class DisjointSetForest
 
 		struct TreeNode
 		{
-			Coords root_coords;
+			Coords root_coords; // coords of node in root coordinate system
 			std::size_t node_index;
 		};
 
 		struct DSFNode
 		{
 			std::size_t parent_index;
-			Coords parent_coords;
+			Coords parent_coords; // coords of node in parent coordinate system
 
 			// member only for root-nodes
 			std::vector<TreeNode> tree;
 		};
 
-		std::array<DSFNode, N> nodes;
+		std::vector<DSFNode> nodes;
 		std::size_t tree_count;
 
 		std::size_t find_root_index(std::size_t node_index)
@@ -83,7 +81,8 @@ class DisjointSetForest
 		std::vector<std::vector<std::size_t>> reconstruct_image(std::size_t tree_index) const
 		{
 			Coords min = this->nodes[tree_index].tree.front().root_coords;
-			Coords max = min;
+			Coords max = this->nodes[tree_index].tree.back().root_coords;
+			max.x = min.x;
 
 			for (std::size_t i = 1; i < this->nodes[tree_index].tree.size(); i++)
 			{
@@ -97,27 +96,18 @@ class DisjointSetForest
 				{
 					max.x = coords.x;
 				}
-
-				if (coords.y < min.y)
-				{
-					min.y = coords.y;
-				}
-				else if (coords.y > max.y)
-				{
-					max.y = coords.y;
-				}
 			}
 
 			Coords d = max - min;
 			std::size_t width = d.x + 1;
 			std::size_t height = d.y + 1;
 
-			std::vector<std::vector<std::size_t>> img(height, std::vector<std::size_t>(width, N));
+			std::vector<std::vector<std::size_t>> img(height, std::vector<std::size_t>(width, this->nodes.size()));
 
 			for (std::size_t i = 0; i < this->nodes[tree_index].tree.size(); i++)
 			{
 				Coords coords = this->nodes[tree_index].tree[i].root_coords;
-				std::size_t row = max.y - coords.y;
+				std::size_t row = coords.y - min.y; // we changed the y-coordinate
 				std::size_t col = coords.x - min.x;
 
 				img[row][col] = this->nodes[tree_index].tree[i].node_index;
@@ -127,9 +117,9 @@ class DisjointSetForest
 		}
 
 	public:
-		DisjointSetForest() : tree_count(N)
+		DisjointSetForest(std::size_t n) : nodes(n), tree_count(n)
 		{
-			for (std::size_t i = 0; i < N; i++)
+			for (std::size_t i = 0; i < n; i++)
 			{
 				this->nodes[i].parent_index = i;
 				this->nodes[i].parent_coords = { 0, 0 };
@@ -159,22 +149,26 @@ class DisjointSetForest
 				side = (side + 2) % 4;
 			}
 
+			// here we are certain that i's tree is no larger than j's
+			// we can now append the root of i to the root of j
+
 			static const Coords offsets[] = {
-				{ -1,  0 },
-				{  0, +1 },
-				{ +1,  0 },
-				{  0, -1 }
+				{ -1,  0 }, // i left  of j
+				{  0, -1 }, // i top   of j
+				{ +1,  0 }, // i right of j
+				{  0, +1 }  // i bot   of j
 			};
 
 			Coords offset = offsets[side];
-			Coords ci_to_cj_translation = this->nodes[j].parent_coords + offset - this->nodes[i].parent_coords;
+			Coords i_to_j_translation = this->nodes[j].parent_coords + offset - this->nodes[i].parent_coords;
+			// note that due to path compression, the parent_coords of each node is the coordinate of that node in its root's coordinate system
 
 			std::vector<TreeNode> transformed_i_nodes;
 			std::transform(
 				this->nodes[r_i].tree.begin(), this->nodes[r_i].tree.end(),
 				std::back_inserter(transformed_i_nodes),
-				[ci_to_cj_translation](const TreeNode& node) -> TreeNode {
-					return { node.root_coords + ci_to_cj_translation, node.node_index };
+				[i_to_j_translation](const TreeNode& node) -> TreeNode {
+					return { node.root_coords + i_to_j_translation, node.node_index };
 				}
 			);
 
@@ -188,12 +182,13 @@ class DisjointSetForest
 				}
 			);
 
+			// check if the intersection is not empty (some pieces overlap when trying to merge)
 			if (this->nodes[r_i].tree.size() + this->nodes[r_j].tree.size() - new_nodes.size() > 0)
 			{
 				return false;
 			}
 
-			this->nodes[r_i].parent_coords = ci_to_cj_translation;
+			this->nodes[r_i].parent_coords = i_to_j_translation;
 			this->nodes[r_i].parent_index = r_j;
 			this->nodes[r_i].tree = std::vector<TreeNode>();
 
@@ -208,7 +203,7 @@ class DisjointSetForest
 		{
 			std::vector<std::vector<std::vector<std::size_t>>> images;
 
-			for (std::size_t i = 0; i < N; i++)
+			for (std::size_t i = 0; i < this->nodes.size(); i++)
 			{
 				if (this->nodes[i].parent_index == i)
 				{
@@ -217,5 +212,10 @@ class DisjointSetForest
 			}
 
 			return images;
+		}
+
+		Coords get_best_frame_location(std::size_t tree_index, std::size_t width, std::size_t height) const
+		{
+			//TODO
 		}
 };
