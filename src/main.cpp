@@ -11,7 +11,7 @@
 #include "DisjointSetForest.hpp"
 #include "Puzzle.hpp"
 
-constexpr int n = 16;
+constexpr int n = 32;
 constexpr int N = n * n;
 
 constexpr double EPSILON = 1e-6;
@@ -200,7 +200,7 @@ int main(int argc, char* argv[])
 			if (dsf.insert_edge(edges[i].v1, edges[i].v2, edges[i].orientation))
 			{
 				continue;
-				auto images = dsf.reconstruct_images();
+				auto images = dsf.reconstruct_images(n, n);
 				for (int j = 0; j < images.size(); j++)
 				{
 					auto win_name = std::to_string(j);
@@ -214,7 +214,7 @@ int main(int argc, char* argv[])
 		}
 	} while (dsf.get_tree_count() > 1);
 
-	auto images = dsf.reconstruct_images();
+	auto images = dsf.reconstruct_images(n, n);
 	for (int j = 0; j < images.size(); j++)
 	{
 		auto win_name = std::to_string(j);

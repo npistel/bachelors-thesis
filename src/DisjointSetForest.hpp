@@ -1,6 +1,6 @@
 #pragma once
 
-#include <algorithm> // do we need this?
+#include <algorithm>
 #include <vector>
 
 class DisjointSetForest
@@ -107,13 +107,63 @@ class DisjointSetForest
 			for (std::size_t i = 0; i < this->nodes[tree_index].tree.size(); i++)
 			{
 				Coords coords = this->nodes[tree_index].tree[i].root_coords;
-				std::size_t row = coords.y - min.y; // we changed the y-coordinate
+				std::size_t row = coords.y - min.y;
 				std::size_t col = coords.x - min.x;
 
 				img[row][col] = this->nodes[tree_index].tree[i].node_index;
 			}
 
 			return img;
+		}
+
+		Coords get_best_frame_location(const std::vector<std::vector<std::size_t>>& image, std::size_t height, std::size_t width) const
+		{
+			Coords loc = { 0, 0 };
+			std::size_t best_count = 0;
+
+			std::size_t count = 0;
+			for (std::size_t row = 0; row < height - 1; row++)
+			{
+				for (std::size_t col = 0; col < width - 1; col++)
+				{
+					count += image[row][col] < this->nodes.size();
+				}
+			}
+
+			for (std::size_t row = 0; row < image.size() - height + 1; row++)
+			{
+				for (std::size_t j = 0; j < width - 1; j++)
+				{
+					count += image[row + height - 1][j] < this->nodes.size();
+				}
+
+				std::size_t row_count = count;
+				for (std::size_t col = 0; col < image.front().size() - width + 1; col++)
+				{
+					for (std::size_t i = 0; i < height; i++)
+					{
+						row_count += image[row + i][col + width - 1] < this->nodes.size();
+					}
+
+					if (row_count > best_count)
+					{
+						best_count = row_count;
+						loc = { static_cast<int>(col), static_cast<int>(row) };
+					}
+
+					for (std::size_t i = 0; i < height; i++)
+					{
+						row_count -= image[row + i][col] < this->nodes.size();
+					}
+				}
+
+				for (std::size_t j = 0; j < width - 1; j++)
+				{
+					count -= image[row][j] < this->nodes.size();
+				}
+			}
+
+			return loc;
 		}
 
 	public:
@@ -199,7 +249,7 @@ class DisjointSetForest
 			return true;
 		}
 
-		std::vector<std::vector<std::vector<std::size_t>>> reconstruct_images() const
+		std::vector<std::vector<std::vector<std::size_t>>> reconstruct_images(std::size_t height, std::size_t width) const
 		{
 			std::vector<std::vector<std::vector<std::size_t>>> images;
 
@@ -207,15 +257,25 @@ class DisjointSetForest
 			{
 				if (this->nodes[i].parent_index == i)
 				{
-					images.push_back(this->reconstruct_image(i));
+					images.emplace_back(height, std::vector<std::size_t>(width, this->nodes.size()));
+
+					auto img = this->reconstruct_image(i);
+					height = std::min(height, img.size());
+					width = std::min(width, img.front().size());
+					Coords loc = this->get_best_frame_location(img, height, width);
+
+					for (std::size_t row = 0; row < height; row++)
+					{
+						for (std::size_t col = 0; col < width; col++)
+						{
+							images.back()[row][col] = img[loc.y + row][loc.x + col];
+						}
+					}
+
+					//images.back() = img;
 				}
 			}
 
 			return images;
-		}
-
-		Coords get_best_frame_location(std::size_t tree_index, std::size_t width, std::size_t height) const
-		{
-			//TODO
 		}
 };
