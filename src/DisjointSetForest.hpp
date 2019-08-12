@@ -118,6 +118,9 @@ class DisjointSetForest
 
 		Coords get_best_frame_location(const std::vector<std::vector<std::size_t>>& image, std::size_t height, std::size_t width) const
 		{
+			height = std::min(height, image.size());
+			width = std::min(width, image.front().size());
+
 			Coords loc = { 0, 0 };
 			std::size_t best_count = 0;
 
@@ -164,6 +167,34 @@ class DisjointSetForest
 			}
 
 			return loc;
+		}
+
+		std::pair<std::vector<std::vector<std::size_t>>, std::vector<std::size_t>> trim(const std::vector<std::vector<std::size_t>>& image, std::size_t height, std::size_t width) const
+		{
+			std::vector<std::vector<std::size_t>> trimmed_image(height, std::vector<std::size_t>(width, this->nodes.size()));
+			std::vector<std::size_t> extra_pieces;
+
+			Coords loc = this->get_best_frame_location(image, height, width);
+
+			for (std::size_t row = 0; row < image.size(); row++)
+			{
+				for (std::size_t col = 0; col < image.front().size(); col++)
+				{
+					if (image[row][col] < this->nodes.size())
+					{
+						if (loc.y <= row && row < loc.y + height && loc.x <= col && col < loc.x + width)
+						{
+							trimmed_image[row - loc.y][col - loc.x] = image[row][col];
+						}
+						else
+						{
+							extra_pieces.push_back(image[row][col]);
+						}
+					}
+				}
+			}
+
+			return { trimmed_image, extra_pieces }; //todo: prob good idea to look over this tomorrow
 		}
 
 	public:
@@ -257,22 +288,9 @@ class DisjointSetForest
 			{
 				if (this->nodes[i].parent_index == i)
 				{
-					images.emplace_back(height, std::vector<std::size_t>(width, this->nodes.size()));
-
 					auto img = this->reconstruct_image(i);
-					height = std::min(height, img.size());
-					width = std::min(width, img.front().size());
-					Coords loc = this->get_best_frame_location(img, height, width);
-
-					for (std::size_t row = 0; row < height; row++)
-					{
-						for (std::size_t col = 0; col < width; col++)
-						{
-							images.back()[row][col] = img[loc.y + row][loc.x + col];
-						}
-					}
-
-					//images.back() = img;
+					images.push_back(img);
+					images.push_back(this->trim(img, height, width).first);
 				}
 			}
 

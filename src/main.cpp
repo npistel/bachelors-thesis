@@ -11,8 +11,9 @@
 #include "DisjointSetForest.hpp"
 #include "Puzzle.hpp"
 
-constexpr int n = 32;
-constexpr int N = n * n;
+constexpr int m = 1280/(80/1); // rows
+constexpr int n = 720/(80/1); // cols
+constexpr int N = m * n;
 
 constexpr double EPSILON = 1e-6;
 
@@ -39,7 +40,7 @@ std::array<std::size_t, 4> square_distance(const cv::Mat& img, int i, int j)
 	int j_col = j % n;
 
 	int square_width = img.cols / n;
-	int square_height = img.rows / n;
+	int square_height = img.rows / m;
 
 	for (int k = 0; k < square_height; k++)
 	{
@@ -58,25 +59,25 @@ std::array<std::size_t, 4> square_distance(const cv::Mat& img, int i, int j)
 
 std::vector<std::vector<std::array<std::size_t, 4>>> distance_matrix(const cv::Mat& img)
 {
-	std::vector<std::vector<std::array<std::size_t, 4>>> m(N, std::vector<std::array<std::size_t, 4>>(N));
+	std::vector<std::vector<std::array<std::size_t, 4>>> M(N, std::vector<std::array<std::size_t, 4>>(N));
 
 	for (int i = 0; i < N - 1; i++)
 	{
 		for (int j = i + 1; j < N; j++)
 		{
-			m[i][j] = square_distance(img, i, j);
-			m[j][i] = m[i][j];
-			std::swap(m[j][i][0], m[j][i][2]);
-			std::swap(m[j][i][1], m[j][i][3]);
+			M[i][j] = square_distance(img, i, j);
+			M[j][i] = M[i][j];
+			std::swap(M[j][i][0], M[j][i][2]);
+			std::swap(M[j][i][1], M[j][i][3]);
 		}
 	}
 
-	return m;
+	return M;
 }
 
 cv::Mat reconstruct_image(const cv::Mat& original, const std::vector<std::vector<std::size_t>>& img)
 {
-	int height = original.rows / n;
+	int height = original.rows / m;
 	int width = original.cols / n;
 
 	cv::Mat re(img.size() * height, img.front().size() * width, original.type());
@@ -103,18 +104,18 @@ cv::Mat reconstruct_image(const cv::Mat& original, const std::vector<std::vector
 
 int main(int argc, char* argv[])
 {
-	cv::Mat img = cv::imread("img/retro_pepe.png");
+	cv::Mat img = cv::imread("img/wow.jpg");
 	if (img.empty())
 	{
 		std::cout << "ouch" << std::endl;
 		return 0;
 	}
 
-	Puzzle p(img, n, n);
+	Puzzle p(img, m, n);
 
-	auto m = p.distance_matrix();
-	//auto m = distance_matrix(img);
-	//auto m = p.prediction_distance_matrix();
+	auto M = p.distance_matrix();
+	//auto M = distance_matrix(img);
+	//auto M = p.prediction_distance_matrix();
 
 	std::vector<Edge> edges(N*(N-1)*4);
 	int l = 0;
@@ -128,14 +129,14 @@ int main(int argc, char* argv[])
 			{
 				//break;
 				if (i == j) continue;
-				if (m[i][j][k] < smallest)
+				if (M[i][j][k] < smallest)
 				{
 					second_smallest = smallest;
-					smallest = m[i][j][k];
+					smallest = M[i][j][k];
 				}
-				else if (m[i][j][k] < second_smallest)
+				else if (M[i][j][k] < second_smallest)
 				{
-					second_smallest = m[i][j][k];
+					second_smallest = M[i][j][k];
 				}
 			}
 
@@ -146,25 +147,25 @@ int main(int argc, char* argv[])
 				smallest = std::numeric_limits<double>::max();
 				for (int ii = 0; ii < N; ii++)
 				{
-					if (ii != i && m[i][ii][k] < smallest)
+					if (ii != i && M[i][ii][k] < smallest)
 					{
-						smallest = m[i][ii][k];
+						smallest = M[i][ii][k];
 					}
 
-					if (ii != j && m[ii][j][k] < smallest)
+					if (ii != j && M[ii][j][k] < smallest)
 					{
-						smallest = m[ii][j][k];
+						smallest = M[ii][j][k];
 					}
 				}
 
-				edges[l++] = { i, j, k, m[i][j][k] / (smallest + EPSILON) };
+				edges[l++] = { i, j, k, M[i][j][k] / (smallest + EPSILON) };
 			}
 			//continue;
 
 			for (int j = 0; j < N; j++)
 			{
 				if (i == j) continue;
-				edges[l++] = { i, j, k, m[i][j][k] / (second_smallest + EPSILON) };
+				edges[l++] = { i, j, k, M[i][j][k] / (second_smallest + EPSILON) };
 			}
 		}
 	}
@@ -200,7 +201,7 @@ int main(int argc, char* argv[])
 			if (dsf.insert_edge(edges[i].v1, edges[i].v2, edges[i].orientation))
 			{
 				continue;
-				auto images = dsf.reconstruct_images(n, n);
+				auto images = dsf.reconstruct_images(m, n);
 				for (int j = 0; j < images.size(); j++)
 				{
 					auto win_name = std::to_string(j);
@@ -214,7 +215,7 @@ int main(int argc, char* argv[])
 		}
 	} while (dsf.get_tree_count() > 1);
 
-	auto images = dsf.reconstruct_images(n, n);
+	auto images = dsf.reconstruct_images(m, n);
 	for (int j = 0; j < images.size(); j++)
 	{
 		auto win_name = std::to_string(j);
