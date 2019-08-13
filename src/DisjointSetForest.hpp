@@ -305,7 +305,7 @@ class DisjointSetForest
 			return true;
 		}
 
-		std::vector<std::vector<std::vector<std::size_t>>> reconstruct_images(std::size_t height, std::size_t width) const
+		std::vector<std::vector<std::vector<std::size_t>>> reconstruct_images(std::size_t height, std::size_t width, const std::vector<std::vector<std::array<double, 4>>>& distance_matrix) const
 		{
 			std::vector<std::vector<std::vector<std::size_t>>> images;
 
@@ -314,23 +314,116 @@ class DisjointSetForest
 				if (this->nodes[i].parent_index == i)
 				{
 					auto img = this->reconstruct_image(i);
-					auto trimmed = this->trim(img, height, width);
+					images.push_back(img);
 
+					auto trimmed = this->trim(img, height, width);
 					auto trimmed_image = trimmed.first;
+					images.push_back(trimmed_image);
 					auto extra_pieces = trimmed.second;
 
 					auto holes = this->find_holes(trimmed_image);
 
-					for (std::size_t k = 0; k < holes.size(); k++)
+					while (!extra_pieces.empty())
 					{
-						std::cout << k << " neighbors:\n";
-						for (auto hole : holes[k])
+						for (std::size_t j = holes.size(); j-- > 0; )
 						{
-							std::cout << "(" << (hole % width) << "," << (hole / width) << ")\n";
+							if (!holes[j].empty())
+							{
+								double min_dist = std::numeric_limits<double>::max();
+								std::size_t min_hole = 0; // value
+								std::size_t min_piece = 0; // index
+
+								for (std::size_t hole : holes[j])
+								{
+									std::size_t row = hole / width;
+									std::size_t col = hole % width;
+
+									for (std::size_t k = 0; k < extra_pieces.size(); k++)
+									{
+										double dist = 0;
+
+										if (row > 0 && trimmed_image[row - 1][col] < this->nodes.size()) dist += distance_matrix[extra_pieces[k]][trimmed_image[row - 1][col]][3];
+										if (col > 0 && trimmed_image[row][col - 1] < this->nodes.size()) dist += distance_matrix[extra_pieces[k]][trimmed_image[row][col - 1]][2];
+										if (row + 1 < height && trimmed_image[row + 1][col] < this->nodes.size()) dist += distance_matrix[extra_pieces[k]][trimmed_image[row + 1][col]][1];
+										if (col + 1 < width && trimmed_image[row][col + 1] < this->nodes.size()) dist += distance_matrix[extra_pieces[k]][trimmed_image[row][col + 1]][0];
+
+										if (dist < min_dist)
+										{
+											min_dist = dist;
+											min_hole = hole;
+											min_piece = k;
+										}
+									}
+								}
+
+								std::size_t row = min_hole / width;
+								std::size_t col = min_hole % width;
+
+								trimmed_image[row][col] = extra_pieces[min_piece];
+
+								std::swap(extra_pieces[min_piece], extra_pieces.back());
+								extra_pieces.pop_back();
+
+								holes[j].erase(min_hole);
+
+								// promote tight holes
+								if (row > 0 && trimmed_image[row - 1][col] >= this->nodes.size())
+								{
+									std::size_t h = (row - 1) * width + col;
+
+									for (std::size_t k = 0; k < holes.size() - 1; k++)
+									{
+										if (holes[k].erase(h))
+										{
+											holes[k + 1].insert(h);
+										}
+									}
+								}
+
+								if (col > 0 && trimmed_image[row][col - 1] >= this->nodes.size())
+								{
+									std::size_t h = row * width + col - 1;
+
+									for (std::size_t k = 0; k < holes.size() - 1; k++)
+									{
+										if (holes[k].erase(h))
+										{
+											holes[k + 1].insert(h);
+										}
+									}
+								}
+
+								if (row + 1 < height && trimmed_image[row + 1][col] >= this->nodes.size())
+								{
+									std::size_t h = (row + 1) * width + col;
+
+									for (std::size_t k = 0; k < holes.size() - 1; k++)
+									{
+										if (holes[k].erase(h))
+										{
+											holes[k + 1].insert(h);
+										}
+									}
+								}
+
+								if (col + 1 < width && trimmed_image[row][col + 1] >= this->nodes.size())
+								{
+									std::size_t h = row * width + col + 1;
+
+									for (std::size_t k = 0; k < holes.size() - 1; k++)
+									{
+										if (holes[k].erase(h))
+										{
+											holes[k + 1].insert(h);
+										}
+									}
+								}
+
+								break;
+							}
 						}
 					}
 
-					images.push_back(img);
 					images.push_back(trimmed_image);
 				}
 			}

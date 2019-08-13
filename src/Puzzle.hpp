@@ -206,9 +206,9 @@ class Puzzle
 
 		std::vector<Piece> pieces;
 
-		std::vector<double> pieces_distances(int i, int j) const
+		std::array<double, 4> pieces_distances(int i, int j) const
 		{
-			std::vector<double> d(4);
+			std::array<double, 4> d{};
 
 			for (int k = 0; k < this->piece_height; k++)
 			{
@@ -306,17 +306,15 @@ class Puzzle
 			}
 		}
 
-		std::vector<std::vector<std::vector<double>>> distance_matrix()
+		std::vector<std::vector<std::array<double, 4>>> distance_matrix()
 		{
 			for (int i = 0; i < this->pieces.size(); i++)
 			{
 				this->pieces[i].compute_mean_and_covar_inv();
 			}
 
-			std::vector<std::vector<std::vector<double>>> m(this->pieces.size(),
-				std::vector<std::vector<double>>(this->pieces.size(),
-					std::vector<double>(4)
-				)
+			std::vector<std::vector<std::array<double, 4>>> m(this->pieces.size(),
+				std::vector<std::array<double, 4>>(this->pieces.size())
 			);
 
 			for (int i = 0; i < this->pieces.size() - 1; i++)

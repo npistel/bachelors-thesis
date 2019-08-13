@@ -11,8 +11,8 @@
 #include "DisjointSetForest.hpp"
 #include "Puzzle.hpp"
 
-constexpr int m = 16; // rows
-constexpr int n = 16; // cols
+constexpr int m = 720 / (5*2*2); // rows
+constexpr int n = 1280 / (5*2*2); // cols
 constexpr int N = m * n;
 
 constexpr double EPSILON = 1e-6;
@@ -104,7 +104,7 @@ cv::Mat reconstruct_image(const cv::Mat& original, const std::vector<std::vector
 
 int main(int argc, char* argv[])
 {
-	cv::Mat img = cv::imread("img/retro_pepe.png");
+	cv::Mat img = cv::imread("img/wow.jpg");
 	if (img.empty())
 	{
 		std::cout << "ouch" << std::endl;
@@ -201,7 +201,7 @@ int main(int argc, char* argv[])
 			if (dsf.insert_edge(edges[i].v1, edges[i].v2, edges[i].orientation))
 			{
 				continue;
-				auto images = dsf.reconstruct_images(m, n);
+				auto images = dsf.reconstruct_images(m, n, M);
 				for (int j = 0; j < images.size(); j++)
 				{
 					auto win_name = std::to_string(j);
@@ -215,7 +215,7 @@ int main(int argc, char* argv[])
 		}
 	} while (dsf.get_tree_count() > 1);
 
-	auto images = dsf.reconstruct_images(m, n);
+	auto images = dsf.reconstruct_images(m, n, M);
 	for (int j = 0; j < images.size(); j++)
 	{
 		auto win_name = std::to_string(j);
