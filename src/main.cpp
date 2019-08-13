@@ -11,8 +11,8 @@
 #include "DisjointSetForest.hpp"
 #include "Puzzle.hpp"
 
-constexpr int m = 1280/(80/1); // rows
-constexpr int n = 720/(80/1); // cols
+constexpr int m = 16; // rows
+constexpr int n = 16; // cols
 constexpr int N = m * n;
 
 constexpr double EPSILON = 1e-6;
@@ -104,7 +104,7 @@ cv::Mat reconstruct_image(const cv::Mat& original, const std::vector<std::vector
 
 int main(int argc, char* argv[])
 {
-	cv::Mat img = cv::imread("img/wow.jpg");
+	cv::Mat img = cv::imread("img/retro_pepe.png");
 	if (img.empty())
 	{
 		std::cout << "ouch" << std::endl;
@@ -176,7 +176,7 @@ int main(int argc, char* argv[])
 
 	DisjointSetForest dsf(N);
 
-	cv::namedWindow("src", cv::WINDOW_FREERATIO);
+	cv::namedWindow("src"/*, cv::WINDOW_FREERATIO*/);
 	cv::imshow("src", img);
 	cv::waitKey();
 	//cv::destroyAllWindows();
@@ -219,7 +219,7 @@ int main(int argc, char* argv[])
 	for (int j = 0; j < images.size(); j++)
 	{
 		auto win_name = std::to_string(j);
-		cv::namedWindow(win_name, cv::WINDOW_FREERATIO);
+		cv::namedWindow(win_name/*, cv::WINDOW_FREERATIO*/);
 		cv::imshow(win_name, reconstruct_image(img, images[j]));
 	}
 

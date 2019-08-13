@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <vector>
+#include <unordered_set>
 
 class DisjointSetForest
 {
@@ -194,7 +195,31 @@ class DisjointSetForest
 				}
 			}
 
-			return { trimmed_image, extra_pieces }; //todo: prob good idea to look over this tomorrow
+			return { trimmed_image, extra_pieces };
+		}
+
+		std::array<std::unordered_set<std::size_t>, 5> find_holes(const std::vector<std::vector<std::size_t>>& image) const
+		{
+			std::array<std::unordered_set<std::size_t>, 5> holes;
+
+			for (std::size_t row = 0; row < image.size(); row++)
+			{
+				for (std::size_t col = 0; col < image.front().size(); col++)
+				{
+					if (image[row][col] < this->nodes.size()) continue;
+
+					std::size_t neighbors = 0;
+
+					neighbors += row > 0 && image[row - 1][col] < this->nodes.size(); // top
+					neighbors += col > 0 && image[row][col - 1] < this->nodes.size(); // left
+					neighbors += row + 1 < image.size() && image[row + 1][col] < this->nodes.size(); // bottom
+					neighbors += col + 1 < image.front().size() && image[row][col + 1] < this->nodes.size(); // right
+
+					holes[neighbors].insert(row * image.front().size() + col);
+				}
+			}
+
+			return holes;
 		}
 
 	public:
@@ -289,8 +314,24 @@ class DisjointSetForest
 				if (this->nodes[i].parent_index == i)
 				{
 					auto img = this->reconstruct_image(i);
+					auto trimmed = this->trim(img, height, width);
+
+					auto trimmed_image = trimmed.first;
+					auto extra_pieces = trimmed.second;
+
+					auto holes = this->find_holes(trimmed_image);
+
+					for (std::size_t k = 0; k < holes.size(); k++)
+					{
+						std::cout << k << " neighbors:\n";
+						for (auto hole : holes[k])
+						{
+							std::cout << "(" << (hole % width) << "," << (hole / width) << ")\n";
+						}
+					}
+
 					images.push_back(img);
-					images.push_back(this->trim(img, height, width).first);
+					images.push_back(trimmed_image);
 				}
 			}
 
