@@ -11,8 +11,8 @@
 #include "DisjointSetForest.hpp"
 #include "Puzzle.hpp"
 
-constexpr int m = 720 / (5*2*2); // rows
-constexpr int n = 1280 / (5*2*2); // cols
+constexpr int m = 16; // rows
+constexpr int n = 16; // cols
 constexpr int N = m * n;
 
 constexpr double EPSILON = 1e-6;
@@ -104,7 +104,7 @@ cv::Mat reconstruct_image(const cv::Mat& original, const std::vector<std::vector
 
 int main(int argc, char* argv[])
 {
-	cv::Mat img = cv::imread("img/wow.jpg");
+	cv::Mat img = cv::imread("img/retro_pepe.png");
 	if (img.empty())
 	{
 		std::cout << "ouch" << std::endl;

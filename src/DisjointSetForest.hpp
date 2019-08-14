@@ -1,8 +1,8 @@
 #pragma once
 
 #include <algorithm>
-#include <vector>
 #include <unordered_set>
+#include <vector>
 
 class DisjointSetForest
 {
@@ -366,7 +366,6 @@ class DisjointSetForest
 
 								holes[j].erase(min_hole);
 
-								// promote tight holes
 								if (row > 0 && trimmed_image[row - 1][col] >= this->nodes.size())
 								{
 									std::size_t h = (row - 1) * width + col;
@@ -376,6 +375,7 @@ class DisjointSetForest
 										if (holes[k].erase(h))
 										{
 											holes[k + 1].insert(h);
+											break;
 										}
 									}
 								}
@@ -389,6 +389,7 @@ class DisjointSetForest
 										if (holes[k].erase(h))
 										{
 											holes[k + 1].insert(h);
+											break;
 										}
 									}
 								}
@@ -402,6 +403,7 @@ class DisjointSetForest
 										if (holes[k].erase(h))
 										{
 											holes[k + 1].insert(h);
+											break;
 										}
 									}
 								}
@@ -415,6 +417,7 @@ class DisjointSetForest
 										if (holes[k].erase(h))
 										{
 											holes[k + 1].insert(h);
+											break;
 										}
 									}
 								}
