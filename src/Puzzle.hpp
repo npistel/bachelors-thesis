@@ -205,6 +205,7 @@ class Puzzle
 		int piece_width;
 
 		std::vector<Piece> pieces;
+		int hole;
 
 		std::array<double, 4> pieces_distances(int i, int j) const
 		{
@@ -286,13 +287,14 @@ class Puzzle
 		}
 
 	public:
-		Puzzle(const cv::Mat& image, int rows, int cols)
+		Puzzle(const cv::Mat& image, int rows, int cols, int hole = -1)
 			: image(image.clone())
 			, rows(rows)
 			, cols(cols)
 			, piece_height(image.rows / rows)
 			, piece_width(image.cols / cols)
 			, pieces(rows * cols)
+			, hole(hole < 0 || hole >= rows * cols ? 0 : hole)
 		{
 			for (int row = 0; row < this->rows; row++)
 			{
@@ -310,6 +312,7 @@ class Puzzle
 		{
 			for (int i = 0; i < this->pieces.size(); i++)
 			{
+				if (i == this->hole) continue;
 				this->pieces[i].compute_mean_and_covar_inv();
 			}
 
@@ -319,8 +322,10 @@ class Puzzle
 
 			for (int i = 0; i < this->pieces.size() - 1; i++)
 			{
+				if (i == this->hole) continue;
 				for (int j = i + 1; j < this->pieces.size(); j++)
 				{
+					if (j == this->hole) continue;
 					m[i][j] = this->pieces_distances(i, j);
 					m[j][i] = m[i][j];
 					std::swap(m[j][i][0], m[j][i][2]);

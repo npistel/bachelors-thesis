@@ -11,8 +11,8 @@
 #include "DisjointSetForest.hpp"
 #include "Puzzle.hpp"
 
-constexpr int m = 16; // rows
-constexpr int n = 16; // cols
+constexpr int m = 10; // rows
+constexpr int n = m; // cols
 constexpr int N = m * n;
 
 constexpr double EPSILON = 1e-6;
@@ -104,31 +104,29 @@ cv::Mat reconstruct_image(const cv::Mat& original, const std::vector<std::vector
 
 int main(int argc, char* argv[])
 {
-	cv::Mat img = cv::imread("img/retro_pepe.png");
+	cv::Mat img = cv::imread("img/lena.jpg");
 	if (img.empty())
 	{
 		std::cout << "ouch" << std::endl;
 		return 0;
 	}
 
-	Puzzle p(img, m, n);
+	int hole = 3*n;
+	Puzzle p(img, m, n, hole);
 
 	auto M = p.distance_matrix();
-	//auto M = distance_matrix(img);
-	//auto M = p.prediction_distance_matrix();
 
-	std::vector<Edge> edges(N*(N-1)*4);
-	int l = 0;
+	std::vector<Edge> edges;
 	for (int i = 0; i < N; i++)
 	{
+		if (i == hole) continue;
 		for (int k = 0; k < 4; k++)
 		{
-			double smallest = std::numeric_limits<double>::max(), second_smallest = std::numeric_limits<double>::max();
-			//second_smallest = 1;
+			double smallest = std::numeric_limits<double>::max();
+			double second_smallest = std::numeric_limits<double>::max();
 			for (int j = 0; j < N; j++)
 			{
-				//break;
-				if (i == j) continue;
+				if (j == i || j == hole) continue;
 				if (M[i][j][k] < smallest)
 				{
 					second_smallest = smallest;
@@ -142,30 +140,8 @@ int main(int argc, char* argv[])
 
 			for (int j = 0; j < N; j++)
 			{
-				break;
-				if (i == j) continue;
-				smallest = std::numeric_limits<double>::max();
-				for (int ii = 0; ii < N; ii++)
-				{
-					if (ii != i && M[i][ii][k] < smallest)
-					{
-						smallest = M[i][ii][k];
-					}
-
-					if (ii != j && M[ii][j][k] < smallest)
-					{
-						smallest = M[ii][j][k];
-					}
-				}
-
-				edges[l++] = { i, j, k, M[i][j][k] / (smallest + EPSILON) };
-			}
-			//continue;
-
-			for (int j = 0; j < N; j++)
-			{
-				if (i == j) continue;
-				edges[l++] = { i, j, k, M[i][j][k] / (second_smallest + EPSILON) };
+				if (j == i || j == hole) continue;
+				edges.push_back({ i, j, k, M[i][j][k] / (second_smallest + EPSILON) });
 			}
 		}
 	}
@@ -176,50 +152,20 @@ int main(int argc, char* argv[])
 
 	DisjointSetForest dsf(N);
 
-	cv::namedWindow("src"/*, cv::WINDOW_FREERATIO*/);
+	cv::namedWindow("src", cv::WINDOW_FREERATIO);
 	cv::imshow("src", img);
 	cv::waitKey();
-	//cv::destroyAllWindows();
 
-	/*
-	auto images = dsf.reconstruct_images();
-	for (int j = 0; j < images.size(); j++)
+	for (int i = 0; i < edges.size() && dsf.get_tree_count() > 2; i++)
 	{
-		auto win_name = std::to_string(j);
-		cv::namedWindow(win_name);
-		cv::imshow(win_name, reconstruct_image(img, images[j]));
+		dsf.insert_edge(edges[i].v1, edges[i].v2, edges[i].orientation);
 	}
-
-	cv::waitKey();
-	cv::destroyAllWindows();
-	*/
-
-	do
-	{
-		for (int i = 0; i < edges.size() && dsf.get_tree_count() > 1; i++)
-		{
-			if (dsf.insert_edge(edges[i].v1, edges[i].v2, edges[i].orientation))
-			{
-				continue;
-				auto images = dsf.reconstruct_images(m, n, M);
-				for (int j = 0; j < images.size(); j++)
-				{
-					auto win_name = std::to_string(j);
-					cv::namedWindow(win_name);
-					cv::imshow(win_name, reconstruct_image(img, images[j]));
-				}
-
-				//cv::waitKey();
-				cv::destroyAllWindows();
-			}
-		}
-	} while (dsf.get_tree_count() > 1);
 
 	auto images = dsf.reconstruct_images(m, n, M);
 	for (int j = 0; j < images.size(); j++)
 	{
 		auto win_name = std::to_string(j);
-		cv::namedWindow(win_name/*, cv::WINDOW_FREERATIO*/);
+		cv::namedWindow(win_name, cv::WINDOW_FREERATIO);
 		cv::imshow(win_name, reconstruct_image(img, images[j]));
 	}
 

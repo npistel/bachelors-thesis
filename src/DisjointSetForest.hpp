@@ -313,6 +313,8 @@ class DisjointSetForest
 			{
 				if (this->nodes[i].parent_index == i)
 				{
+					if (this->nodes[i].tree.size() == 1) continue;
+
 					auto img = this->reconstruct_image(i);
 					images.push_back(img);
 
@@ -327,7 +329,14 @@ class DisjointSetForest
 					{
 						for (std::size_t j = holes.size(); j-- > 0; )
 						{
-							if (!holes[j].empty())
+							if (holes[j].size() == 1)
+							{
+								holes[j-1].insert(*holes[j].begin());
+								holes[j].clear();
+								continue;
+							}
+
+							if (holes[j].size() > 1)
 							{
 								double min_dist = std::numeric_limits<double>::max();
 								std::size_t min_hole = 0; // value
@@ -341,11 +350,33 @@ class DisjointSetForest
 									for (std::size_t k = 0; k < extra_pieces.size(); k++)
 									{
 										double dist = 0;
+										std::size_t l = 0;
 
-										if (row > 0 && trimmed_image[row - 1][col] < this->nodes.size()) dist += distance_matrix[extra_pieces[k]][trimmed_image[row - 1][col]][3];
-										if (col > 0 && trimmed_image[row][col - 1] < this->nodes.size()) dist += distance_matrix[extra_pieces[k]][trimmed_image[row][col - 1]][2];
-										if (row + 1 < height && trimmed_image[row + 1][col] < this->nodes.size()) dist += distance_matrix[extra_pieces[k]][trimmed_image[row + 1][col]][1];
-										if (col + 1 < width && trimmed_image[row][col + 1] < this->nodes.size()) dist += distance_matrix[extra_pieces[k]][trimmed_image[row][col + 1]][0];
+										if (row > 0 && trimmed_image[row - 1][col] < this->nodes.size())
+										{
+											dist += distance_matrix[extra_pieces[k]][trimmed_image[row - 1][col]][3];
+											l++;
+										}
+										
+										if (col > 0 && trimmed_image[row][col - 1] < this->nodes.size())
+										{
+											dist += distance_matrix[extra_pieces[k]][trimmed_image[row][col - 1]][2];
+											l++;
+										}
+
+										if (row + 1 < height && trimmed_image[row + 1][col] < this->nodes.size())
+										{
+											dist += distance_matrix[extra_pieces[k]][trimmed_image[row + 1][col]][1];
+											l++;
+										}
+
+										if (col + 1 < width && trimmed_image[row][col + 1] < this->nodes.size())
+										{
+											dist += distance_matrix[extra_pieces[k]][trimmed_image[row][col + 1]][0];
+											l++;
+										}
+
+										dist /= (l*l); // is this a good idea?
 
 										if (dist < min_dist)
 										{
