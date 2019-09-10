@@ -3,6 +3,9 @@
 #include <opencv2/core.hpp>
 #include <vector>
 #include <array>
+#include <random>
+
+#include "State.hpp"
 
 struct Edge
 {
@@ -13,7 +16,7 @@ struct Edge
 
 class Puzzle
 {
-	private:
+	public:
 		struct Piece
 		{
 			cv::Mat rectangle;
@@ -205,7 +208,8 @@ class Puzzle
 		int piece_width;
 
 		std::vector<Piece> pieces;
-		int hole;
+		State state;
+		int orig_hole_index;
 
 		std::array<double, 4> pieces_distances(int i, int j) const
 		{
@@ -287,14 +291,36 @@ class Puzzle
 		}
 
 	public:
-		Puzzle(const cv::Mat& image, int rows, int cols, int hole = -1)
+		void shuffle(bool solveable)
+		{
+			this->state = this->state.shuffle(solveable);
+		}
+
+		cv::Mat get_image(const State& state) const
+		{
+			auto p = Puzzle(image, rows, cols, 0);
+
+			for (auto i = 0; i < pieces.size(); i++)
+			{
+				pieces[state.data[i]].rectangle.copyTo(p.pieces[i].rectangle);
+			}
+
+			return p.image;
+		}
+
+		cv::Mat get_image() const
+		{
+			return this->get_image(this->state);
+		}
+
+		Puzzle(const cv::Mat& image, int rows, int cols, int hole_index = -1)
 			: image(image.clone())
 			, rows(rows)
 			, cols(cols)
 			, piece_height(image.rows / rows)
 			, piece_width(image.cols / cols)
 			, pieces(rows * cols)
-			, hole(hole < 0 || hole >= rows * cols ? 0 : hole)
+			, state(rows, cols, hole_index < 0 || hole_index >= rows * cols ? std::random_device()() % (rows * cols) : hole_index)
 		{
 			for (int row = 0; row < this->rows; row++)
 			{
@@ -306,13 +332,16 @@ class Puzzle
 					);
 				}
 			}
+
+			this->pieces[this->state.hole_index].rectangle.setTo(cv::Scalar(100, 100, 100));
+			orig_hole_index = state.hole_index;
 		}
 
 		std::vector<std::vector<std::array<double, 4>>> distance_matrix()
 		{
 			for (int i = 0; i < this->pieces.size(); i++)
 			{
-				if (i == this->hole) continue;
+				if (i == this->orig_hole_index) continue;
 				this->pieces[i].compute_mean_and_covar_inv();
 			}
 
@@ -322,10 +351,10 @@ class Puzzle
 
 			for (int i = 0; i < this->pieces.size() - 1; i++)
 			{
-				if (i == this->hole) continue;
+				if (i == this->orig_hole_index) continue;
 				for (int j = i + 1; j < this->pieces.size(); j++)
 				{
-					if (j == this->hole) continue;
+					if (j == this->orig_hole_index) continue;
 					m[i][j] = this->pieces_distances(i, j);
 					m[j][i] = m[i][j];
 					std::swap(m[j][i][0], m[j][i][2]);

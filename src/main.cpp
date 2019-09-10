@@ -10,8 +10,9 @@
 
 #include "DisjointSetForest.hpp"
 #include "Puzzle.hpp"
+#include "State.hpp"
 
-constexpr int m = 10; // rows
+constexpr int m = 3; // rows
 constexpr int n = m; // cols
 constexpr int N = m * n;
 
@@ -80,7 +81,7 @@ cv::Mat reconstruct_image(const cv::Mat& original, const std::vector<std::vector
 	int height = original.rows / m;
 	int width = original.cols / n;
 
-	cv::Mat re(img.size() * height, img.front().size() * width, original.type());
+	cv::Mat re(img.size() * height, img.front().size() * width, original.type(), cv::Scalar(100, 100, 100));
 
 	for (int i = 0; i < img.size(); i++)
 	{
@@ -104,16 +105,23 @@ cv::Mat reconstruct_image(const cv::Mat& original, const std::vector<std::vector
 
 int main(int argc, char* argv[])
 {
-	cv::Mat img = cv::imread("img/lena.jpg");
+	cv::Mat img = cv::imread("img/retro_pepe.png");
 	if (img.empty())
 	{
-		std::cout << "ouch" << std::endl;
+		std::cout << "could not open image" << std::endl;
 		return 0;
 	}
 
-	int hole = 3*n;
-	Puzzle p(img, m, n, hole);
+	Puzzle p(img, m, n);
+	p.shuffle(true);
+	
+	cv::namedWindow("source_image");
+	cv::imshow("source_image", p.image);
 
+	cv::namedWindow("start_state");
+	cv::imshow("start_state", p.get_image());
+
+	int hole = p.orig_hole_index;
 	auto M = p.distance_matrix();
 
 	std::vector<Edge> edges;
@@ -152,30 +160,58 @@ int main(int argc, char* argv[])
 
 	DisjointSetForest dsf(N);
 
-	cv::namedWindow("src", cv::WINDOW_FREERATIO);
-	cv::imshow("src", img);
-	cv::waitKey();
-
 	for (int i = 0; i < edges.size() && dsf.get_tree_count() > 2; i++)
 	{
 		dsf.insert_edge(edges[i].v1, edges[i].v2, edges[i].orientation);
 	}
 
-	auto images = dsf.reconstruct_images(m, n, M);
-	for (int j = 0; j < images.size(); j++)
+	State goal_state = dsf.reconstruct_images(m, n, M).front();
+
+	cv::namedWindow("goal_state");
+	cv::imshow("goal_state", p.get_image(goal_state));
+
+	bool solvable = p.state.solveable(goal_state);
+	if (!solvable)
 	{
-		auto win_name = std::to_string(j);
-		cv::namedWindow(win_name, cv::WINDOW_FREERATIO);
-		cv::imshow(win_name, reconstruct_image(img, images[j]));
+		std::cout << "this puzzle is not solvable\n";
+	}
+	else
+	{
+		std::cout << "this puzzle is solvable\n";
+		std::cout << "starting IDA* search . . .\n";
+
+		bool status = idastar(p.state, goal_state);
+		if (!status)
+		{
+			std::cout << "IDA* search failed . . .\n";
+		}
+		else
+		{
+			std::cout << "IDA* search was successful\n";
+			auto path = reconstruct_path(goal_state);
+			std::cout << "puzzle solvable in at most " << path.size() << " steps\n";
+			std::cout << "path: ";
+			for (char c : path) std::cout << c << ' ';
+			std::cout << "\npress any key to solve . . .\n";
+
+			cv::waitKey();
+
+			for (char c : path)
+			{
+				if (c == 'w') p.state.slide_up();
+				else if (c == 'a') p.state.slide_left();
+				else if (c == 's') p.state.slide_down();
+				else if (c == 'd') p.state.slide_right();
+
+				cv::imshow("start_state", p.get_image());
+				cv::waitKey(100);
+			}
+
+			//cv::waitKey();
+			//cv::imshow("start_state", img);
+		}
 	}
 
 	cv::waitKey();
 	cv::destroyAllWindows();
-
-	/*
-	std::array<int, N> arr{};
-	for (int i = 0; i < N; i++) arr[i] = i;
-	std::shuffle(arr.begin(), arr.end(), std::mt19937(std::random_device()()));
-	cv::imwrite("bread88.png", arrange(img, arr));
-	*/
 }

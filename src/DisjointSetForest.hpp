@@ -316,12 +316,12 @@ class DisjointSetForest
 					if (this->nodes[i].tree.size() == 1) continue;
 
 					auto img = this->reconstruct_image(i);
-					images.push_back(img);
+					//images.push_back(img);
 
 					auto trimmed = this->trim(img, height, width);
 					auto trimmed_image = trimmed.first;
-					images.push_back(trimmed_image);
 					auto extra_pieces = trimmed.second;
+					//images.push_back(trimmed_image);
 
 					auto holes = this->find_holes(trimmed_image);
 
@@ -329,132 +329,149 @@ class DisjointSetForest
 					{
 						for (std::size_t j = holes.size(); j-- > 0; )
 						{
+							if (holes[j].empty()) continue;
+
+							std::size_t q = 5;
 							if (holes[j].size() == 1)
 							{
+								/*
 								holes[j-1].insert(*holes[j].begin());
 								holes[j].clear();
 								continue;
+								*/
+
+								q = j;
+								while (holes[--j].empty()) continue;
+								holes[j].insert(*holes[q].begin());
 							}
 
-							if (holes[j].size() > 1)
+							double min_dist = std::numeric_limits<double>::max();
+							std::size_t min_hole = 0; // value
+							std::size_t min_piece = 0; // index
+
+							for (std::size_t hole : holes[j])
 							{
-								double min_dist = std::numeric_limits<double>::max();
-								std::size_t min_hole = 0; // value
-								std::size_t min_piece = 0; // index
+								std::size_t row = hole / width;
+								std::size_t col = hole % width;
 
-								for (std::size_t hole : holes[j])
+								for (std::size_t k = 0; k < extra_pieces.size(); k++)
 								{
-									std::size_t row = hole / width;
-									std::size_t col = hole % width;
+									double dist = 0;
+									std::size_t l = 0;
 
-									for (std::size_t k = 0; k < extra_pieces.size(); k++)
+									if (row > 0 && trimmed_image[row - 1][col] < this->nodes.size())
 									{
-										double dist = 0;
-										std::size_t l = 0;
+										dist += distance_matrix[extra_pieces[k]][trimmed_image[row - 1][col]][3];
+										l++;
+									}
+									
+									if (col > 0 && trimmed_image[row][col - 1] < this->nodes.size())
+									{
+										dist += distance_matrix[extra_pieces[k]][trimmed_image[row][col - 1]][2];
+										l++;
+									}
 
-										if (row > 0 && trimmed_image[row - 1][col] < this->nodes.size())
-										{
-											dist += distance_matrix[extra_pieces[k]][trimmed_image[row - 1][col]][3];
-											l++;
-										}
-										
-										if (col > 0 && trimmed_image[row][col - 1] < this->nodes.size())
-										{
-											dist += distance_matrix[extra_pieces[k]][trimmed_image[row][col - 1]][2];
-											l++;
-										}
+									if (row + 1 < height && trimmed_image[row + 1][col] < this->nodes.size())
+									{
+										dist += distance_matrix[extra_pieces[k]][trimmed_image[row + 1][col]][1];
+										l++;
+									}
 
-										if (row + 1 < height && trimmed_image[row + 1][col] < this->nodes.size())
-										{
-											dist += distance_matrix[extra_pieces[k]][trimmed_image[row + 1][col]][1];
-											l++;
-										}
+									if (col + 1 < width && trimmed_image[row][col + 1] < this->nodes.size())
+									{
+										dist += distance_matrix[extra_pieces[k]][trimmed_image[row][col + 1]][0];
+										l++;
+									}
 
-										if (col + 1 < width && trimmed_image[row][col + 1] < this->nodes.size())
-										{
-											dist += distance_matrix[extra_pieces[k]][trimmed_image[row][col + 1]][0];
-											l++;
-										}
+									dist /= l;
 
-										dist /= (l*l); // is this a good idea?
-
-										if (dist < min_dist)
-										{
-											min_dist = dist;
-											min_hole = hole;
-											min_piece = k;
-										}
+									if (dist < min_dist)
+									{
+										min_dist = dist;
+										min_hole = hole;
+										min_piece = k;
 									}
 								}
-
-								std::size_t row = min_hole / width;
-								std::size_t col = min_hole % width;
-
-								trimmed_image[row][col] = extra_pieces[min_piece];
-
-								std::swap(extra_pieces[min_piece], extra_pieces.back());
-								extra_pieces.pop_back();
-
-								holes[j].erase(min_hole);
-
-								if (row > 0 && trimmed_image[row - 1][col] >= this->nodes.size())
-								{
-									std::size_t h = (row - 1) * width + col;
-
-									for (std::size_t k = 0; k < holes.size() - 1; k++)
-									{
-										if (holes[k].erase(h))
-										{
-											holes[k + 1].insert(h);
-											break;
-										}
-									}
-								}
-
-								if (col > 0 && trimmed_image[row][col - 1] >= this->nodes.size())
-								{
-									std::size_t h = row * width + col - 1;
-
-									for (std::size_t k = 0; k < holes.size() - 1; k++)
-									{
-										if (holes[k].erase(h))
-										{
-											holes[k + 1].insert(h);
-											break;
-										}
-									}
-								}
-
-								if (row + 1 < height && trimmed_image[row + 1][col] >= this->nodes.size())
-								{
-									std::size_t h = (row + 1) * width + col;
-
-									for (std::size_t k = 0; k < holes.size() - 1; k++)
-									{
-										if (holes[k].erase(h))
-										{
-											holes[k + 1].insert(h);
-											break;
-										}
-									}
-								}
-
-								if (col + 1 < width && trimmed_image[row][col + 1] >= this->nodes.size())
-								{
-									std::size_t h = row * width + col + 1;
-
-									for (std::size_t k = 0; k < holes.size() - 1; k++)
-									{
-										if (holes[k].erase(h))
-										{
-											holes[k + 1].insert(h);
-											break;
-										}
-									}
-								}
-
-								break;
 							}
+
+							std::size_t row = min_hole / width;
+							std::size_t col = min_hole % width;
+
+							trimmed_image[row][col] = extra_pieces[min_piece];
+
+							std::swap(extra_pieces[min_piece], extra_pieces.back());
+							extra_pieces.pop_back();
+
+							if (q < 5)
+							{
+								auto t = *holes[q].begin();
+								if (min_hole == t)
+								{
+									holes[q].clear();
+								}
+
+								holes[j].erase(t);
+							}
+
+							holes[j].erase(min_hole);
+
+							if (row > 0 && trimmed_image[row - 1][col] >= this->nodes.size())
+							{
+								std::size_t h = (row - 1) * width + col;
+
+								for (std::size_t k = 0; k < holes.size() - 1; k++)
+								{
+									if (holes[k].erase(h))
+									{
+										holes[k + 1].insert(h);
+										break;
+									}
+								}
+							}
+
+							if (col > 0 && trimmed_image[row][col - 1] >= this->nodes.size())
+							{
+								std::size_t h = row * width + col - 1;
+
+								for (std::size_t k = 0; k < holes.size() - 1; k++)
+								{
+									if (holes[k].erase(h))
+									{
+										holes[k + 1].insert(h);
+										break;
+									}
+								}
+							}
+
+							if (row + 1 < height && trimmed_image[row + 1][col] >= this->nodes.size())
+							{
+								std::size_t h = (row + 1) * width + col;
+
+								for (std::size_t k = 0; k < holes.size() - 1; k++)
+								{
+									if (holes[k].erase(h))
+									{
+										holes[k + 1].insert(h);
+										break;
+									}
+								}
+							}
+
+							if (col + 1 < width && trimmed_image[row][col + 1] >= this->nodes.size())
+							{
+								std::size_t h = row * width + col + 1;
+
+								for (std::size_t k = 0; k < holes.size() - 1; k++)
+								{
+									if (holes[k].erase(h))
+									{
+										holes[k + 1].insert(h);
+										break;
+									}
+								}
+							}
+
+							break;
 						}
 					}
 
