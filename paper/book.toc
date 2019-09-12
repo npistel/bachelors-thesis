@@ -5,21 +5,21 @@
 \contentsline {section}{\numberline {1.2}{Software}}{1}{section.1.2}% 
 \contentsline {subsection}{\numberline {1.2.1}{d.capture batch}}{1}{subsection.1.2.1}% 
 \contentsline {subsection}{\numberline {1.2.2}{d.classify}}{2}{subsection.1.2.2}% 
-\contentsline {chapter}{\numberline {2}{Amazon Textract}}{5}{chapter.2}% 
-\contentsline {section}{\numberline {2.1}{Motivation}}{5}{section.2.1}% 
-\contentsline {section}{\numberline {2.2}{Einf\IeC {\"u}hrung}}{6}{section.2.2}% 
-\contentsline {section}{\numberline {2.3}{Block-Objekte}}{7}{section.2.3}% 
-\contentsline {section}{\numberline {2.4}{Einrichtung von Amazon Textract in AWS}}{8}{section.2.4}% 
-\contentsline {section}{\numberline {2.5}{Limitierungen}}{10}{section.2.5}% 
-\contentsline {chapter}{\numberline {3}{Programmierung}}{11}{chapter.3}% 
-\contentsline {section}{\numberline {3.1}{Synchrone Texterkennung}}{11}{section.3.1}% 
-\contentsline {section}{\numberline {3.2}{Asynchrone Texterkennung}}{12}{section.3.2}% 
-\contentsline {section}{\numberline {3.3}{Cloud-Dienst}}{14}{section.3.3}% 
-\contentsline {chapter}{\numberline {4}{Statistische Auswertung}}{17}{chapter.4}% 
-\contentsline {section}{\numberline {4.1}{Geschwindigkeit}}{17}{section.4.1}% 
-\contentsline {section}{\numberline {4.2}{Erkennungsqualit\IeC {\"a}t}}{17}{section.4.2}% 
-\contentsline {subsection}{\numberline {4.2.1}{Editierdistanz}}{18}{subsection.4.2.1}% 
-\contentsline {subsection}{\numberline {4.2.2}{Levenshtein-Distanz}}{18}{subsection.4.2.2}% 
-\contentsline {subsection}{\numberline {4.2.3}{Dynamische Programmierung}}{20}{subsection.4.2.3}% 
-\contentsline {subsection}{\numberline {4.2.4}{Relative Editierdistanz}}{27}{subsection.4.2.4}% 
-\contentsline {chapter}{\numberline {5}{Fazit}}{29}{chapter.5}% 
+\contentsline {chapter}{\numberline {2}{Amazon Textract}}{4}{chapter.2}% 
+\contentsline {section}{\numberline {2.1}{Motivation}}{4}{section.2.1}% 
+\contentsline {section}{\numberline {2.2}{Einf\IeC {\"u}hrung}}{5}{section.2.2}% 
+\contentsline {section}{\numberline {2.3}{Block-Objekte}}{6}{section.2.3}% 
+\contentsline {section}{\numberline {2.4}{Einrichtung von Amazon Textract in AWS}}{7}{section.2.4}% 
+\contentsline {section}{\numberline {2.5}{Limitierungen}}{9}{section.2.5}% 
+\contentsline {chapter}{\numberline {3}{Programmierung}}{10}{chapter.3}% 
+\contentsline {section}{\numberline {3.1}{Synchrone Texterkennung}}{10}{section.3.1}% 
+\contentsline {section}{\numberline {3.2}{Asynchrone Texterkennung}}{11}{section.3.2}% 
+\contentsline {section}{\numberline {3.3}{Cloud-Dienst}}{13}{section.3.3}% 
+\contentsline {chapter}{\numberline {4}{Statistische Auswertung}}{15}{chapter.4}% 
+\contentsline {section}{\numberline {4.1}{Geschwindigkeit}}{15}{section.4.1}% 
+\contentsline {section}{\numberline {4.2}{Erkennungsqualit\IeC {\"a}t}}{15}{section.4.2}% 
+\contentsline {subsection}{\numberline {4.2.1}{Editierdistanz}}{16}{subsection.4.2.1}% 
+\contentsline {subsection}{\numberline {4.2.2}{Levenshtein-Distanz}}{16}{subsection.4.2.2}% 
+\contentsline {subsection}{\numberline {4.2.3}{Dynamische Programmierung}}{18}{subsection.4.2.3}% 
+\contentsline {subsection}{\numberline {4.2.4}{Relative Editierdistanz}}{25}{subsection.4.2.4}% 
+\contentsline {chapter}{\numberline {5}{Fazit}}{27}{chapter.5}% 

@@ -1,6 +1,6 @@
 \ProvidesClass{whswinvcbook}[2019/01/01 v 19.01 Book Class for W-HS WIN VC]
 \PassOptionsToPackage{headinclude,footinclude,paper=a4,BCOR=10mm}{typearea}
-\LoadClass[twoside,openright,titlepage,numbers=noenddot,cleardoublepage=empty,BCOR=10mm,paper=a4,fontsize=11pt]{scrbook}
+\LoadClass[oneside,openright,titlepage,numbers=noenddot,cleardoublepage=empty,BCOR=10mm,paper=a4,fontsize=11pt]{scrbook}
 
 \PassOptionsToPackage{style=classicthesis, palatino=false, floatperchapter}{classicthesis}
 \RequirePackage{whswinvc}
@@ -8,9 +8,9 @@
 
 \RequirePackage[perpage, symbol]{footmisc}
 \deffootnote[1em]{1em}{1em}{\textsuperscript{\thefootnotemark}\ }
-\RequirePackage[automark]{scrlayer-scrpage}
-\ohead[]{\headmark}
-\ofoot[\pagemark]{\pagemark}
+\RequirePackage{scrlayer-scrpage}
+\chead[]{\headmark}
+\cfoot[\pagemark]{\pagemark}
 
 %%% define spacedsmallcaps
 %%% engine-dependent letterspacing: microtype for pdflatex, fontspec for xelatex and luatex
@@ -78,10 +78,10 @@
   \markboth{\spacedlowsmallcaps{\listfigurename}}{\spacedlowsmallcaps{\listfigurename}}
   \listoffigures
 
-  %\cleardoublepage
-  %\manualmark
-  %\markboth{\spacedlowsmallcaps{\listfigurename}}{\spacedlowsmallcaps{\listtablename}}
-  %\listoftables
+  \cleardoublepage
+  \manualmark
+  \markboth{\spacedlowsmallcaps{\listfigurename}}{\spacedlowsmallcaps{\listtablename}}
+  \listoftables
 }
 
 \let\whswinvc@orig@mainmatter\mainmatter
@@ -89,7 +89,7 @@
   \whswinvc@orig@mainmatter
   \automark[section]{chapter}
   \renewcommand{\chaptermark}[1]{\markboth{\spacedlowsmallcaps{##1}}{\spacedlowsmallcaps{##1}}}
-  \renewcommand{\sectionmark}[1]{\markright{\thesection\enspace\spacedlowsmallcaps{##1}}}
+  \renewcommand{\chaptermark}[1]{\markboth{\spacedlowsmallcaps{##1}}{\spacedlowsmallcaps{##1}}}
   \begingroup
   \titlespacing*{\chapter}{0pt}{0.381\textwidth}{1.618\baselineskip}
 }
