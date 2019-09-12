@@ -1,0 +1,94 @@
+\ProvidesPackage{whswinvc}[2019/01/01 v 19.01 common style for W-HS WIN VC]
+
+\RequirePackage[T1]{fontenc}
+\RequirePackage[tt=false,osf]{libertinus}
+\RequirePackage{inconsolata}
+
+\RequirePackage{amsmath}
+\RequirePackage{classicthesis}
+\hypersetup{colorlinks=false}
+\RequirePackage{etoolbox}
+\RequirePackage{booktabs}
+\RequirePackage[pdftex]{graphicx}
+\PassOptionsToPackage{pdftex,hyperfootnotes=false,pdfpagelabels,pdfa}{hyperref}
+\RequirePackage{hyperref}
+\RequirePackage{iflang}
+\RequirePackage{longtable}
+\RequirePackage[numbers]{natbib} 
+\bibliographystyle{plainnat} 
+\RequirePackage[subrefformat=parens]{subfig}
+\RequirePackage{xparse}
+
+\def\whswinvc@university@de{Westfälische Hochschule}
+\def\whswinvc@university@en{Westphalian University of Applied Sciences}
+\def\whswinvc@university{}
+
+\def\whswinvc@department@de{Wirtschaft und Informationstechnik}
+\def\whswinvc@department@en{Business Studies and Information Technology}
+\def\whswinvc@department{}
+
+\def\whswinvc@course@de{Kursname}%
+\def\whswinvc@course@en{Course Name}%
+\def\whswinvc@course{}%
+
+\def\whswinvc@course@abbr@de{KN}%
+\def\whswinvc@course@abbr@en{CN}%
+\def\whswinvc@course@abbr{}%
+
+\NewDocumentCommand{\course}{mom}{
+  \expandafter\def\csname whswinvc@course@#1\endcsname{#3}%
+  \IfValueTF{#2}{%
+    \expandafter\def\csname whswinvc@course@abbr@#1\endcsname{#2}%
+  }{%
+    \expandafter\def\csname whswinvc@course@abbr@#1\endcsname{#3}%
+  }%
+}
+
+\def\whswinvc@semester@name@winter@de{Wintersemester}%
+\def\whswinvc@semester@name@winter@en{Winter Term}%
+\def\whswinvc@semester@abbr@winter@de{WS}%
+\def\whswinvc@semester@abbr@winter@en{WS}%
+
+\def\whswinvc@semester@name@summer@de{Sommersemester}%
+\def\whswinvc@semester@name@summer@en{Summer Term}%
+\def\whswinvc@semester@abbr@summer@de{SS}%
+\def\whswinvc@semester@abbr@summer@en{SS}%
+
+\def\whswinvc@semester@name{}
+\def\whswinvc@semester@abbr{}
+\def\whswinvc@semester@name@winter{}
+\def\whswinvc@semester@abbr@winter{}
+\def\whswinvc@semester@name@summer{}
+\def\whswinvc@semester@abbr@summer{}
+\NewDocumentCommand{\winterterm}{m}{%
+  \def\whswinvc@semester@name{\whswinvc@semester@name@winter~#1}%
+  \def\whswinvc@semester@abbr{\whswinvc@semester@abbr@winter~#1}%
+}
+\NewDocumentCommand{\summerterm}{m}{%
+  \def\whswinvc@semester@name{\whswinvc@semester@name@summer~#1}%
+  \def\whswinvc@semester@abbr{\whswinvc@semester@abbr@summer~#1}%
+}
+
+\AfterEndPreamble{
+  \IfLanguagePatterns{ngerman}{%
+    \renewcommand{\abstractname}{Kurzfassung}%
+    \def\whswinvc@university{\whswinvc@university@de}%
+    \def\whswinvc@department{\whswinvc@department@de}%
+    \def\whswinvc@course{\whswinvc@course@de}%
+    \def\whswinvc@course@abbr{\whswinvc@course@abbr@de}%
+    \def\whswinvc@semester@name@winter{\whswinvc@semester@name@winter@de}%
+    \def\whswinvc@semester@abbr@winter{\whswinvc@semester@abbr@winter@de}%
+    \def\whswinvc@semester@name@summer{\whswinvc@semester@name@summer@de}%
+    \def\whswinvc@semester@abbr@summer{\whswinvc@semester@abbr@summer@de}%
+  }{}%
+  \IfLanguagePatterns{english}{%
+    \def\whswinvc@university{\whswinvc@university@en}%
+    \def\whswinvc@department{\whswinvc@department@en}%
+    \def\whswinvc@course{\whswinvc@course@en}%
+    \def\whswinvc@course@abbr{\whswinvc@course@abbr@en}%
+    \def\whswinvc@semester@name@winter{\whswinvc@semester@name@winter@en}%
+    \def\whswinvc@semester@abbr@winter{\whswinvc@semester@abbr@winter@en}%
+    \def\whswinvc@semester@name@summer{\whswinvc@semester@name@summer@en}%
+    \def\whswinvc@semester@abbr@summer{\whswinvc@semester@abbr@summer@en}%
+  }{}%
+}

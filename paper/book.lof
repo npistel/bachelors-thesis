@@ -1,0 +1,24 @@
+\deactivateaddvspace 
+\babel@toc {ngerman}{}
+\ttl@tocsep 
+\ttl@tocsep 
+\ttl@tocsep 
+\ttl@tocsep 
+\ttl@tocsep 
+\contentsline {figure}{\numberline {\relax 1.1}{\ignorespaces Eine Stapelklasse in d.capture batch mit 5 Positionen\relax }}{2}{figure.caption.1}% 
+\contentsline {figure}{\numberline {\relax 1.2}{\ignorespaces Extraktion einer Rechnungsnummer in d.classify\relax }}{3}{figure.caption.2}% 
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {Festlegung des Ankerbegriffes}}}{3}{subfigure.2.1}% 
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {Extraktionseinstellungen}}}{3}{subfigure.2.2}% 
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {Erkennung im Dokument}}}{3}{subfigure.2.3}% 
+\ttl@tocsep 
+\contentsline {figure}{\numberline {\relax 2.1}{\ignorespaces Einstellung einer Stapelklasse mit Cloud-Processing Position\relax }}{5}{figure.caption.3}% 
+\contentsline {figure}{\numberline {\relax 2.2}{\ignorespaces Baum von Block-Objekten\relax }}{8}{figure.caption.4}% 
+\contentsline {figure}{\numberline {\relax 2.3}{\ignorespaces Rechnung mit den erkannten Zeilen (grau hinterlegt)\relax }}{9}{figure.caption.5}% 
+\contentsline {figure}{\numberline {\relax 2.4}{\ignorespaces Texterkennung (Zeilen) einer Rechnung\relax }}{9}{figure.caption.6}% 
+\ttl@tocsep 
+\contentsline {figure}{\numberline {\relax 3.1}{\ignorespaces Auswertung eines Dokumentes mit Textract API\relax }}{12}{figure.caption.7}% 
+\ttl@tocsep 
+\contentsline {figure}{\numberline {\relax 4.1}{\ignorespaces Rekursionsbaum bei der Berechnung der Levenshtein-Distanz\relax }}{21}{figure.caption.8}% 
+\contentsline {figure}{\numberline {\relax 4.2}{\ignorespaces Backtracking im Wagner-Fischer-Algorithmus\relax }}{27}{figure.caption.9}% 
+\ttl@tocsep 
+\ttl@tocsep 
