@@ -1,0 +1,20 @@
+\vspace {-\cftbeforepartskip }
+\babel@toc {ngerman}{}
+\contentsline {chapter}{\numberline {1}{Einf\IeC {\"u}hrung}}{1}{chapter.1}% 
+\contentsline {section}{\numberline {1.1}{Betriebsbeschreibung}}{1}{section.1.1}% 
+\contentsline {section}{\numberline {1.2}{Software}}{1}{section.1.2}% 
+\contentsline {subsection}{\numberline {1.2.1}{d.capture batch}}{1}{subsection.1.2.1}% 
+\contentsline {subsection}{\numberline {1.2.2}{d.classify}}{2}{subsection.1.2.2}% 
+\contentsline {chapter}{\numberline {2}{Amazon Textract}}{5}{chapter.2}% 
+\contentsline {section}{\numberline {2.1}{Motivation}}{5}{section.2.1}% 
+\contentsline {section}{\numberline {2.2}{Einf\IeC {\"u}hrung}}{6}{section.2.2}% 
+\contentsline {subsection}{\numberline {2.2.1}{Block-Objekte}}{7}{subsection.2.2.1}% 
+\contentsline {subsection}{\numberline {2.2.2}{Einrichtung von Amazon Textract in AWS}}{8}{subsection.2.2.2}% 
+\contentsline {subsection}{\numberline {2.2.3}{Limitierungen}}{10}{subsection.2.2.3}% 
+\contentsline {section}{\numberline {2.3}{Synchrone Texterkennung}}{11}{section.2.3}% 
+\contentsline {section}{\numberline {2.4}{Asynchrone Texterkennung}}{12}{section.2.4}% 
+\contentsline {section}{\numberline {2.5}{Cloud-Dienst}}{14}{section.2.5}% 
+\contentsline {section}{\numberline {2.6}{Statistische Auswertung}}{14}{section.2.6}% 
+\contentsline {subsection}{\numberline {2.6.1}{Geschwindigkeit}}{14}{subsection.2.6.1}% 
+\contentsline {subsection}{\numberline {2.6.2}{Erkennungsqualit\IeC {\"a}t}}{15}{subsection.2.6.2}% 
+\contentsline {chapter}{\numberline {3}{Fazit \& Ausblick}}{25}{chapter.3}% 

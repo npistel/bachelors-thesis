@@ -105,7 +105,7 @@ cv::Mat reconstruct_image(const cv::Mat& original, const std::vector<std::vector
 
 int main(int argc, char* argv[])
 {
-	cv::Mat img = cv::imread("img/retro_pepe.png");
+	cv::Mat img = cv::imread("img/lena2.jpg");
 	if (img.empty())
 	{
 		std::cout << "could not open image" << std::endl;
