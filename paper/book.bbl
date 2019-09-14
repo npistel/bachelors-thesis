@@ -1,43 +1,18 @@
-\begin{thebibliography}{7}
+\begin{thebibliography}{2}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
 
-\bibitem[3(2019)]{3}
-\emph{Amazon Textract Developer Guide}, 2019.
-\newblock Online erhältlich unter
-  \url{https://docs.aws.amazon.com/textract/latest/dg/textract-dg.pdf};
-  abgerufen am 7. Juni 2019.
+\bibitem[Jerry~Slocum(2006)]{sloson}
+Dic~Sonneveld Jerry~Slocum.
+\newblock \emph{The 15 Puzzle Book: How it Drove the World Crazy}.
+\newblock Slocum Puzzle Foundation, 2006.
 
-\bibitem[4(2019)]{4}
-\emph{Dokumentation d.classify}, 2019.
-
-\bibitem[5(2019)]{5}
-\emph{Administrationshandbuch d.capture batch Programmierung}, 2019.
-
-\bibitem[6(2019)]{6}
-\emph{Anwenderhandbuch d.capture batch Anwendung}, 2019.
-
-\bibitem[7(2019)]{7}
-\emph{Administrationshandbuch d.capture batch Administration}, 2019.
-
-\bibitem[Seiji(2019)]{1}
-Fujimoto Seiji.
-\newblock Can we optimize the wagner-fischer algorithm?
-\newblock Website, 2019.
-\newblock Online erhältlich unter
-  \url{https://ceptord.net/wagner-fischer/index.html}; abgerufen am 11. Juni
-  2019.
-
-\bibitem[und Michael J.~Fischer(1974)]{2}
-Robert A.~Wagner und Michael J.~Fischer.
-\newblock The string-to-string correction problem.
-\newblock \emph{Journal of the Association for Computing Machinery},
-  21\penalty0 (1):\penalty0 168--178, 1974.
-\newblock Online erhältlich unter
-  \url{http://www.inrg.csie.ntu.edu.tw/algorithm2014/homework/Wagner-74.pdf};
-  abgerufen am 14. Juni 2019.
+\bibitem[Perelman(1988)]{perelman}
+Yakov~Isidorovich Perelman.
+\newblock \emph{Fun with Maths and Physics : Brain Teasers Tricks Illusions}.
+\newblock MIR Publishers (Moscow), 1988.
 
 \end{thebibliography}

@@ -67,48 +67,56 @@ basicstyle=\ttfamily\small,
 
 \cleardoublepage
 \chapter*{Abstract}
-Im Rahmen der Praxisphase wurde ein 12-wöchiges Praktikum bei der Classcon Consulting GmbH absolviert. Da sich das Unternehmen hauptsächlich mit Dokumentklassifizierung beschäftigt, sind die in diesem Bericht beschriebenen Aufgaben auch in diesem Bereich angesiedelt. Dabei wurde sich zunächst mit AWS Textract - einem neuen OCR Dienst von Amazon - beschäftigt. Als Ergebnis wurde ein Cloud-Dienst entwickelt, welcher Dokumente asynchron mit Textract auswertet und das Ergebnis in eine betriebsinterne XML-Struktur schreibt, welche zur weiteren Klassifizierung von anderen Diensten wieder herangezogen wird. Der Dienst wurde ausführlich getestet und die Ergebnisse, welche der Dienst mit bestimmten Beispieldokumenten liefert, protokolliert. Nach Abschluss der ersten Aufgabe wurde sich noch mit der statistischen Auswertung der Attributsextraktion der Klassifizierungssoftware beschäftigt, womit auch die Ergebnisse des Dienstes ausgewertet wurden und damit die Erkennungsqualität bewertet werden kann.
+Nope.
 
 \tableofs
 \lstlistoflistings
 
 \mainmatter
 
-\chapter{Einführung}
-\section{Betriebsbeschreibung}
-Die Classcon Consulting GmbH ist ein Tochterunternehmen der d.velop AG. Dabei fokussiert sich die Classcon Consulting GmbH auf die teil- und vollautomatische Erschließung von Dokumenten. Dabei wird auf verschiedenste Ansätze aus dem Bereich der maschinellen Klassifizierung und Datenextraktion aufgesetzt. Des Weiteren hilft die Classcon Consulting GmbH dabei, Geschäftsprozesse zu automatisieren, um die Wettbewerbsposition der Kunden zu verbessern.
-\section{Software}
-Die Lösungen der Classcon Consulting GmbH umfassen das Capturing und das automatische Klassifizieren und Extrahieren von Daten aus Dokumenten. Diese Lösungen sind hauptsächlich auf zwei Softwarepakete aufgeteilt: d.capture batch und das Hauptprodukt der Classcon Consulting GmbH - d.classify.
-\subsection{d.capture batch}
-Die d.capture batch stellt das Hauptprodukt der d.velop AG dar und ist ein Softwarepaket, welches die Funktionalität einer Scan-Software durch weitere Funktionalitäten ergänzt. Dazu gehört die Texterkennung durch eine OCR-Engine, die Validierung der erkannten Daten mit Abgleich an eine Datenbank und das Exportieren der Daten in gängige Warenwirtschaftssysteme. Die d.capture batch arbeitet stapelorientiert. Ein Stapel gehört einer Stapelklasse an, welche beschreibt, wie die Dokumente eines Stapels verarbeitet werden sollen. Bei der Verarbeitung werden mehrere Positionen (wie z.\,B. Texterkennung oder Validierung) für jedes Dokument im Stapel sequenziell abgearbeitet. Es können auch eigene Positionen von Hand programmiert werden, wozu die d.capture batch eine API bereitstellt, die in VBScript ansprechbar ist.
+\chapter{Einleitung}
+Schiebepuzzles wie das 15-Puzzle haben zum Ende des 19. Jahrhunderts das Interesse vieler amerikanischer Puzzle-Enthusiasten geweckt\cite{perelman,sloson} Heutzutage gibt es solche Schiebepuzzles in vielen Varianten. Dazu gehört die weitverbreitete Variante, bei der es nicht das Ziel ist, Zahlen aufsteigend zu sortieren, sondern bei dem das Puzzle aus einem Bild besteht, welches in quadratische Stücke aufgeteilt und durcheinander gemischt wurde. Das Originalbild lässt sich erst dann komplett erkennen, nachdem die Puzzlestücke in die richtige Reihenfolge gebracht wurden.
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.60\textwidth]{img/dcapture_positionen.png}
-    \caption{Eine Stapelklasse in d.capture batch mit 5 Positionen}
-    \label{fig-dcapture-positionen}
+    \subfloat[15-Puzzle mit Zahlen (gemischt)\label{fig-15-puzzle-numbers-scrambled}]{
+      \includegraphics[width=0.25\linewidth]{img/15-puzzle-numbers-scrambled.png}
+    }
+    \quad\quad\quad\quad
+    \subfloat[15-Puzzle mit Zahlen (gelöst)\label{fig-15-puzzle-numbers-solved}]{
+      \includegraphics[width=0.25\linewidth]{img/15-puzzle-numbers-solved.png}
+    }
+    \\
+    \subfloat[15-Puzzle mit Bild (gemischt)\label{fig-15-puzzle-image-scrambled}]{
+        \includegraphics[width=0.25\linewidth]{img/fig-15-puzzle-image-scrambled.png}
+    }
+    \quad\quad\quad\quad
+    \subfloat[15-Puzzle mit Bild (gelöst)\label{fig-15-puzzle-image-solved}]{
+        \includegraphics[width=0.25\linewidth]{img/fig-15-puzzle-image-solved.png}
+    }
+    \caption{Zwei Arten des 15-Puzzle}
+    \label{fig-15-puzzle}
 \end{figure}
-\subsection{d.classify}
-Die Klassifizierungssoftware, welche von d.capture batch verwendet wird, stellt mit d.classify das Hauptprodukt der Classcon Consulting GmbH dar. Die Klassifizierung per d.classify kann als Position einer Stapelklasse in d.capture batch eingebunden werden. Die Software lässt sich aber auch unabhängig von anderen d.velop Produkten verwenden.
+In der Informatik ist das Lösen von Schiebepuzzles ein klassisches Problem der künstlichen Intelligenz und ein übliches Beispielproblem für die Modellierung und Illustration von Suchalgorithmen. Dabei beschränkt sich die meiste Literatur auf das Lösen des klassischen Schiebepuzzles mit Zahlen. Um diese Lösungsverfahren auf ein Schiebepuzzle mit Bild zu übertragen, muss also zuvor seperat das Originalbild rekonstruiert werden.
 
-Die Klassifizierung in d.classify läuft entweder rein textbasiert ab oder mit grafischer Unterstützung. Bei einer reinen textbasierten Klassifizierung wird anhand des per OCR erkannten Textes probiert, Attribute (wie z.\,B. Rechnungsnummer oder Rechnungsdatum) herauszufiltern. Dazu werden Ausprägungen dieser Attribute angelegt, welche definieren, wann ein Teil des Textes als ein bestimmtes Attribut gilt. Diese Ausprägungen werden entweder als reguläre Ausdrücke formuliert (was sich z.\,B. gut dazu eignet, um ein Datum oder eine E-Mail-Adresse auf einem Dokument zu erkennen) oder als Stringvergleich mit einer gegebenen Maximalabweichung von einem Referenzstring (Fuzzy-String-Matching). Um die Suche nach Attributen zu verbessern, werden bei der grafisch unterstützten Suche nur die Teile des Textes durchsucht, die sich in einem bestimmten grafischen Bereich des Dokumentes befinden. Dieser Bereich wird entweder absolut zur Seite von Hand angegeben (so könnte man z.\,B. für das Attribut Seitenzahl jede Ecke und Kante des Dokumentes als eine solche Ausprägung anlegen) oder bezieht sich relativ auf einen bestimmten Teil des Dokumentes. Dieser Teil wird als Anker bezeichnet und kann abermals nach den gleichen Verfahren im Dokument gefunden werden. Somit lässt sich z.\,B. zunächst das Wort Telefonnummer auf dem Dokument suchen, dieses wird dann als Anker für die eigentliche Ausprägung (die Nummer) verwendet, dafür wird ein Suchbereich relativ zum Anker angegeben (z.\,B. rechts vom Wort).
+In dieser Arbeit wird genau solch ein zweischrittiger Ansatz erläutert und analyisert.
+\section{Problemstellung}
+In dieser Arbeit wird das Problem anhand des allgemeinen $N$-Puzzles betrachtet mit $N=m\times n-1$ (für das 15-Puzzle gilt somit $m=n=4$).
+\marginpar{$m$: Anzahl der Zeilen}
+\marginpar{$n$: Anzahl der Spalten}
+Die $N$ Puzzlestücke sind dabei rechteckige Teile eines Bildes. Diese müssen nicht zwingend quadratisch sein, sollten aber alle das gleiche Seitenverhältnis aufweisen, damit diese als Teil eines Schiebepuzzles auch wirklich alle verschiebbar sind und sich somit in den Zustand eines Schiebepuzzles zusammensetzen lassen.
 
-Im unteren Beispiel ist zu sehen, wie eine Rechnungsnummer von einem Dokument extrahiert wird. Zunächst wird das Wort Rechnungsnummer als Ankerbegriff festgelegt. Dieser Begriff wird in dem roten Bereich auf dem Dokument gesucht (der rote Bereich war hier die obere Hälfte des Dokumentes). Der Begriff wurde gefunden und grün markiert. Zur eigentlichen Extraktion wird nun mithilfe des gefundenen Ankerbegriffes ein neuer Bereich (blau markiert) unterhalb des Ankers definiert. In diesem Begriff wird die eigentliche Rechnungsnummer gesucht. Dazu wird in diesem Bereich lediglich mit einem regulären Ausdruck nach einer Zeichenfolge gesucht, die nur aus den Ziffern 0-9 besteht.
-\begin{figure}[H]
-    \centering
-    \subfloat[Festlegung des Ankerbegriffes\label{fig-classify-anker}]{
-      \includegraphics[width=0.48\linewidth]{img/dclassify_anker.png}
-    }
-    \hfill
-    \subfloat[Extraktionseinstellungen\label{fig-classify-extraktion}]{
-      \includegraphics[width=0.48\linewidth]{img/dclassify_extraktion.png}
-    }
-    \hfill
-    \subfloat[Erkennung im Dokument\label{fig-dclassify-rechnungsnummer}]{
-      \includegraphics[width=1.0\linewidth]{img/dclassify_rechnungsnummer.png}
-    }
-    \caption{Extraktion einer Rechnungsnummer in d.classify}
-    \label{fig-dclassify}
-\end{figure}
+Die Position des leeren Feldes ist dabei nicht zwingend fest (so wie in \ref{fig-15-puzzle} z.~B. immer unten-rechts) und kann variieren. Diese Position ist außerdem unbekannt und muss damit anhand der Zusammensetzung der restlichen $N$ Puzzleteilen und den bekannten Dimensionen des Puzzles ausgemacht werden.
+
+Außerdem wird noch eine $m\times n$ Anordnung der $N$ Puzzlestücke (und dem leeren Feld) als Anfangszustand vorgegeben.
+
+Folgende Fragen sollen dann (in dieser Reihenfolge) beantwortet werden:
+\begin{enumerate}
+    \item Wie sah das originale Bild aus und wo befindet sich das leere Feld im Ausgangsbild (wo fehlt also ein Stück des Bildes)?
+    \item Ist das Puzzle lösbar, lässt sich also der gegebene Anfangszustand unter einer endlichen Sequenz von legalen Zügen (also ausschließlich durch das hin- und herschieben von Puzzlestücken) in den zuvor ermittelten Endzustand transformieren?
+    \item Wie viele Schritte (Verschiebungen) sind mindestens nötig, um das Puzzle zu lösen und wie sieht ein optimaler Lösungsweg (ein Lösungsweg mit der kleinstmöglichen Anzahl an Verschiebungen) aus?
+\end{enumerate}
+\section{Zielsetzung}
+\section{Aufbau}
 \chapter{Amazon Textract}
 \section{Motivation}
 Bevor ein Dokument klassifiziert werden kann, muss zunächst der Text des Dokumentes extrahiert werden. Diese Texterkennung (OCR vom englischen Optical Character Recognition) wird von einer separaten OCR-Engine übernommen. Normalerweise müssten Kunden, die ihre Dokumente automatisiert klassifizieren lassen möchten, somit eine Lizenz für eine von d.capture unterstützte OCR-Engine kaufen, um das volle Softwarepaket verwenden zu können. Außerdem muss die Engine lokal beim Kunden installiert werden, was weiteren Aufwand verursacht und mehr Rechenleistung beim Kunden voraussetzt. Die beiden aktuell unterstützten OCR-Engines sind ABBYY FineReader und Tesseract OCR von Google.
@@ -582,13 +590,6 @@ Meine erworbenen Fähigkeiten und Kenntnisse aus dem Studium konnte ich vielseit
 
 Insgesamt hat sich die Praxisphase bei der Classcon Consulting GmbH als ein interessantes, abwechslungsreiches, forderndes und durchaus empfehlenswertes Praktikum herausgestellt.
 
-\cite{1}
-\cite{2}
-\cite{3}
-\cite{4}
-\cite{5}
-\cite{6}
-\cite{7}
 \backmatter
 
 \preparebibliography

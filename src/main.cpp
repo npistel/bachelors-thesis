@@ -12,7 +12,7 @@
 #include "Puzzle.hpp"
 #include "State.hpp"
 
-constexpr int m = 3; // rows
+constexpr int m = 4; // rows
 constexpr int n = m; // cols
 constexpr int N = m * n;
 
@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
-	Puzzle p(img, m, n);
+	Puzzle p(img, m, n, N-1);
 	p.shuffle(true);
 	
 	cv::namedWindow("source_image");
