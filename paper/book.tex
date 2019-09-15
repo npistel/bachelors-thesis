@@ -99,7 +99,7 @@ Schiebepuzzles wie das 15-Puzzle haben zum Ende des 19. Jahrhunderts das Interes
 In der Informatik ist das Lösen von Schiebepuzzles ein klassisches Problem der künstlichen Intelligenz und ein übliches Beispielproblem für die Modellierung und Illustration von Suchalgorithmen. Dabei beschränkt sich die meiste Literatur auf das Lösen des klassischen Schiebepuzzles mit Zahlen. Um diese Lösungsverfahren auf ein Schiebepuzzle mit Bild zu übertragen, muss also zuvor seperat das Originalbild rekonstruiert werden.
 
 In dieser Arbeit wird genau solch ein zweischrittiger Ansatz erläutert und analyisert.
-\section{Problemstellung}
+\section{Problemstellung und Zielsetzung}
 In dieser Arbeit wird das Problem anhand des allgemeinen $N$-Puzzles betrachtet mit $N=m\times n-1$ (für das 15-Puzzle gilt somit $m=n=4$).
 \marginpar{$m$: Anzahl der Zeilen}
 \marginpar{$n$: Anzahl der Spalten}
@@ -115,84 +115,23 @@ Folgende Fragen sollen dann (in dieser Reihenfolge) beantwortet werden:
     \item Ist das Puzzle lösbar, lässt sich also der gegebene Anfangszustand unter einer endlichen Sequenz von legalen Zügen (also ausschließlich durch das hin- und herschieben von Puzzlestücken) in den zuvor ermittelten Endzustand transformieren?
     \item Wie viele Schritte (Verschiebungen) sind mindestens nötig, um das Puzzle zu lösen und wie sieht ein optimaler Lösungsweg (ein Lösungsweg mit der kleinstmöglichen Anzahl an Verschiebungen) aus?
 \end{enumerate}
-\section{Zielsetzung}
-\section{Aufbau}
-\chapter{Amazon Textract}
-\section{Motivation}
-Bevor ein Dokument klassifiziert werden kann, muss zunächst der Text des Dokumentes extrahiert werden. Diese Texterkennung (OCR vom englischen Optical Character Recognition) wird von einer separaten OCR-Engine übernommen. Normalerweise müssten Kunden, die ihre Dokumente automatisiert klassifizieren lassen möchten, somit eine Lizenz für eine von d.capture unterstützte OCR-Engine kaufen, um das volle Softwarepaket verwenden zu können. Außerdem muss die Engine lokal beim Kunden installiert werden, was weiteren Aufwand verursacht und mehr Rechenleistung beim Kunden voraussetzt. Die beiden aktuell unterstützten OCR-Engines sind ABBYY FineReader und Tesseract OCR von Google.
+Dazu wird ein vollautomatischer Schiebepuzzlelöser programmiert, der genau diese Schritte abarbeitet und am Ende bei einer gefundenen (optimalen) Lösung das Ergebnis dem Benutzer präsentiert.
 
-Eine mögliche neue Alternative ist, dass die Texterkennung nicht lokal beim Kunden durchgeführt wird, sondern zentral auf einem d.velop-Server. Dazu werden die Dokumente zum Server geschickt, dort wird eine OCR ausgeführt und das Ergebnis (in Form von Klartext und Metadaten wie Positionen der Zeichen auf dem Dokument) wird wieder zum Kunden gesendet. Das Ergebnis läuft dann weiter die normale d.capture Prozesskette durch.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1.1\textwidth]{img/textract_cloudprocessing.png}
-    \caption{Einstellung einer Stapelklasse mit Cloud-Processing Position}
-    \label{fig-textract-cloudprocessing}
-\end{figure}
-Die Durchführung der OCR ist eine Position einer Prozess-Sequenz, welche auf dem d.velop Server ausgeführt wird. Eine solche Prozess-Sequenz wird dann von den Kunden abonniert. Neben vordefinierten Prozess-Sequenzen können auch auf Kunden spezifizierte Prozess-Sequenzen angelegt werden.
+Programmiert wird der Puzzlelöser in der Programmiersprache C++. Zur Analyse und Verarbeitung des Bildes wird die Open-Source Computer-Vision Bibliothek OpenCV verwendet.
+\section{Aufbau der Arbeit}
+Zunächst werden einige Grundlagen angesprochen, die den Umgang mit OpenCV erläutern und unter anderem aufklären, wie Bilder in OpenCV dargestellt und bearbeitet werden können.
 
-Bei der OCR-Position kann abermals zwischen ABBYY FineReader und Tesseract ausgewählt werden. Als neue Alternative zu den beiden OCR-Engines (jedoch nur beim Cloud-Processing und nicht bei der lokalen Installation beim Kunden) soll nun noch der neue OCR-Dienst von Amazon Web Services (AWS) eingesetzt werden: Amazon Textract.
+Da zur Rekonstruktion Informationen wie die Kompatibilität (oder auch Ähnlichkeit) zweier Puzzlestücke notwendig ist, werden daraufhin einige Metriken vorgestellt, die diese Information repräsentieren.
 
-Das Angebot von Amazon überzeugt nicht nur preislich, sondern hat auch den Vorteil, dass die eigentliche Texterkennung bei Amazon stattfindet, wodurch die Hardwareanforderungen bei d.velop deutlich sinken. Ein möglicher Geschwindigkeitsverlust wird dabei akzeptiert, da die Cloud-Processing Lösung sowieso nicht schneller sein wird, als eine OCR-Engine die lokal im Kundennetz installiert wurde.
-\section{Einführung}
-Bevor mit der Programmierung eines Cloud-Dienstes für Amazon Textract begonnen werden kann, sollte geklärt werden, wie die von AWS bereitgestellte API anzusprechen ist. An dieser Stelle sei angemerkt, dass sich Amazon Textract zum Zeitpunkt dieses Praktikums noch in der Testphase befindet. Somit haben sich im Laufe des Praktikums einige Einschränkungen des Dienstes bemerkbar gemacht, auf welche in diesem Bericht noch eingegangen wird. Zum aktuellen Zeitpunkt ist Amazon Textract außerdem nur auf englische Texte ausgelegt.
+Daraufhin wird die Rekonstruktion des Bildes weiter erläutert und ein Greedy Verfahren vorgestellt, welches dieses Problem mithilfe der zuvor berechneten Metriken löst.
 
-Amazon Textract ist in der Lage Dokumente sowohl synchron, als auch asynchron zu verarbeiten. Dabei ist zu beachten, dass die synchrone Verarbeitung nur die Bildformate JPG und PNG unterstützt und somit nur Single-Page-Dokumente. Möchte man Multi-Page-Dokumente verarbeiten, so muss eine asynchrone Verarbeitung gestartet werden. Diese unterstützt neben JPG und PNG auch die Verarbeitung von PDF-Dokumenten, was somit schließlich auch das Format für Multi-Page-Dokumente ist. Textract unterscheidet bei der Verarbeitung zwischen reiner Texterkennung (\texttt{TextDetection}) und einer Verarbeitung, die neben der Texterkennung auch noch eine erste semantische Analyse des Textes beinhaltet (\texttt{DocumentAnalysis}). Die Texterkennung liefert für das gesamte Dokument die einzelnen Seiten, Zeilen und Wörter des Textes als sogenannte Blocks. Die Dokumentanalyse liefert neben den reinen Textdaten wahlweise auch noch Key-Value-Paare (z.\,B. Name: Max Mustermann mit Name als Key und Max Mustermann als Value) oder Tabellen und Tabellenzellen mit dem entsprechenden Inhalt. Die möglichen Eigenschaften, die bei der Dokumentanalyse analysiert werden sollen, werden aktiv weiterentwickelt. So ist zum Ende des Praktikums noch die neue Funktion hinzugekommen, dass man bei der Dokumentanalyse auch noch den Namen und Inhalt von Checkboxen und Radiobuttons auslesen lassen kann.
-\section{Block-Objekte}
-Block-Objekte formen zusammen die Datenstruktur, mit der Textract auf eine Anfrage antwortet. Als Antwort auf eine Anfrage (egal ob reine Texterkennung oder Dokumentanalyse und synchron oder asynchron) wird eine Liste von Block-Objekten zurückgegeben, welche in Leserichtung (von oben nach unten und von links nach rechts) geordnet ist (da Textract zum aktuellen Zeitpunkt nur für englische Dokumente gedacht ist, ist die Leserichtung des Dienstes nicht einstellbar). Auch wenn jeder Block in der API den gleichen Datentyp (\texttt{Block}) besitzt, enthält jeder Block ein \texttt{BlockType} Feld, welches den genauen Blocktypen angibt. Dabei wird unterschieden zwischen \texttt{PAGE}, \texttt{LINE} und \texttt{WORD} (Ergebnisse der Texterkennung), als auch \texttt{KEY\_VALUE\_SET}, \texttt{TABLE} und \texttt{CELL} (Ergebnisse der Dokumentanalyse).
+Im nächsten Schritt wird das Puzzle mit seinem Anfangs- und Endzustand in ein äquivalentes Schiebepuzzle mit Zahlen übersetzt. Damit werden die nächsten Schritte anhand dem klassischen Zahlenpuzzle (jedoch weiterhin mit beliebigen Dimensionen und beliebigem Anfangs- und Endzustand) gezeigt.
 
-Jeder Block wird in Form einer JSON-Struktur als Antwort übertragen. Die fertige Antwort in der API enthält dann bereits eine Liste von den deserialisierten JSON-Blöcken. Neben den Blöcken enthält die Antwort auch Metadaten, die das gesamte Dokument betreffen (z.\,B. die Anzahl der Seiten). Es folgt eine Übersicht der (relevanten) Felder eines Blocks (dem Feld \texttt{BlockType} ausgeschlossen).
-\begin{itemize}
-    \item \texttt{Id}: Jeder Block besitzt eine eindeutige Kennung in Form einer Zeichenkette. Diese Id wird genutzt, um die Beziehungen zwischen Blöcken anzugeben.
-    \item \texttt{Page}: Die Seitenzahl, auf dem der Inhalt des Blocks zu finden ist.
-    \item \texttt{Text}: Der Textinhalt des Blocks (nur für Blöcke der Typen \texttt{LINE} und \texttt{WORD}).
-    \item \texttt{Confidence}: Ein Prozentwert, der angibt, wie sicher sich Textract in der Erkennung des Blocks ist.
-    \item \texttt{Geometry}: Die Geometrie, die die Position des Blocks auf der Seite angibt. Ein Geometrieobjekt enthält sowohl ein Polygon zur genauen Beschreibung der Geometrie, als auch eine Axis-Aligned-Bounding-Box (AABB) zur groben Beschreibung. Das Polygon besteht aus einer Liste von Punkten mit x- und y-Koordinate, während die AABB die obere linke Ecke und die Breite und Höhe des Rechtecks angibt. Alle Angaben (sowohl die Punkte, also auch die Angaben des Rechtecks) sind Werte aus dem Intervall $[0,1]$ und geben lediglich die relative Position auf der Seite an. Zur Berechnung der absoluten Angaben wird somit die Breite und Höhe der Seite benötigt. Durch die Multiplikation mit der Seitenbreite (für x-Koordinaten und Breitenangaben) bzw. mit der Seitenhöhe (für y-Koordinaten und Höhenangaben) bekommt man somit absolute Werte.
-    \item \texttt{Relationships}: Eine Liste von \texttt{Relationship}-Objekten. Aktuell ist diese Liste entweder leer (der Block steht in keiner Beziehung zu anderen Blöcken) oder besitzt exakt ein Element. Dieses \texttt{Relationship}-Objekt besitzt Informationen darüber welche Art von Beziehung vorliegt. Dieser Beziehungstyp ist aktuell entweder \texttt{CHILD}, was eine Parent-Child-Relationship zwischen dem aktuell betrachteten Block und denen im \texttt{Relationship}-Objekt enthaltenen Blöcken darstellt, oder \texttt{VALUE}, wenn der aktuell betrachtete Block ein \texttt{KEY}-Block ist.
-    
-    Die eigentlichen Blöcke, welche zum betrachteten Block dann in Beziehung stehen, sind im \texttt{Relationship}-Objekt dann als Liste von Strings aufgeführt. Ein Element dieser Liste gibt dann die Id des Child-Blocks als Zeichenkette an.
-\end{itemize}
-Damit ergibt sich die komplette Struktur eines Dokumentes. Jeder Page-Block einer entsprechenden Seite im Dokument ist die Root-Node eines Baums, der die Struktur dieser Seite beschreibt. Die Child-Nodes eines Page-Blocks sind dann die Zeilen (Line-Block) der entsprechenden Seite. Die Child-Nodes eines Line-Blocks sind letztendlich die Wörter (Word-Block), die in dieser Zeile stehen. Es ergibt sich für jede Seite im Dokument ein (gerichteter) Baum der Maximaltiefe zwei: Die Seite als Root-Node, die Zeilen als Child-Nodes der Seite und die Wörter als Child-Nodes der Zeilen. An dieser Stelle sei noch angemerkt, dass die Reihenfolge der Child-Nodes in einem Block nicht der Leserichtung entspricht (die Child-Nodes und damit Wörter einer Zeile sind somit nicht unbedingt von links nach rechts angeordnet). Die Reihenfolge, in der die Blöcke von Amazon als Antwort zurückkommen, bleibt jedoch weiterhin in Leserichtung.
+Es wird dann erläutert, wie sich die Lösbarkeit eines Schiebepuzzles bestimmen lässt. Zusätzlich wird geklärt, wie sich zufällige Schiebepuzzle so generieren lassen, dass diese wahlweise immer lösbar oder immer unlösbar sind.
 
-Die folgende Abbildung zeigt den entstehenden Baum von einem Text, der aus zwei Zeilen besteht.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{img/textract_tree.png}
-    \caption{Baum von Block-Objekten}
-    \label{fig-textract-tree}
-\end{figure}
-\section{Einrichtung von Amazon Textract in AWS}
-Da Amazon Textract zum Zeitpunkt des Praktikums sich noch in der Testphase befindet, haben normale AWS-Accounts standardmäßig keinen Zugriff auf den Dienst. Um an der (geschlossenen) Testphase teilnehmen zu können, muss eine Anfrage auf Teilnahme an Amazon gesendet werden. Sobald der Account dazu berechtigt ist, an der Testphase von Amazon Textract teilzunehmen, muss ein entsprechender Benutzer (IAM User) angelegt werden, der die Rechte bekommt, Amazon Textract zu benutzen. Dies wird im AWS Identity and Access Management (IAM) Dienst konfiguriert. Neben \texttt{AmazonTextractFullAccess} werden auch noch nötige Berechtigungen für Amazon S3 (der Cloudspeicher von AWS), Amazon Simple Queue Service (SQS) und Amazon Simple Notification Service (SNS) gesetzt.
-
-Ist dies erledigt, so kann Amazon Textract bereits mit dem neu angelegten Benutzer ausprobiert werden. Dabei sollte jedoch noch beachtet werden, dass der Dienst in der Testphase nur in eingeschränkten Regionen verfügbar ist. Die einzige Region in Europa, die Textract unterstützt, ist Dublin (Irland).
-
-In der AWS-Konsole lässt sich Amazon Textract mithilfe einer Web-Oberfläche ausprobieren. Im Folgenden wurde eine Beispielrechnung als Bild (PNG-Datei) hochgeladen und ausgewertet.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{img/textract_aws_doc.png}
-    \caption{Rechnung mit den erkannten Zeilen (grau hinterlegt)}
-    \label{fig-textract-aws-doc}
-\end{figure}
-Als Ausgabe liefert Amazon den erkannten Text, die erkannten Key-Value-Paare und die erkannten Tabellen des Dokumentes. Hier abgebildet ist der erkannte Text (in Form der erkannten Zeilen).
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{img/textract_aws_ocr.png}
-    \caption{Texterkennung (Zeilen) einer Rechnung}
-    \label{fig-textract-aws-ocr}
-\end{figure}
-Um die API von Amazon Textract nun selber ansprechen zu können, benötigt man zunächst das AWS Command Line Interface (AWS CLI) und ein entsprechendes AWS Software Development Kit (SDK). Da die Software der d.velop AG und damit auch die Software der Classcon Consulting GmbH hauptsächlich in .NET programmiert sind (mit C\# als Programmiersprache), wird das entsprechende AWS SDK für .NET heruntergeladen und eingerichtet. Um das SDK nutzen zu können, wird ein Access-Key benötigt, der für jeden Benutzer neu generiert wird. Es wird also für den zuvor erstellten Benutzer mithilfe der AWS Management Konsole und dem IAM Dienst ein Access-Key generiert. Nach der Installierung des AWS CLI muss dieser Access-Key in die Datei \texttt{C:\textbackslash Users\textbackslash USERNAME\textbackslash .aws\textbackslash credentials} geschrieben werden. Außerdem muss die AWS Region (in unserem Fall Irland - Dublin) gesetzt werden. Dies geschieht in der Datei \texttt{C:\textbackslash Users\textbackslash USERNAME\textbackslash .aws\textbackslash config}. Dublin entspricht der Region \texttt{eu-west-1}.
-\section{Limitierungen}
-Amazon Textract weist mehrere Limitierungen auf, die auch im Laufe des Praktikums durch diverse Tests aufgefallen sind. Viele dieser Limitierungen gelten jedoch lediglich vorübergehend in der offiziellen Testphase von Textract. Es folgt eine Auflistung dieser nicht änderbaren Limitierungen.
-\begin{itemize}
-    \item Die maximale Dateigröße für Bilder (JPG oder PNG) beträgt 5 MB.
-    \item Die maximale Dateigröße für PDF-Dateien beträgt 500 MB.
-    \item Die maximale Anzahl der Seiten einer PDF-Datei beträgt 3000.
-    \item Die Minimalhöhe für Text, damit dieser auf einem Dokument erkannt werden kann, beträgt 15 Pixel.
-    \item Amazon Textract lässt eine maximale Rotation des Dokumentes von $10\,\%$ zu. Dokumente mit einer schlechteren Ausrichtung können nicht richtig erkannt werden.
-    \item Amazon Textract unterstützt keine Handschrifterkennung.
-    \item Die synchronen Operationen von Amazon Textract (\texttt{DetectDocumentText} und \texttt{AnalyzeDocument}) unterstützen nur die Bildformate JPG und PNG. Die asynchronen Operationen (\texttt{StartDocumentTextDetection} und \texttt{StartDocumentAnalysis}) unterstützen dazu auch noch PDF-Dateien.
-    \item Die maximale Anzahl an asynchronen Jobs, die gleichzeitig bearbeitet werden können ist in der Testphase auf $1$ begrenzt. Es ist also nicht möglich, in der Testphase von Amazon Textract wirklich asynchron zu arbeiten.
-    \item Die maximale Anzahl der Transaktionen pro Minute ist in der Testphase auf drei festgelegt.
-\end{itemize}
+Zum Schluss werden Suchalgorithmen aus der künstlichen Intelligenz vorgestellt, die das eigentliche Lösen des Puzzles übernehmen. Dazu werden sowohl uninformierte Suchalgorithmen, als auch informierte Suchalgorithmen (welche Heuristiken in ihre Suche mit einbeziehen) untersucht und verglichen. An dieser Stelle werden somit auch verschiedene Heuristiken für Schiebepuzzle vorgestellt.
+\chapter{Grundlagen}
+Help
 \chapter{Programmierung}
 Um sich mit der AWS API vertraut zu machen, wurde zunächst eine Windows-Forms Anwendung entwickelt, die synchrone Texterkennungs- und auch Dokumentanalyse-Anfragen an Amazon stellt. Damit werden zunächst nur Bilder unterstützt. Das Bild wird in der Anwendung dargestellt und die Ergebnisse von Amazon (in Form von Block-Objekten) werden in entsprechenden Tabellen aufgelistet. Eine Interaktion mit einem Block-Objekt (z.\,B. das Markieren einer Zelle einer Tabelle) führt dazu, dass der Inhalt des entsprechenden Blockes im Bild farblich markiert wird.
 \section{Synchrone Texterkennung}

@@ -1,24 +1,18 @@
 \vspace {-\cftbeforepartskip }
 \babel@toc {ngerman}{}
 \contentsline {chapter}{\numberline {1}{Einleitung}}{1}{chapter.1}% 
-\contentsline {section}{\numberline {1.1}{Problemstellung}}{2}{section.1.1}% 
-\contentsline {section}{\numberline {1.2}{Zielsetzung}}{2}{section.1.2}% 
-\contentsline {section}{\numberline {1.3}{Aufbau}}{2}{section.1.3}% 
-\contentsline {chapter}{\numberline {2}{Amazon Textract}}{3}{chapter.2}% 
-\contentsline {section}{\numberline {2.1}{Motivation}}{3}{section.2.1}% 
-\contentsline {section}{\numberline {2.2}{Einf\IeC {\"u}hrung}}{4}{section.2.2}% 
-\contentsline {section}{\numberline {2.3}{Block-Objekte}}{5}{section.2.3}% 
-\contentsline {section}{\numberline {2.4}{Einrichtung von Amazon Textract in AWS}}{6}{section.2.4}% 
-\contentsline {section}{\numberline {2.5}{Limitierungen}}{8}{section.2.5}% 
-\contentsline {chapter}{\numberline {3}{Programmierung}}{9}{chapter.3}% 
-\contentsline {section}{\numberline {3.1}{Synchrone Texterkennung}}{9}{section.3.1}% 
-\contentsline {section}{\numberline {3.2}{Asynchrone Texterkennung}}{10}{section.3.2}% 
-\contentsline {section}{\numberline {3.3}{Cloud-Dienst}}{12}{section.3.3}% 
-\contentsline {chapter}{\numberline {4}{Statistische Auswertung}}{14}{chapter.4}% 
-\contentsline {section}{\numberline {4.1}{Geschwindigkeit}}{14}{section.4.1}% 
-\contentsline {section}{\numberline {4.2}{Erkennungsqualit\IeC {\"a}t}}{14}{section.4.2}% 
-\contentsline {subsection}{\numberline {4.2.1}{Editierdistanz}}{15}{subsection.4.2.1}% 
-\contentsline {subsection}{\numberline {4.2.2}{Levenshtein-Distanz}}{15}{subsection.4.2.2}% 
-\contentsline {subsection}{\numberline {4.2.3}{Dynamische Programmierung}}{17}{subsection.4.2.3}% 
-\contentsline {subsection}{\numberline {4.2.4}{Relative Editierdistanz}}{24}{subsection.4.2.4}% 
-\contentsline {chapter}{\numberline {5}{Fazit}}{26}{chapter.5}% 
+\contentsline {section}{\numberline {1.1}{Problemstellung und Zielsetzung}}{2}{section.1.1}% 
+\contentsline {section}{\numberline {1.2}{Aufbau der Arbeit}}{2}{section.1.2}% 
+\contentsline {chapter}{\numberline {2}{Grundlagen}}{4}{chapter.2}% 
+\contentsline {chapter}{\numberline {3}{Programmierung}}{5}{chapter.3}% 
+\contentsline {section}{\numberline {3.1}{Synchrone Texterkennung}}{5}{section.3.1}% 
+\contentsline {section}{\numberline {3.2}{Asynchrone Texterkennung}}{6}{section.3.2}% 
+\contentsline {section}{\numberline {3.3}{Cloud-Dienst}}{8}{section.3.3}% 
+\contentsline {chapter}{\numberline {4}{Statistische Auswertung}}{10}{chapter.4}% 
+\contentsline {section}{\numberline {4.1}{Geschwindigkeit}}{10}{section.4.1}% 
+\contentsline {section}{\numberline {4.2}{Erkennungsqualit\IeC {\"a}t}}{10}{section.4.2}% 
+\contentsline {subsection}{\numberline {4.2.1}{Editierdistanz}}{11}{subsection.4.2.1}% 
+\contentsline {subsection}{\numberline {4.2.2}{Levenshtein-Distanz}}{11}{subsection.4.2.2}% 
+\contentsline {subsection}{\numberline {4.2.3}{Dynamische Programmierung}}{13}{subsection.4.2.3}% 
+\contentsline {subsection}{\numberline {4.2.4}{Relative Editierdistanz}}{20}{subsection.4.2.4}% 
+\contentsline {chapter}{\numberline {5}{Fazit}}{22}{chapter.5}% 
