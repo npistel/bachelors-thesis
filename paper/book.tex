@@ -16,6 +16,11 @@
 \usepackage{amssymb}        % Provides empty set symbol (\varnothing)
 \usepackage{colortbl}
 \usepackage{varwidth}
+\usepackage{xcolor}
+\usepackage{mathtools}
+\usepackage[export]{adjustbox}
+\usepackage{subfig}
+\usepackage{tikz}
 
 \title[Bericht]{Classcon Consulting GmbH}
 \subtitle{d.velop AG}
@@ -28,9 +33,9 @@
 \definecolor{xmlcomments}{rgb}{0.5,0.5,0.5}
 \definecolor{types}{rgb}{0.17,0.57,0.68}
 
-\lstset{language=[Sharp]C,
+\lstset{language=C++,
 captionpos=b,
-%numbers=left, %Nummerierung
+numbers=left, %Nummerierung
 %numberstyle=\tiny, % kleine Zeilennummern
 frame=lines, % Oberhalb und unterhalb des Listings ist eine Linie
 showspaces=false,
@@ -43,7 +48,7 @@ commentstyle=\color{greencomments},
 morekeywords={partial, var, value, get, set},
 keywordstyle=\color{bluekeywords},
 stringstyle=\color{redstrings},
-basicstyle=\ttfamily\small,
+basicstyle=\ttfamily\small
 }
 
 \makeatletter
@@ -105,7 +110,7 @@ In dieser Arbeit wird das Problem anhand des allgemeinen $N$-Puzzles betrachtet 
 \marginpar{$n$: Anzahl der Spalten}
 Die $N$ Puzzlestücke sind dabei rechteckige Teile eines Bildes. Diese müssen nicht zwingend quadratisch sein, sollten aber alle das gleiche Seitenverhältnis aufweisen, damit diese als Teil eines Schiebepuzzles auch wirklich alle verschiebbar sind und sich somit in den Zustand eines Schiebepuzzles zusammensetzen lassen.
 
-Die Position des leeren Feldes ist dabei nicht zwingend fest (so wie in \ref{fig-15-puzzle} z.~B. immer unten-rechts) und kann variieren. Diese Position ist außerdem unbekannt und muss damit anhand der Zusammensetzung der restlichen $N$ Puzzleteilen und den bekannten Dimensionen des Puzzles ausgemacht werden.
+Die Position des leeren Feldes ist dabei nicht zwingend fest (so wie in \ref{fig-15-puzzle} z.\,B. immer unten-rechts) und kann variieren. Diese Position ist außerdem unbekannt und muss damit anhand der Zusammensetzung der restlichen $N$ Puzzleteilen und den bekannten Dimensionen des Puzzles ausgemacht werden.
 
 Außerdem wird noch eine $m\times n$ Anordnung der $N$ Puzzlestücke (und dem leeren Feld) als Anfangszustand vorgegeben.
 
@@ -117,7 +122,7 @@ Folgende Fragen sollen dann (in dieser Reihenfolge) beantwortet werden:
 \end{enumerate}
 Dazu wird ein vollautomatischer Schiebepuzzlelöser programmiert, der genau diese Schritte abarbeitet und am Ende bei einer gefundenen (optimalen) Lösung das Ergebnis dem Benutzer präsentiert.
 
-Programmiert wird der Puzzlelöser in der Programmiersprache C++. Zur Analyse und Verarbeitung des Bildes wird die Open-Source Computer-Vision Bibliothek OpenCV verwendet.
+Programmiert wird der Puzzlelöser in der Programmiersprache C++. Zur Analyse und Verarbeitung des Bildes wird die Open Source Computer Vision Bibliothek OpenCV verwendet.
 \section{Aufbau der Arbeit}
 Zunächst werden einige Grundlagen angesprochen, die den Umgang mit OpenCV erläutern und unter anderem aufklären, wie Bilder in OpenCV dargestellt und bearbeitet werden können.
 
@@ -130,404 +135,394 @@ Im nächsten Schritt wird das Puzzle mit seinem Anfangs- und Endzustand in ein �
 Es wird dann erläutert, wie sich die Lösbarkeit eines Schiebepuzzles bestimmen lässt. Zusätzlich wird geklärt, wie sich zufällige Schiebepuzzle so generieren lassen, dass diese wahlweise immer lösbar oder immer unlösbar sind.
 
 Zum Schluss werden Suchalgorithmen aus der künstlichen Intelligenz vorgestellt, die das eigentliche Lösen des Puzzles übernehmen. Dazu werden sowohl uninformierte Suchalgorithmen, als auch informierte Suchalgorithmen (welche Heuristiken in ihre Suche mit einbeziehen) untersucht und verglichen. An dieser Stelle werden somit auch verschiedene Heuristiken für Schiebepuzzle vorgestellt.
-\chapter{Grundlagen}
-Help
-\chapter{Programmierung}
-Um sich mit der AWS API vertraut zu machen, wurde zunächst eine Windows-Forms Anwendung entwickelt, die synchrone Texterkennungs- und auch Dokumentanalyse-Anfragen an Amazon stellt. Damit werden zunächst nur Bilder unterstützt. Das Bild wird in der Anwendung dargestellt und die Ergebnisse von Amazon (in Form von Block-Objekten) werden in entsprechenden Tabellen aufgelistet. Eine Interaktion mit einem Block-Objekt (z.\,B. das Markieren einer Zelle einer Tabelle) führt dazu, dass der Inhalt des entsprechenden Blockes im Bild farblich markiert wird.
-\section{Synchrone Texterkennung}
-Die Dateien, die synchron mit Amazon Textract analysiert werden sollen, können entweder in Amazon S3-Buckets abgelegt werden und dann mit dem entsprechenden Namen in der Anfrage referenziert werden oder man überträgt ein Bild als Base64-codiertes Byte-Array. Dieses Byte-Array kann dann direkt als Eingabeparameter der Anfrage mitgegeben werden. Da zunächst nur die Funktionsweise des Dienstes getestet werden sollte, werden die Dokumente nicht nach Amazon S3 hochgeladen, sondern einfach als Byte-Array nach Amazon gesendet.
+\chapter{OpenCV Grundlagen}
+OpenCV (Open Source Computer Vision) ist eine Open Source Programmbibliothek, die mehr als 2500 optimierte Algorithmen aus den Bereichen Bildverarbeitung, maschinelles Sehen und maschinelles Lernen beinhaltet.\cite{opencv} OpenCV steht als freie Software (unter den Bedingungen der BSD-Lizenz) für die Programmiersprachen C++, Java, Python und MATLAB und den Betriebssystemen Windows, Linux, Android und Mac OS zur Verfügung. OpenCV wurde nativ in der Programmiersprache C++ geschrieben und bietet somit Schnittstellen an, die reibungslos mit der C++ Standard Template Library (STL) arbeiten.
 
-Als Anfrage wird \texttt{AnalyzeDocument} verwendet, womit neben dem reinen Text (Zeilen und Wörter) auch noch Formulardaten (Key-Value-Paare) und Tabellen (mit ihren Zellen) als Antwort zurückgegeben werden (dazu wird beim \texttt{AnalyzeDocumentRequest} als \texttt{FeatureTypes} \texttt{FORMS} und \texttt{TABLES} angegeben).
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1.0\textwidth]{img/textract_gui.png}
-    \caption{Auswertung eines Dokumentes mit Textract API}
-    \label{fig-textract-gui}
-\end{figure}
-Die Abbildung zeigt die Auswertung eines Dokumentes in der selbst programmierten Textract GUI. Die AABBs der vier verschiedenen Blocktypen (Zeilen, Wörter, Formulardaten und Tabellen) lassen sich per Checkboxen anzeigen. Um die Geometrie einzelner markierter Blöcke hervorheben zu können, werden die Blöcke bei der Auswertung der OCR-Antwort in ein \texttt{Dictionary} gespeichert (so wird in C\# eine generische \texttt{HashMap} bezeichnet), welches die Block-Id (ein String) auf das entsprechende Block-Objekt abbildet. Die jeweilige Block-Id eines Objektes wird in der GUI versteckt hinterlegt (als Eigenschaft einer Zeile oder Zelle der Tabellen). Damit lässt sich das Objekt bei Markierung in durchschnittlich konstanter Zeit direkt farbig hervorheben.
-\section{Asynchrone Texterkennung}
-Da der zu programmierende Dienst natürlich auch mehrseitige Dokumente unterstützen soll, wurde sich noch mit der asynchronen Texterkennung beschäftigt. Dazu wurde zunächst die eigene GUI soweit erweitert, dass diese asynchrone Anfragen an Amazon stellt.
-
-Da nicht alle Dokumente der Classcon Consulting GmbH im PDF-Format sind (das einzige mehrseitige Format, was von Amazon Textract unterstützt wird), sondern viele im TIF-Format sind, wurde zunächst eine Methode geschrieben, welche TIF-Dateien in PDF-Dateien umwandelt.
-
-Dokumente, die asynchron verarbeitet werden sollen, müssen in Amazon S3-Buckets liegen. Damit muss jedes Dokument vor der Texterkennung in einen solchen Bucket hochgeladen werden und am Ende sollte das Dokument auch wieder aus dem Bucket entfernt werden. Die asynchronen Klassen der Textract API weisen den Präfix \texttt{Start} auf, somit ist der asynchrone Request auf eine Texterkennung mit der Klasse \texttt{StartDocumentTextDetectionRequest} möglich. Sobald dieser Request fertig abgearbeitet wurde von Amazon, wird eine entsprechende Nachricht in ein (zuvor angelegtes) Amazon SNS Topic bekannt gegeben. Dieses Topic lässt sich mit einer Amazon SQS Queue überwachen (die Queue \textit{abonniert} das Topic). Die Nachricht lässt sich dann aus der Queue herauslesen. Bei einer erfolgreichen Verarbeitung findet sich in den Metadaten dann eine eindeutige \texttt{JobId}, welche als Parameter für einen \texttt{GetDocumentTextDetectionRequest} verwendet wird. Damit lässt sich das eigentliche Ergebnis der Texterkennung abfragen.
-
-Folgender Ausschnitt an C\# Code zeigt die grobe Vorgehensweise bei der asynchronen Texterkennung mit Amazon Textract.
-\begin{lstlisting}[caption=Asynchrone Texterkennung in Amazon Textract, label=lst:textract_async]
-using (var textractClient = new AmazonTextractClient(
-    ACCESS_KEY_ID,
-    SECRET_ACCESS_KEY,
-    RegionEndpoint.EUWest1
-))
-using (var sqsClient = new AmazonSQSClient(
-    ACCESS_KEY_ID,
-    SECRET_ACCESS_KEY,
-    RegionEndpoint.EUWest1
-))
-{
-    var startResp = textractClient.StartDocumentTextDetection(
-        new StartDocumentTextDetectionRequest {
-            DocumentLocation = new DocumentLocation {
-                S3Object = new S3Object {
-                    Bucket = BUCKET_NAME,
-                    Name = fileToOCR
-                }
-            }, NotificationChannel = new NotificationChannel {
-                RoleArn = ROLE_ARN,
-                SNSTopicArn = TOPIC_ARN
-            }
-        }
-    );
-    
-    bool jobFound = false;
-    do
-    {
-        foreach (var msg in sqsClient.ReceiveMessage(QUEUE_URL).Messages)
-        {
-            var body = JsonConvert.DeserializeObject<dynamic>(msg.Body);
-            var message = JsonConvert.DeserializeObject<dynamic>(body.Message);
-            var jobId = message.JobId;
-            var status = message.Status;
-
-            if (jobId == startResp.JobId)
-            {
-                jobFound = true;
-
-                if (status == "SUCCEEDED")
-                {
-                    string token = null;
-                    do
-                    {
-                        var getResp = textractClient.GetDocumentTextDetection(
-                            new GetDocumentTextDetectionRequest {
-                                JobId = jobId,
-                                NextToken = token
-                            }
-                        );
-
-                        foreach (var block in getResp.Blocks)
-                        {
-                            // Process block
-                        }
-
-                        token = getResp.NextToken;
-                    } while (token != null);
-                }
-
-                sqsClient.DeleteMessage(QUEUE_URL, msg.ReceiptHandle);
-                break;
-            }
-        }
-    } while (!jobFound);
-}
-\end{lstlisting}
-\section{Cloud-Dienst}
-Die Aufgabe des Dienstes ist es, für ausstehende Dokumente eine OCR durchzuführen und das Ergebnis der Texterkennung in eine XML-Struktur zu schreiben, welche dann später zur Klassifizierung wieder eingelesen und ausgewertet wird. Der Dienst arbeitet dabei mit mehreren Threads (jeder Thread übernimmt die Texterkennung eines Dokumentes), deren Anzahl konfigurierbar ist und standardmäßig zwischen (einschließlich) $2$ und $5$ liegt.
-
-Die betriebsinterne XML-Struktur, welche den erkannten Text eines Dokumentes speichert, ist dabei hierarchisch aufgebaut: Unter der Parent-Node befindet sich für jede Seite eine Page-Node mit Metadaten zur Seite (Seitenzahl, Höhe und Breite der Seite) und zwei weiteren Attributen, die den Inhalt der Seite beschreiben. Das erste Attribut enthält eine Aufzählung von Unicode Werten, welche letztendlich den kompletten Text der Seite ergeben. Das zweite Attribut beschreibt für jedes Unicode Zeichen das Rechteck (Left, Top, Width, Height), welches die Position des Zeichens auf der Seite angibt.
-
-Die Vorgehensweise des Dienstes (bzw. jedes Threads des Dienstes) kann dabei folgendermaßen beschrieben werden: Sofern ein Dokument zur Texterkennung aussteht, wird zunächst sichergestellt, dass die Datei vom Dateityp PDF ist (im Falle einer TIF-Datei wird diese in eine PDF-Datei umgewandelt). Daraufhin wird die Datei mit einem Globally Unique Identifier (GUID) versehen, damit sichergestellt wird, dass der Dateiname eindeutig ist. Die Datei wird in einen Amazon S3-Bucket hochgeladen und es wird eine asynchrone Texterkennungsanfrage (keine Dokumentanalyse, da wir nur Seiten, Zeilen und Wörter benötigen) an Textract gestellt. Es werden für jeden Page-Block in der XML-Struktur ein neues Page-Element angelegt und danach jeder Line-Block der Seite durchgegangen und der Unicode-Wert jedes Zeichens der Zeile notiert. Die Geometrie (das Rechteck) der Zeile wird gleichmäßig auf die Anzahl der Zeichen in der Zeile aufgeteilt, da Textract leider keine Möglichkeit bietet, das Rechteck eines einzelnen Zeichens abzufragen. Am Ende wird das Dokument im S3-Bucket wieder gelöscht und das Ergebnis der OCR (in Form der XML-Struktur) wird lokal gespeichert.
-\chapter{Statistische Auswertung}
-Da Amazon Textract als Alternative zu ABBYY FineReader oder Tesseract OCR eingesetzt werden soll, soll sowohl die Geschwindigkeit als auch die Erkennungsqualität des Dienstes ausgewertet und bewertet werden.
-\section{Geschwindigkeit}
-Da es zum Zeitpunkt des Praktikums leider nicht möglich ist, Dokumente in Textract parallel auszuwerten (da die Anzahl asynchroner Jobs auf $1$ limitiert ist), lässt sich noch keine Aussage über die Skalierbarkeit des Dienstes treffen. Die durchschnittliche Auswertungszeit eines Dokumentes mit nur einer Seite (inklusive dem Hochladen nach Amazon S3 und dem Erstellen der XML-Struktur) beträgt etwa $7$ Sekunden. Diese Zeit ist zwar schlechter als die von ABBYY FineReader (etwa $4$ Sekunden) und Tesseract OCR (etwa $5$ Sekunden), gilt aber trotzdem als akzeptabel. Dies ist damit zu begründen, dass die anderen beiden Dienste lokal (also im auf Servern im betriebsinternen Netzwerk) laufen, während die Kommunikation mit Textract über entfernte Amazon Server geht. Da Textract zudem in der Testphase in EU nur in Dublin (Irland) unterstützt wird, ist der Kommunikationsweg noch länger als er im normalen Fall (mit Frankfurt als Region) sein sollte.
-\section{Erkennungsqualität}
-Um die Erkennungsqualität von Amazon Textract bewerten zu können, werden $1.157$ Beispielrechnungen eingelesen und deren Rechnungsnummern extrahiert. Die extrahierte Rechnungsnummer wird mit der korrekten Rechnungsnummer (welche sich in einer Datenbank befindet) abgeglichen. Es wird sich dabei zunächst auf die Auswertung der Rechnungsnummer beschränkt, da Amazon Textract zum aktuellen Zeitpunkt noch keinen deutschen Wörterbuchabgleich durchführt und lediglich deutsche Beispieldokumente zum Testen vorhanden sind. Damit würde Amazon Textract bei deutschen Texten aktuell sicherlich schlechtere Ergebnisse liefern, als ABBYY FineReader oder Tesseract OCR (welche beide einen Abgleich mit bekannten deutschen Wörtern durchführen). Da die Rechnungsnummern der Dokumente hauptsächlich aus zusammenhangslosen Zeichenketten (Buchstaben, Zahlen und gelegentlich auch Sonderzeichen) bestehen, würde ein Wörterbuchabgleich an dieser Stelle keine Vorteile geben.
-
-Zum Vergleich der ausgelesenen Rechnungsnummern mit den korrekten Rechnungsnummern ist eine Metrik notwendig, die angibt, wie ähnlich oder unterschiedlich zwei Zeichenketten voneinander sind. Wir betrachten dafür die Editierdistanz.
-\subsection{Editierdistanz}
-Die Editierdistanz ist eine Metrik, die angibt wie unterschiedlich zwei Strings (Zeichenketten) voneinander sind, indem die kleinste Anzahl der nötigen Editierungsoperationen gezählt wird, welche einen String in einen anderen String transformieren. Die genaue Definition der Editierdistanz hängt davon ab, welche Art von Operationen zur Editierung zugelassen sind. Unter solchen Operationen zählen das Entfernen von einem Zeichen (\texttt{Deletion}), das Einfügen von einem Zeichen (\texttt{Insertion}), das Ersetzen von einem Zeichen durch ein anderes Zeichen (\texttt{Substitution}) und auch das Vertauschen zweier aneinanderliegender Zeichen (\texttt{Transposition}). Wir betrachten im Folgenden hauptsächlich die Levenshtein-Distanz, welche als Operationen das Entfernen, Einfügen und Ersetzen von einem Zeichen im String zulässt.
-
-Wir legen dabei die Kosten jeder Operation auf $1$ fest, womit die minimale Distanz also die minimale Anzahl an nötigen Operationen wird. Eine allgemeinere Definition würde jede Operation mit eigenen (nicht negativen) Kosten versehen ($C_{del},C_{ins},C_{sub}$).
-\subsection{Levenshtein-Distanz}
-Für zwei Zeichenfolgen $a,b$ mit entsprechenden Längen $|a|,|b|$ weist die Levenshtein-Distanz $d(a,b)$ dann unter anderem folgende Eigenschaften auf:
+OpenCV ist modular aufgebaut und bietet unter anderem folgende wichtige Module an:
 \begin{itemize}
-    \item $a=b\Longleftrightarrow d(a,b)=0$, da jeder String ohne Operationen in sich selber transformierbar ist.
-    \item $a\neq b\Longleftrightarrow d(a,b)>0$, da mindestens eine Operation (mit nicht negativen Kosten) nötig ist, um $a$ in $b$ zu transformieren.
-    \item $d(a,b)=d(b,a)$, da die Kosten zum Entfernen und zum Einfügen eines Zeichens gleich sind und die beiden Operationen die inverse Operation der jeweils anderen darstellen.
-    \item $d(a,b)+d(b,c)\geq d(a,c)$ (Dreiecksungleichung), da $b$ im besten Fall ein Zwischenschritt in der Transformation von $a$ nach $c$ ist, kann die linke Seite der Ungleichung nicht kleiner als $d(a,c)$ sein.
-    \item $d(a,b)\geq||a|-|b||$, da bei der Transformation $a$ auf die Länge von $b$ gebracht werden muss und dabei mindestens $||a|-|b||$ Operationen (Entfernen oder Einfügen, je nachdem welcher String länger ist) nötig sind.
-    \item $d(a,b)\leq \max(|a|,|b|)$, da im schlechtesten Fall (keine Zeichen aus $a$ lassen sich zu $b$ zuordnen) $\min(|a|,|b|)$ Zeichen durch andere ersetzt werden müssen und die weiteren $\max(|a|,|b|)-\min(|a|,|b|)$ Zeichen entweder entfernt oder eingefügt werden müssen (je nachdem welcher String länger ist).
+    \item \texttt{core} - Dieses Modul definiert einen Großteil der grundlegenden Funktionen und Datenstrukturen von OpenCV (wie z.\,B. die \texttt{cv::Mat}-Klasse beschrieben in \ref{section-mat}).
+    \item \texttt{imgproc} - Das Image-Processing Modul implementiert Filter (sowohl lineare Filter als auch nicht lineare Filter), geometrische Bildtransformationen (lineare, linear-affine und perspektivische Transformationen), Histogramme und Methoden zur Konvertierung zwischen verschiedenen Farbräumen.
+    \item \texttt{video} - Modul zur Videoanalyse, welches unter anderem Object-Tracking und auch Motion-Estimation Algorithmen implementiert.
+    \item \texttt{calib3d} - Implementiert Algorithmen zur Kamerakalibrierung und Elemente zur 3D-Rekonstruktion.
+    \item \texttt{features2d} - Bietet Algorithmen zum Erkennen und Matchen von Features in 2D an.
+    \item \texttt{objdetect} - Erkennung von Objekten vordefinierter Klassen (z.\,B. Gesichtserkennung)
+    \item \texttt{highgui} - Bietet dem Programmierer Möglichkeiten an, simple grafische Benutzungsschnittstellen zu erstellen.
 \end{itemize}
-Die Levenshtein-Distanz zwischen dem Wort \texttt{levenshtein} und dem Wort \texttt{meilenstein} (bei uniformen Operationskosten von $1$) ist $4$. Eine mögliche Umwandlung von \texttt{levenshtein} nach \texttt{meilenstein} könnte zum Beispiel folgendermaßen aussehen:
-\begin{enumerate}
-    \item \texttt{\textbf{l}evenshtein} $\rightarrow$ \texttt{\textbf{m}evenshtein} (Ersetzen von \texttt{l} durch \texttt{m})
-    \item \texttt{me\textbf{v}enshtein} $\rightarrow$ \texttt{me\textbf{i}enshtein} (Ersetzen von \texttt{v} durch \texttt{i})
-    \item \texttt{meienshtein} $\rightarrow$ \texttt{mei\textbf{l}enshtein} (Einfügen von \texttt{l})
-    \item \texttt{meilens\textbf{h}tein} $\rightarrow$ \texttt{meilenstein} (Entfernen von \texttt{h})
-\end{enumerate}
-Mit den Strings $a=a_1\dots a_{|a|}$ und $b=b_1\dots b_{|b|}$ folgt die rekursive Definition der Levenshtein-Distanz. Dabei steht $d(i,j)$ für die Levenshtein-Distanz zwischen den ersten $i$ Zeichen von $a$ und den ersten $j$ Zeichen von $b$.
-\begin{align}
-    d(i,j)=\begin{cases}
-        j & i=0\\
-        i & j=0\\
-        \min\begin{cases}
-            d(i-1,j-1)+[a_i\neq b_j]\\
-            d(i,j-1)+1\\
-            d(i-1,j)+1
-        \end{cases} & 1\leq i\leq |a| \wedge 1\leq j\leq |b|
-    \end{cases}
-\end{align}
-Die Levenshtein-Distanz der beiden kompletten Strings ist dann gegeben durch $d(|a|,|b|)$. Außerdem sei angemerkt, dass das erste Element im Minimum der Substitution eines Zeichens entspricht (bzw. der Zuordnung zweier Zeichen, sofern diese gleich sind), wobei $[a_i\neq b_j]$ für das Iverson-Bracket steht, welches zu $1$ evaluiert, sofern der Ausdruck in den Klammern wahr ist und zu $0$ wenn der Ausdruck unwahr ist. Das zweite Element im Minimum steht für das Einfügen eines Zeichens in $a$ (wir betrachten die Operationen weiterhin von $a$ nach $b$) und das dritte Element steht für das Entfernen eines Zeichens aus $a$. Die Basisfälle der Rekursion berechnen die Distanz mit einem leeren String. Da wir für das Einfügen und für das Entfernen eines Zeichens jeweils die Kosten $1$ haben gilt für jeden String $s$: $d(s,\varnothing)=d(\varnothing,s)=|s|$. Anschaulich ist dies damit zu begründen, dass ein leerer String durch das Einfügen von exakt $|s|$ Zeichen in einen String $s$ transformiert werden kann und umgekehrt kann jeder String $s$ durch das Entfernen von exakt $|s|$ Zeichen in den leeren String transformiert werden.
+\section{Mat - Der OpenCV Bild-Container}\label{section-mat}
+Die OpenCV Programmbibliothek war ursprünglich eine Programmbibliothek für die Programmiersprache C. Damit wurden die Datenstrukturen der Bibliothek als C-Structs implementiert, wodurch der Programmierer selber sicherstellen musste, dass der Speicher für diese Datenstrukturen richtig allokiert, deallokiert und gegebenenfalls auch kopiert wird.
 
-An dieser Stelle kann mithilfe einer weiteren Eigenschaft der Editierdistanz eine erste Optimierung vorgenommen werden. Wenn die Strings $a$ und $b$ einen gemeinsamen Präfix besitzen, dann ist dieser Präfix für die Berechnung der Editierdistanz $d(a,b)$ nicht relevant. Für jeden Präfix $u$ gilt somit $d(ua,ub)=d(a,b)$. Für unseren rekursiven Algorithmus bedeutet dies, dass im Falle von $a_i=b_j$ die Distanz $d(i,j)$ direkt als $d(i-1,j-1)$ berechnet werden kann, wodurch an dieser Stelle zwei rekursive Aufrufe gespart werden. Der Algorithmus sieht dann folgendermaßen aus:
-\begin{align}
-    d(i,j)=\begin{cases}
-        j & i=0\\
-        i & j=0\\
-        \begin{cases}
-            d(i-1,j-1) & a_i=b_j\\
-            1+\min\begin{cases}
-                d(i-1,j-1)\\
-                d(i,j-1)\\
-                d(i-1,j)
-            \end{cases} & a_i\neq b_j
-        \end{cases} & 1\leq i\leq |a| \wedge 1\leq j\leq |b|
-    \end{cases}
-\end{align}
-Der Algorithmus kann direkt nach der obigen Formulierung rekursiv implementiert werden.
+Mit der Version OpenCV 2.0 wurde erstmals eine neue C++ Schnittstelle implementiert. Auf Basis der objektorientierten Prinzipien von C++ wie z.\,B. Klassen, Konstruktoren (auch Copy- und Move-Konstruktoren), Destruktor, Resource Acquisition Is Initialization (RAII), Operatorüberladung und Template-Programmierung, somit entstand ein abstrakteres und damit auch einfacheres Interface für den Umgang mit Bildern in OpenCV. Die Klasse \texttt{cv::Mat} ist ein wichtiger Bestandteil dieser Schnittstelle.
 
-Es folgt eine Implementation in C\#, wobei der eigentliche Algorithmus als private Methode implementiert wurde (damit diese durch die Indizes rekursionsfähig ist). Eine weitere öffentliche Methode stellt die Schnittstelle zum Programmierer dar. Diese ruft den Algorithmus mit $i=|a|$ und $j=|b|$ auf und berechnet somit mit $d(|a|,|b|)$ die Editierdistanz zwischen allen Zeichen von $a$ und allen Zeichen von $b$.
-\begin{lstlisting}[caption=Rekursiver Algorithmus zur Berechnung der Levenshtein-Distanz, label=lst:levenshtein_recursive]
-private static int LevenshteinDistance(string a, string b,
-                                       int    i, int    j)
-{
-    if (i == 0) return j;
-    if (j == 0) return i;
+Die \texttt{cv::Mat} Klasse stellt eine $n$-dimensionale \textit{dense} Matrix da. Im Gegensatz zu einer \textit{sparse} Matrix (im OpenCV durch die Klasse \texttt{cv::SparseMat} implementiert), welche nur Elemente $\neq0$ speichert, werden bei \texttt{cv::Mat} alle Elemente gespeichert. Die Elemente können sowohl Single-Channel bzw. skalar (z.\,B. Intensität bei Graustufenbildern) oder Multi-Channel bzw. vektorwertig (z.\,B. Intensität einzelner Farbchannel) sein.
 
-    // Subtraktion von 1 im Index, da nullbasierte Strings
-    if (a[i - 1] == b[j - 1])
-    {
-        return LevenshteinDistance(a, b, i - 1, j - 1);
-    }
+Bei $n$-Dimensionen und Dimensionsgrößen $(m_1,\dots,m_n)$ ergeben sich somit $$N=\prod_{k=1}^{n}m_k$$ Elemente, welche intern kontinuierlich in einem $N$-Element großen (eindimensionalem) Array gespeichert sind. Der (nullbasierte) Array-Index $j$ eines Elementes mit den Dimensions-Indizes $(i_1,\dots,i_n)$ lässt sich dann durch folgende rekursive Relation berechnen\cite{opencv2} (mit $j=j_n$): $$j_k=\begin{cases}j_{k-1}\cdot m_k+i_k,&k\neq0\\0&k=0\end{cases}$$.
 
-    return 1 + Math.Min(
-        LevenshteinDistance(a, b, i - 1, j - 1), // Substitution
-        Math.Min(
-            LevenshteinDistance(a, b, i, j - 1), // Insertion
-            LevenshteinDistance(a, b, i - 1, j)  // Deletion
-        )
-    );
-}
+Im zweidimensionalen Fall ($n=2$) reduziert sich dies zu $j=i_1\cdot m_2+i_2$. Mit $i_1$ als Zeilenindex, $i_2$ als Spaltenindex und der Anzahl an Spalten $m_2$. Somit werden zweidimensionale Matrizen also Zeile-für-Zeile gespeichert, dreidimensionale Matrizen zunächst Ebene-für-Ebene und dann jede Ebene wieder Zeile-für-Zeile.
 
-public static int LevenshteinDistance(string a, string b)
-{
-    return LevenshteinDistance(a, b, a.Length, b.Length);
-}
+Dieses Speicherlayout ist üblich für \textit{dense} Arrays und ist kompatibel mit anderen Bibliotheken, die ein solches Speicherlayout voraussetzen. Dazu gehört auch die C++ STL. Diese Kompatibilität ermöglicht es nicht nur, STL-Algorithmen auf die Daten eines \texttt{cv::Mat}-Objektes anzuwenden, sondern es bietet sich auch die Möglichkeit an, selbst allokierte Daten in ein \texttt{cv::Mat}-Objekt zu wrappen und diese Daten dann mit OpenCV spezifischen Methoden zu bearbeiten.
+
+Die \texttt{cv::Mat}-Klasse ist stark an die Matrizen aus MATLAB angelehnt, womit OpenCV die Möglichkeit bietet Matrizen im MATLAB-Style zu initialisieren mit z.\,B. \texttt{cv::Mat::zeros()} um alle Elemente der Matrix mit $0$ zu initialisieren, \texttt{cv::Mat::ones()} um alle Elemente mit $1$ zu initialisieren und \texttt{cv::Mat::eye()} zur Konstruktion einer Einheitsmatrix.
+
+Die Datenstrukturen von OpenCV (und damit auch \texttt{cv::Mat}) implementieren bereits die nötigen Maßnahmen zur Speicherverwaltung, womit dies nicht vom Programmierer übernommen werden muss. Dabei sei jedoch zu beachten, dass \texttt{cv::Mat} jedoch nicht wie die meisten C++ Datenstrukturen mit dynamischem Speicher (z.\,B. \texttt{std::vector}) implementiert ist.
+
+Ein \texttt{std::vector} wird beim Kopieren (entweder beim Initialisieren eines anderen Vectors mit dem Kopier-Konstruktor oder durch den Assignment-Operator) komplett kopiert und bekommt seinen eigenen Speicher, der nun die gleichen Daten enthält wie der Originalvector. Es wird kein Speicher zwischen den beiden Objekten geteilt und jedes Objekt ist für seinen eigenen Speicher zuständig. Um die lineare Laufzeit beim Kopieren zu umgehen, wo diese nicht nötig ist, wird Referenzübergabe verwendet. Auch das Kopieren von temporären Objekten, sogenannten rvalues (da solche Objekte bei nur links vom Assignment-Operator stehen dürfen), lässt sich seit C++11 mithilfe von Move-Semantiken in konstanter Zeit durchführen.
+
+Im Gegensatz dazu teilen \texttt{cv::Mat}-Objekte ihre Resourcen (den darunterliegenden Speicher) gegebenenfalls mit anderen \texttt{cv::Mat}-Objekten. Dazu implementiert \texttt{cv::Mat} Reference-Counting und arbeitet somit ähnlich wie der Smart-Pointer \texttt{std::shared\_ptr} der C++11-Library oder auch wie Objekte in anderen Programmiersprachen wie Java oder C\#. Dies hat zu Folge, dass die Destruktoren von \texttt{cv::Mat}-Objekten zunächst die Reference-Count dektrementieren und den Speicher erst dann wieder freigeben, wenn die Reference-Count mit dem destrukten des letzten Objektes auf $0$ gefallen ist. Der Vorteil hierbei ist, dass das Kopieren einer Matrix genau genommen die Daten nicht wirklich kopiert, sondern lediglich den Matrix-Header (mit Metadaten wie Dimensionsgrößen und der Adresse zum Speicher der Daten) übernimmt und den Reference-Counter inkrementiert. Das Kopieren einer Matrix ist also unabhängig von der Größe der Matrix und somit konstant. Um eine Matrix vollständig zu kopieren bietet OpenCV in der \texttt{cv::Mat}-Klasse die Methode \texttt{cv::Mat::clone()} an.
+
+Die Kopiersemantik von \texttt{cv::Mat} ist dann von wichtiger Bedeutung, wenn es gilt, einen Teilbereich einer Matrix zu extrahieren oder zu ändern. Solche Bereiche werden als Region of Interest (ROI) bezeichnet und können eine oder mehrere Zeilen, eine oder mehrere Spalten, eine Diagonale oder ein rechteckiger Bereich aus der Matrix sein. Diese Operationen sind weiterhin alle $\Theta(1)$, da lediglich ein neuer Matrix-Header erstellt werden muss und die eigentlichen Elemente der Matrix nicht kopiert werden, sondern nur referenziert werden. Damit wirken sich Änderungen der Daten in einer Matrix also auch implizit auf alle anderen Matrizen aus, die diese Daten referenzieren.
+
+\section{Saturate-Casting}
+Die einzelnen Pixels eines Bildes sind in OpenCV Elemente einer zweidimensionalen \texttt{cv::Mat}. Ob diese Elemente skalar oder vektorwertig sind hängt vom gewählten Farbraum ab. Die Wertebereiche der einzelnen Channel eines Elementes hängen wiederum vom gewählten Datentyp ab (vgl. \ref{section-pixeltypes}). Dabei werden oftmals 8- oder 16-bit (signed oder unsigned) per Channel gewählt. Für unsigned 8-bit (Datentyp \texttt{cv::uchar} in OpenCV) stehen damit nur ganzzahlige Werte aus dem (halboffenen) Intervall $[0, 256)$ zu Verfügung. Viele Operationen auf Bildern (z.\,B. das Interpolieren von Bildern oder das Konvertieren zwischen verschiedenen Farbräumen) können Werte ausserhalb dieses Intervalles erzeugen. Anstatt jedoch nur die niedrigsten 8 Bits des Ergebnisses zu verwenden (was in einem Bild unmittelbar zu sichtbaren Artifakten führt), bietet OpenCV einen \texttt{cv::saturate\_cast<>()} an, welcher den berechneten Wert auf den nächsten Wert im zugelassenen Wertebereich vom Datentyp abbildet. Dazu wird der Wert zunächst gerundet. Falls der gerundet Wert ausserhalb des gültigen Wertebereiches liegt, wird dieser auf den nächsten Wert gültigen Wert gesetzt (jeweils auf das Minimum oder Maximum der Intervalls, je nachdem ob der Wert auf dem Zahlenstrahl links oder rechts vom Intervall liegt). Der letzte Schritt wird auch als \textit{Clamping} bezeichnet. Eine mögliche Implementation\cite{opencv3} für einen 8-bit Channel mit einem berechneten Wert $v$ ist $$v'=\min\{\max\{\lfloor v+0.5\rfloor,0\},255\}$$.
+\section{Datentypen für Pixel}\label{section-pixeltypes}
+Anstatt die Wahl des Datentyps für Pixel generisch zu halten (mithilfe von C++ Templates), gibt OpenCV eine feste limitierte Menge an primitiven Datentypen für Matrizen vor.\cite{opencv3} Der Grund dafür ist, dass große Template Klassen die Compilezeit und die größe des Codes stark erhöhen. Außerdem lassen sich Templates nur schlecht in Definition und Implementation aufteilen (wie es sonst mit Header- und Source-Dateien üblich ist). Des Weiteren besitzen die anderen Sprachen, welche von OpenCV unterstützt werden (Python, MATLAB und Java), keine oder nur begrenzte Sprachkonstrukte, welche die Implementation von Templates ermöglichen würde. Stattdessen basiert die aktuelle OpenCV Implementation hauptsächlich auf Polymorphismus. In C++ stehen aus Performancegründen (um die dynamische Laufzeitbindung von polymorphen Methoden zu vermeiden) jedoch einzelne Template Klassen, Methoden und Funktionen zur Verfügung (dazu gehört auch der \texttt{cv::saturate\_cast<>()}.
+
+In OpenCV stehen folgende primitive skalare Datentypen für Matrizen zur Verfügung:
+\begin{itemize}
+    \item 8-bit unsigned Integer - \texttt{cv::uchar}
+    \item 8-bit signed Integer - \texttt{cv::schar}
+    \item 16-bit unsigned Integer - \texttt{cv::ushort}
+    \item 16-bit signed Integer - \texttt{cv::short}
+    \item 32-bit signed Integer - \texttt{cv::int}
+    \item 32-bit floating-point Zahl - \texttt{cv::float}
+    \item 64-bit floating-point Zahl - \texttt{cv::double}
+\end{itemize}
+Für Multi-Channel Matrizen wird vorausgesetzt, dass jeder Channel den gleichen Datentyp besitzt (außerdem muss dieser natürlich einer der oben aufgeführten Datentypen sein). Des Weiteren ist die maximale Anzahl an möglichen Channels per Matrixelement auf $512$ begrenzt.
+
+Die oben aufgeführten Typen werden zwar als Template-Argument für einzelne Funktionen von OpenCV verwendet (z.\,B. für den bereits erwähnten \texttt{cv::saturate\_cast<>()}), spezifizieren aber nicht den Datentyp für Matrixelemente (da \texttt{cv::Mat} schließlich nicht generisch ist). Stattdessen besitzen diese Klassen dann einen weiteren Parameter im Konstruktur, mit dem der Datentyp angegeben werden kann. Für die skalaren Typen gilt dabei folgende Enumeration:
+\begin{lstlisting}[numbers=none,frame=none]
+enum {
+    CV_8U  = 0,
+    CV_8S  = 1,
+    CV_16U = 2,
+    CV_16S = 3,
+    CV_32S = 4,
+    CV_32F = 5,
+    CV_64F = 6
+};
 \end{lstlisting}
-\subsection{Dynamische Programmierung}
-Leider ist dieser rekursive Ansatz nicht sehr effizient. Um dies zu verdeutlichen betrachten wir die ersten beiden Rekursionstiefen des Algorithmus bei der Berechnung einer Distanz $d(i,j)$. Wir gehen dabei von dem schlechten Fall aus, dass keine Zeichen übereinstimmen und wir immer alle drei Fälle für das Minimum auswerten müssen. Die Reihenfolge, in der die drei Fälle ausgewertet werden bleiben weiterhin zunächst Substitution, dann Insertion und zuletzt Deletion (dies dient jedoch nur zur weiteren Erklärung).
+Die Namen für Multi-Channel Konstanten mit $k=1\dots4$ Channels entsprechen dem Namen des Datentyps eines Channels (entsprechend der obigen Enumeration), gefolgt von einem \texttt{C}$k$. Ein Drei-Channel Array vom Typen 16-bit unsigned Integer entspricht also der Konstanten \texttt{CV\_16UC3}.
+
+Um einen Matrix mit mehr als vier Channels zu initialisieren oder falls die Anzahl der Channel bei der Compilezeit unbekannt ist, lassen sich die Makros \texttt{CV\_U8C(n)} bis \texttt{CV\_64FC(n)} verwenden. Genau genommen generieren diese Makros lediglich eine numerische Konstante, die intern eine Kombination von Datentyp und Anzahl an Channels identifiziert. Dazu wird die Konstante des Datentyps (entsprechend den Werten in der Enumeration) in die niedrigsten 3 Bits gehschrieben und die Anzahl der Channel dekrementiert (da $0$ Channel sowieso nicht zugelassen sind, lässt sich dadurch eine Möglichkeit mehr darstellen) und in die restlichen Bits geschrieben. Dementsprechend sind für die Anzahl der Channels standardmäßig $\log_2(512)=9$ Bits vorgesehen. Die Berechnung der numerischen Konstante eines Multi-Channel Datentyps ist in OpenCV mit dem Makro \texttt{CV\_MAKETYPE(depth, cn)} implementiert, dabei entspricht \texttt{depth} der numerischen Konstante des Datentyps entsprechend der Enumeration und \texttt{cn} die Anzahl der Channel (\texttt{cn > 0}). Eine mögliche Implementation nach \cite{opencv4} dieses Makros sieht folgendermaßen aus:
+\begin{lstlisting}[numbers=none,frame=none]
+#define CV_MAKETYPE(depth, cn) (((depth) & 7) | (((cn)-1) << 3))
+\end{lstlisting}
+Damit ergeben sich viele equivalente Möglichkeiten, den Datentyp einer Matrix festzulegen. So gilt z.\,B. \texttt{2 == CV\_16U == CV\_16UC1 == CV\_16UC(1) == CV\_MAKETYPE(CV\_16U, 1) == (2 \& 7) | ((1 - 1) << 3) == 2}, was mit der ursprünglichen Definition aus der Enumeration übereinstimmt.
+
+Was genau die Werte eines einzelnen Elementes darstellen, hängt vom Farbraum des Bildes ab. Beim Einlesen eines Bildes in OpenCV mit der Funktion \texttt{cv::imread()} lässt sich als Parameter mit angeben, ob dieses Bild als Graustufenbild gelesen werden soll (\texttt{IMREAD\_GRAYSCALE}) oder als Farbbild (\texttt{IMREAD\_COLOR}). Als Rückgabewert liefert die Funktion eine (zweidimensionale) Matrix in den Dimensionen des ursprünglichen Bildes. Jedes Element der Matrix stellt einen Bildpunkt des Bildes in dem entsprechenden Farbraum (wird dieser nicht explizit angegeben, so wird implizit der Parameter \texttt{IMREAD\_COLOR} verwendet) dar. Bei Graustufenbildern bestehen diese Elemente nur aus einem Channel (der Intensität dieses Bildpunktes), während bei Farbbildern das BGR-Format verwendet wird. Hierbei steht der Wert jedes Channels (von insgesamt drei) für die Intensität der entsprechenden Farbe (\textbf{B}lau, \textbf{G}rün oder \textbf{R}ot) im Bildpunkt. Das BGR-Format ist abgesehen von der Reihenfolge der Farbchannel identisch zu dem bekannten RGB-Format.
+
+Um Bilder zwischen verschiedenen Farbräumen zu konvertieren lässt sich die OpenCV Funktion \texttt{cv::cvtColor()} verwenden. Es lässt sich als Parameter angeben, welche Art von Konvertieren stattfinden soll (z.\,B. \texttt{COLOR\_BGR2GRAY}).\cite{opencv5}
+
+\section{Beispiel: Verwendung von Matrizen und Region of Interests}
+Es folgt ein Codeausschnitt, der die Eigenschaften von \texttt{Mat} nach Abschnitt \ref{section-mat} nochmals aufzeigt.
+\begin{lstlisting}[caption=Verwendung von Mat und ROI, label=lst-mat-example]
+cv::Mat a(256, 256, CV_8UC3, cv::Scalar(100, 100, 100));
+cv::Mat b = a;
+cv::Mat c = a.clone();
+
+a.colRange(50, 80).setTo(cv::Scalar(255, 0, 0));
+b.diag().setTo(cv::Scalar(0, 255, 0));
+c({ 0, 20 }, { 0, 20 }).setTo(cv::Scalar(0, 0, 255));
+
+cv::namedWindow("a");
+cv::imshow("a", a);
+
+cv::namedWindow("b");
+cv::imshow("b", b);
+
+cv::namedWindow("c");
+cv::imshow("c", c);
+
+cv::waitKey();
+cv::destroyAllWindows();
+\end{lstlisting}
+Im Beispiel wird zunächst eine zweidimensionale $256\times256$ Matrix \texttt{a} vom Typen \texttt{CV\_8UC3} angelegt und jeder der drei 8-bit Farbchannel mit $100$ initialisiert, was im BGR Farbraum einem Grauton entspricht. Die Matrix benötigt somit insgesamt exakt $192$ Kibibyte, um die Farbwerte der Pixel zu speichern (mit Headerdaten ist diese natürlich noch größer). Die Initialisierung von \texttt{b} in der darauffolgenden Zeile führt wie in \ref{section-mat} beschrieben lediglich dazu, dass die Headerdaten von \texttt{a} übernommen werden. Damit befindet sich weiterhin nur ein (komplett graues) Bild im Speicher, welches jedoch von zwei verschiedenen \texttt{Mat}-Objekten (\texttt{a} und \texttt{b}) referenziert wird. Die Initialisierung von Matrix \texttt{c} entspricht hingegen einer tiefen Kopie der Matrix \texttt{a}, wodurch nun zwei (gleiche) Bilder im Speicher liegen. Diese Operation muss den kompletten Speicher von \texttt{a} kopieren, was zu einem linearen Laufzeitverhalten fürt.
+
+Die nächsten Zeilen zeigen, wie ROIs in OpenCV verwendet werden können, um Teilbereiche einer Matrix zu extrahieren und zu bearbeiten. Zeile 5 erstellt eine temporäre Matrix, welche auf den gleichen Speicherbereich von \texttt{a} zeigt, die Headerdaten jedoch so definiert werden, dass diese Matrix nur einen Teilbereich von \texttt{a} schreiben und lesen kann. Als ROI werden hier die Spaltenvektoren von \texttt{a} mit Spaltenindizes (nullbasiert) aus dem Intervall $[50,80)$ genommen. Damit ergibt sich eine temporäre $256\times30$ Matrix. Alle Elemente dieser Matrix werden daraufhin blau gefärbt, wodurch natürlich auch die entsprechenden Spalten in \texttt{a} betroffen sind und damit auch implizit das Bild der Matrix \texttt{b} verändert wird (was schließlich das Bild aus der Matrix \texttt{a} ist). Zeile 6 färbt die Hauptdiagonale von \texttt{b} $\{b_{ij}:(i,j)\in[0,256)^2\land i=j\}$ grün (was wiederum die Matrix \texttt{a} mit betrifft). Die Matrix \texttt{c} hat zu diesem Zeitpunkt immer noch ein rein graues Bild. Zeile 7 zeigt, wie man eine beliebige rechteckige ROI aus einer Matrix extrahiert. Im Beispiel wird eine $20\times20$ ROI erstellt mit den Matrixelementen $\{c_{ij}:0\leq i,j<20\}$, welche daraufhin rot gefärbt werden. Diese Operation betrifft ausschließlich die Matrix \texttt{c}; \texttt{a} und \texttt{b} werden nicht verändert.
+
+Die nächsten Zeilen stellen den Inhalt der Matrizen dar. Die Ausgabe ist in \ref{fig-opencv-mat} dargestellt. Wie erwartet zeigen die Matrizen \texttt{a} und \texttt{b} das selbe Bild.
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{img/levenshtein_recursion.png}
-    \caption{Rekursionsbaum bei der Berechnung der Levenshtein-Distanz}
-    \label{fig-levenshtein-recursion}
+    \subfloat[\label{fig-opencv-mat-a}]{
+      \includegraphics[width=0.25\linewidth]{img/a.png}
+    }
+    \quad\quad
+    \subfloat[\label{fig-opencv-mat-b}]{
+      \includegraphics[width=0.25\linewidth]{img/b.png}
+    }
+    \quad\quad
+    \subfloat[\label{fig-opencv-mat-c}]{
+      \includegraphics[width=0.25\linewidth]{img/c.png}
+    }
+    \caption{Ausgabe vom Mat und ROI Beispiel}
+    \label{fig-opencv-mat}
 \end{figure}
-Wie zu erkennen ist, werden die gleichen Teilprobleme von $d(i,j)$ mehrmals berechnet ($d(i-1,j-1)$ würde dreimal berechnet werden). Diese kombinatorische Explosion führt zu einem exponentiellen Laufzeitverhalten von $\Omega(3^{\min(|a|,|b|)})$ und $\mathcal{O}(3^{|a|+|b|})$. Außerdem sei angemerkt, dass der Algorithmus (auch wenn nicht explizit Speicher angelegt wird) durch den Aufbau des Stacks bei der Rekursion eine Speicherkomplexität von $\Theta(|a|+|b|)$ besitzt, da die längsten Wege durch den Rekursionsbaum von $d(|a|,|b|)$ nach $d(0,0)$, $d(0,1)$ oder $d(1,0)$ gehen ohne dabei den Rekursionsschritt $d(i-1,j-1)$ zu benutzen, wobei exakt $|a|+|b|$ Funktionsaufrufe des Algorithmus auf dem Stack liegen.
+\section{Transformation von Bildern}
+Um bekannte lineare Transformationen (Skalierung, Rotation, Scherung) und affine Transformationen (lineare Transformationen mit einer Translationskomponente) auf Bildern anzuwenden, bietet OpenCV die Funktion \texttt{cv::warpAffine()} an. Neben dem Ausgangsbild, auf welches die Transformation angewendet werden soll, und einem Zielbild, welches das Ergebnis der Transformation halten soll, übernimmt diese Funktion noch eine $2\times3$ Transformationsmatrix.
 
-Dies ist ein klassisches Problem aus der dynamischen Programmierung (DP). Der erste Lösungsansatz wäre es, den rekursiven Algorithmus so anzupassen, dass jedes Teilproblem nur einmal berechnet wird, gespeichert wird und im Verlauf der weiteren Rekursion jederzeit wieder abgerufen werden kann. Somit wird nicht unnötig wieder tiefer in die Rekursion gegangen und das Ergebnis kann direkt zurückgegeben werden. Diese Technik wird in der Literatur als Memoisation bezeichnet. Als Datenstruktur für die Memoisation benötigen wir hier ein zweidimensionales Array der Dimension $|a|\times |b|$, für alle möglichen Ergebnisse von $d(i,j):1\leq i\leq|a|,1\leq j\leq|b|$.
+Eine affine Transformation $T:\mathbb{R}^2\rightarrow\mathbb{R}^2$ bildet einen Vektor $\vec{x}=\begin{bmatrix}x\\y\end{bmatrix}\in\mathbb{R}^2$ auf einen Vektor $T(\vec{x})\in\mathbb{R}^2$ ab. Eine solche Transformation hat die Form
+\begin{gather*}
+    T(\vec{x})=\mathbf{A}\vec{x}+\vec{b}
+\end{gather*}
+mit $\mathbf{A}=\begin{bmatrix}a_{11}&a_{12}\\a_{21}&a_{22}\end{bmatrix}\in\mathbb{R}^{2\times2}$ und dem Translationsvektor $\vec{b}\in\mathbb{R}^2$.
 
-Da Rekursion zunächst in die Tiefe geht, bevor das nächste Teilproblem eines Rekursionslevels abgearbeitet wird, ergibt sich eine Arbeitsweise wie in der Abbildung \ref{fig-levenshtein-recursion} gezeigt. Die grünen Aufrufe werden berechnet und für den weiteren Verlauf zwischengespeichert. Die roten Aufrufe sind Teilprobleme, die bereits berechnet wurden und gehen damit nicht weiter in die Rekursion, sondern geben lediglich den bereits berechneten Wert zurück. In der Abbildung wird $d(i-1,j-1)$ zunächst als Teilproblem von $d(i-1,j)$ berechnet (was wiederum ein Teilproblem von unseren initialen Problem $d(i,j)$ ist). Nachdem $d(i-1,j)$ komplett berechnet wurde, würde der Algorithmus auf dem höchsten Rekursionslevel zurückkehren und probieren mit $d(i-1,j-1)$ weiter zu machen. Da dieses Problem jedoch bereits berechnet wurde, wird der komplette Rekursionszweig abgeschnitten und es wird nur der zuvor berechnete Wert zurückgegeben.
+Für $\vec{b}=\vec{0}$ ist $T$ eine lineare Transformation. Eine solche Transformation erfüllt folgende Bedingung ($T$ ist homogen und additiv): $T(\alpha\vec{u}+\vec{v})=\alpha T(\vec{u})+T(\vec{v})$ für ein Skalar $\alpha\in\mathbb{R}$ und zwei Vektoren $\vec{u},\vec{v}\in\mathbb{R}^2$. Eine Implikation dieser Bedingung ist, dass der Nullvektor stets auf sich selber abgebildet wird: $T(\vec{0})=T(0\cdot\vec{e}_1+0\cdot\vec{e}_2)=0\cdot T(\vec{e}_1)+0\cdot T(\vec{e}_2)=\vec{0}+\vec{0}=\vec{0}$.
 
-Eine mögliche Umsetzung in C\# könnte folgendermaßen aussehen:
-\begin{lstlisting}[caption=Levenshtein-Distanz mit Memoisation, label=lst:levenshtein_memoization]
-private static int LevenshteinDistance(string a, string b, int i, int j, int[,] memo)
-{
-    if (memo[i, j] > -1)
-    {
-        // Rueckgabe des bereits berechneten Wertes
-        return memo[i, j];
-    }
+Wird $\vec{x}$ in homogenen Koordinaten betrachtet ($\vec{x}=\begin{bmatrix}x&y&1\end{bmatrix}^\mathsf{T}$), so lässt sich eine Matrix $\mathbf{M}$ zur Transformation $T$ angeben.
+\begin{align*}
+    T(\vec{x})&=\mathbf{A}\vec{x}+\vec{b}\\
+    T(\vec{x})&=\begin{bmatrix}a_{11}&a_{12}\\a_{21}&a_{22}\end{bmatrix}\cdot\begin{bmatrix}x\\y\end{bmatrix}+\begin{bmatrix}b_1\\b_2\end{bmatrix}\\
+    T(\vec{x})&=x\cdot\begin{bmatrix}a_{11}\\a_{21}\end{bmatrix}+y\cdot\begin{bmatrix}a_{12}\\a_{22}\end{bmatrix}+1\cdot\begin{bmatrix}b_1\\b_2\end{bmatrix}\\
+    T(\vec{x})&=\underbrace{\begin{bmatrix}a_{11}&a_{12}&b_1\\a_{21}&a_{22}&b_2\end{bmatrix}}_{\eqqcolon\mathbf{M}\in\mathbb{R}^{2\times3}}\cdot\begin{bmatrix}x\\y\\1\end{bmatrix}
+\end{align*}
+Die Funktion \texttt{cv::warpAffine()} transformiert das Originalbild dann so, dass $$dst(\vec{x})=src(T^{-1}(\vec{x}))$$.\cite{opencv6}
 
-    // Sonst Wert normal berechnen, speichern und zurueckgeben
-    if (i == 0) return memo[i, j] = j;
-    if (j == 0) return memo[i, j] = i;
+Damit arbeitet die Funktion also mit der inversen Transformation, welche sich mit der Funktion \texttt{cv::invertAffineTransform()} berechnen lässt. Standardmäßig wird dies bereits von \texttt{cv::warpAffine()} übernommen. Liegt die Transformation jedoch schon invertiert vor, lässt sich diese auch an die Funktion übergeben. Das Setzen von dem \texttt{WARP\_INVERSE\_MAP}-Flag bewirkt dann, dass das Invertieren der Transformation übersprungen wird.
 
-    if (a[i - 1] == b[j - 1])
-    {
-        memo[i, j] = LevenshteinDistance(a, b, i - 1, j - 1, memo);
-    }
-    else
-    {
-        memo[i, j] = 1 + Math.Min(
-            LevenshteinDistance(a, b, i - 1, j - 1, memo),
-            Math.Min(
-                LevenshteinDistance(a, b, i, j - 1, memo),
-                LevenshteinDistance(a, b, i - 1, j, memo)
-            )
-        );
-    }
+Um Beispielsweise das Bild um 90° (gegen den Uhrzeigersinn) um den Bildmittelpunkt zu rotieren, lässt sich eine Transformation als Komposition von Translation und Rotation angeben. Dabei ist zu beachten, dass der Ursprung des Koordinatensystems sich an der linkeren oberen Ecke des Bildes befindet. Die x-Achse zeigt nach rechts und die y-Achse nach unten. Bei einem Bild mit Breite $w$ und Höhe $h$ gilt $(x,y)\in[0,w)\times[0,h)$ womit sich der Bildmittelpunkt bei $(\frac{w-1}{2},\frac{h-1}{2})$ befindet.
 
-    return memo[i, j];
-}
+Die entsprechende Transformationsmatrix $\mathbf{M}$ lautet dann $$\mathbf{M}=\begin{bmatrix}1&0&\frac{w-1}{2}\\0&1&\frac{h-1}{2}\end{bmatrix}\cdot\underbrace{\begin{bmatrix}0&1&0\\-1&0&0\\0&0&1\end{bmatrix}}_{Rotation}\cdot\begin{bmatrix}1&0&-\frac{w-1}{2}\\0&1&-\frac{h-1}{2}\\0&0&1\end{bmatrix}$$.
 
-public static int LevenshteinDistance(string a, string b)
-{
-    // (|a| + 1) x (|b| + 1) Array um die Basisfaelle mitzuspeichern
-    // Vereinfacht auch den Umgang mit den einsbasierten Indizes
-    int[,] memo = new int[a.Length + 1, b.Length + 1];
-
-    // Memotable mit Wert fuellen, der als "nicht berechnet" gilt
-    for (int i = 0; i <= a.Length; i++)
-    {
-        for (int j = 0; j <= b.Length; j++)
-        {
-            memo[i, j] = -1;
-        }
-    }
-
-    return LevenshteinDistance(a, b, a.Length, b.Length, memo);
-}
-\end{lstlisting}
-Der Ansatz mit Memoisation weist nun zwar eine höhere Speicherkomplexität von $\Theta(|a|\cdot|b|)$ auf (dieser Speicher wird benötigt, um die Ergebnisse der Teilprobleme zwischenzuspeichern), besitzt aber dafür auch eine Laufzeitkomplexität von $\Theta(|a|\cdot|b|)$, da jedes der $|a|\cdot|b|$ Teilprobleme nur noch einmal berechnet werden muss und nicht mehr als $3$ mal sein Ergebnis zurückgeben muss.
-
-Da dieser Top-down-Ansatz (wir starten beim Ausgangsproblem $d(|a|,|b|)$ und gehen in der Rekursion bis zu den Basisfällen) weiterhin auf Rekursion basiert, wird für die Erhaltung des Rekursionsstacks zusätzlicher Speicher und Leistung (Auf- und Abbau des Stacks) aufgebracht. Wir betrachten damit noch eine finale Lösung, welche auch auf DP basiert, aber iterativ arbeitet.
-
-Alternativ zur vorherigen Lösung füllen wir unser DP-Array nun nach dem Bottom-up-Ansatz: Wir tragen die Werte für die Basisfälle $d(0,j)$ und $d(i,0)$ direkt ein und gehen die Teilprobleme dann so durch, dass diese sofort mit den Ergebnissen der vorherigen Teilprobleme berechnet werden können. Dazu berechnen wir zunächst die Teilprobleme $d(1,j)$ für $j=1\mathinner{\ldotp\ldotp}|b|$. Die aufsteigende Reihenfolge für $j$ ist dabei wichtig, da wir für die Berechnung von $d(1,j)$ das Ergebnis von $d(1,j-1)$ benötigen (für $j=1$ ist dies kein Problem, da wir $d(i,0)$ für alle $i$ bereits eingetragen haben). Da wir auch die Ergebnisse aller $d(0,j)$ schon haben, können wir damit nun alle $d(1,j)$ berechnen. Mit allen $d(1,j)$ können wir dann aber alle $d(2,j)$ berechnen. Allgemein benötigen wir alle $d(i-1,j)$ um alle $d(i,j)$ zu berechnen. Für alle $i=1\mathinner{\ldotp\ldotp}|a|$ (wieder aufsteigende Reihenfolge) berechnen wir also mit $j=1\mathinner{\ldotp\ldotp}|b|$ alle $d(i,j)$ ohne dabei auf Teilprobleme zu stoßen, die wir für $d(i,j)$ benötigen aber noch nicht berechnet haben. Am Ende ist $i=|a|$ und $j=|b|$ und wir berechnen das Ergebnis des Ausgangsproblems $d(|a|,|b|)$.
-
-Dieser Algorithmus zur Berechnung der Levenshtein-Distanz wird auch als Wagner-Fischer-Algorithmus bezeichnet. Der Algorithmus wurde auch folgendermaßen in C\# implementiert, um die Editierdistanz zwischen zwei Rechnungsnummern zu finden.
-\begin{lstlisting}[caption=Wagner-Fischer-Algorithmus, label=lst:wagner_fischer]
-public static int WagnerFischer(string a, string b)
-{
-    int m = a.Length;
-    int n = b.Length;
-
-    int[,] d = new int[m + 1, n + 1];
-
-    // Basisfaelle eintragen
-    for (int i = 0; i <= m; i++) d[i, 0] = i;
-    for (int j = 0; j <= n; j++) d[0, j] = j;
-
-    for (int i = 1; i <= m; i++)
-    {
-        for (int j = 1; j <= n; j++)
-        {
-            if (a[i - 1] == b[j - 1])
-            {
-                d[i, j] = d[i - 1, j - 1];
-            }
-            else
-            {
-                d[i, j] = 1 + Math.Min(
-                    d[i - 1, j - 1],
-                    Math.Min(
-                        d[i, j - 1],
-                        d[i - 1, j]
-                    )
-                );
-            }
-        }
-    }
-
-    // Ergebnis steht in d(m, n) = d(|a|, |b|)
-    return d[m, n];
-}
-\end{lstlisting}
-Die Laufzeitkomplexität des Wagner-Fischer-Algorithmus beträgt wie auch beim Top-down-Ansatz $\Theta(|a|\cdot|b|)$. Der abgebildete Algorithmus besitzt auch weiterhin eine Speicherkomplexität von $\Theta(|a|\cdot|b|)$. Dies lässt sich jedoch noch verbessern, wenn man beachtet, dass für die Berechnung von $d(|a|,|b|)$ nicht die komplette Matrix aufgebaut werden muss. Stattdessen reicht es nur zwei Zeilen zu speichern (die zuvor berechnete Zeile und die aktuelle Zeile). Dies lässt sich damit begründen, dass für eine Zeile $i$ der Matrix, zur Berechnung aller Distanzen $d(i,j)$ dieser Zeile nur die Werte aus den vorherigen Berechnungen $d(i-1,j)$ benötigt werden (für Substitution und Deletion) und der Wert direkt links (in derselben Zeile) vom aktuell berechneten Wert (für Insertion). Die Distanzen $d(u,j)$ mit $u<i-1$ sind also für die weiteren Berechnungen nicht mehr relevant und müssen nicht gespeichert werden. Wählt man nun die Länge des kürzeren Strings als Dimension dieser Zeile werden exakt zwei Arrays der Größe $\min(|a|,|b|)$ benötigt. Damit ergibt sich eine verbesserte Speicherkomplexität von $\Theta(\min(|a|,|b|))$. Dies lässt sich noch weiter verbessern auf nur eine Zeile und eine Variable, da für die Berechnung von $d(i,j)$ auch alle $d(i-1,v)$ mit $v<j-1$ irrelevant sind. Wir überschreiben also die Werte der alten Zeile mit den neu berechneten Werten. Dabei steht (der bereits neue Wert) $d(i,j-1)$ direkt links in der Zeile, der alte Wert $d(i-1,j)$ steht noch an der Stelle, wo jetzt der neue Wert $d(i,j)$ reingeschrieben wird. Die zusätzliche Variable speichert $d(i-1,j-1)$, dessen Wert zuvor links vom aktuellen Wert stand, jedoch durch den Wert $d(i,j-1)$ überschrieben wurde. Vor jedem Überschreiben eines Wertes müssen wir also den alten Wert zwischenspeichern, da dieser Wert im nächsten Schritt noch mal gebraucht wird.
-
-Die speicheroptimierte Version des Wagner-Fischer-Algorithmus sieht folgendermaßen in C\#-Code aus:
-\begin{lstlisting}[caption=Wagner-Fischer-Algorithmus mit Speicheroptimierung, label=lst:wagner_fischer_space]
-public static int WagnerFischerSpaceOptimization(string a,
-                                                 string b)
-{
-    int m = a.Length;
-    int n = b.Length;
-
-    // Speicherkomplexitaet von O(min(|a|,|b|)) sicherstellen
-    if (m < n) return WagnerFischerSpaceOptimization(b, a);
-
-    int[] d = new int[n + 1];
-    for (int j = 0; j <= n; j++) d[j] = j;
-
-    for (int i = 1; i <= m; i++)
-    {
-        int diag = d[0]; d[0] = i;
-        for (int j = 1; j <= n; j++)
-        {
-            int tmp = d[j];
-            if (a[i - 1] == b[j - 1])
-            {
-                d[j] = diag;
-            }
-            else
-            {
-                d[j] = 1 + Math.Min(
-                    diag,
-                    Math.Min(
-                        d[j - 1],
-                        d[j]
-                    )
-                );
-            }
-            diag = tmp;
-        }
-    }
-
-    return d[n];
-}
-\end{lstlisting}
-Der Nachteil bei der speicheroptimierten Version ist, dass am Ende des Algorithmus nicht noch mal die Matrix durchlaufen werden kann, um nachzuvollziehen, welche Operationen zu der minimalen Editierdistanz führen. Wir betrachten dazu noch mal das Beispiel mit $a="levenshtein"$ und $b="meilenstein"$ und einer Editierdistanz von $4$ (vgl. Abb. \ref{fig-levenshtein-backtracking}).
-
-Möchten wir nun zusätzlich zu der Editierdistanz noch wissen, welche Menge an Operationen den String $a$ innerhalb von $4$ Schritten zu $b$ transformiert, dann müssen wir vom Endergebnis aus (die untere rechte Ecke der Matrix), den Weg durch die Matrix finden, der an jeder Stelle eine minimale Entscheidung getroffen hat (dabei können auch Abzweigungen und damit mehrere Wege entstehen). Der erste Schritt von der unteren rechten Ecke aus geht z.\,B. nach links-oben, da für \texttt{n=n} keine Substitution nötig ist und wir somit bei Kosten von $4$ bleiben. Die anderen beiden Alternativen würden beide auf Kosten von $5+1=6$ kommen. Die entsprechende Operation, die an dieser Stelle stattgefunden hat, ist also das Matching von \texttt{n} und \texttt{n}. Führen wir das bis zur oberen linken Ecke durch, so ergeben sich in unserem Beispiel zwei Wege durch die Matrix. Die beiden Wege unterscheiden sich dabei lediglich in einer Operation (in der Tabelle als grün und gelb dargestellt) und haben sonst gleiche Operationen (in der Tabelle als blau dargestellt). Die beiden Wege entsprechen folgenden Operationen (das Matching zweier Zeichen wird nicht aufgeführt):
-\begin{varwidth}[t]{.5\textwidth}
-    Weg über grün:
-    \begin{enumerate}
-        \item Ersetzen von \texttt{l} durch \texttt{m}
-        \item Ersetzen von \texttt{v} durch \texttt{i}
-        \item Einfügen von \texttt{l} hinter \texttt{i}
-        \item Entfernen von \texttt{h}
-    \end{enumerate}
-\end{varwidth}
-\begin{varwidth}[t]{.5\textwidth}
-    Weg über gelb:
-    \begin{enumerate}
-        \item Ersetzen von \texttt{l} durch \texttt{m}
-        \item Einfügen von \texttt{i} hinter \texttt{e}
-        \item Ersetzen von \texttt{v} durch \texttt{l}
-        \item Entfernen von \texttt{h}
-    \end{enumerate}
-\end{varwidth}
+Die homogene Komponente wird bis zur letzten Transformation erhalten, um die Komposition von affinen und linearen Transformationen zu ermöglichen. Da \texttt{cv::warpAffine()} jedoch eine $2\times3$ Matrix benötigt, wird die letzte Matrix auch als $2\times3$ Matrix angegeben.
 \begin{figure}[H]
-    \begin{center}
-        \begin{tabular}{|cTc|c|c|c|c|c|c|c|c|c|c|c|}
-            \hline
-            & $\varnothing$ & m & e & i & l & e & n & s & t & e & i & n\\\thickhline
-            $\varnothing$ & \cellcolor{blue!25}0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11\\\hline
-            l & 1 & \cellcolor{blue!25}1 & 2 & 3 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10\\\hline
-            e & 2 & 2 & \cellcolor{blue!25}1 & \cellcolor{yellow!25}2 & 3 & 3 & 4 & 5 & 6 & 7 & 8 & 9\\\hline
-            v & 3 & 3 & 2 & \cellcolor{green!25}2 & \cellcolor{blue!25}3 & 4 & 4 & 5 & 6 & 7 & 8 & 9\\\hline
-            e & 4 & 4 & 3 & 3 & 3 & \cellcolor{blue!25}3 & 4 & 5 & 6 & 6 & 7 & 8\\\hline
-            n & 5 & 5 & 4 & 4 & 4 & 4 & \cellcolor{blue!25}3 & 4 & 5 & 6 & 7 & 7\\\hline
-            s & 6 & 6 & 5 & 5 & 5 & 5 & 4 & \cellcolor{blue!25}3 & 4 & 5 & 6 & 7\\\hline
-            h & 7 & 7 & 6 & 6 & 6 & 6 & 5 & \cellcolor{blue!25}4 & 4 & 5 & 6 & 7\\\hline
-            t & 8 & 8 & 7 & 7 & 7 & 7 & 6 & 5 & \cellcolor{blue!25}4 & 5 & 6 & 7\\\hline
-            e & 9 & 9 & 8 & 8 & 8 & 7 & 7 & 6 & 5 & \cellcolor{blue!25}4 & 5 & 6\\\hline
-            i & 10 & 10 & 9 & 8 & 9 & 8 & 8 & 7 & 6 & 5 & \cellcolor{blue!25}4 & 5\\\hline
-            n & 11 & 11 & 10 & 9 & 9 & 9 & 8 & 8 & 7 & 6 & 5 & \cellcolor{blue!25}4\\\hline
-        \end{tabular}
-    \end{center}
-    \caption{Backtracking im Wagner-Fischer-Algorithmus}
-    \label{fig-levenshtein-backtracking}
+    \centering
+    \subfloat[src\label{fig-opencv-affine-1-src}]{
+      \includegraphics[width=0.25\linewidth]{img/affine_1_src.png}
+    }
+    \quad\quad\quad\quad
+    \subfloat[dst\label{fig-opencv-affine-1-dst}]{
+      \includegraphics[width=0.25\linewidth]{img/affine_1_dst.png}
+    }
+    \caption{Rotation als affine Transformation}
+    \label{fig-opencv-affine-1}
 \end{figure}
-\subsection{Relative Editierdistanz}
-Um die Erkennungsqualität von mehreren Rechnungsnummern (mit unterschiedlichen Längen) bewerten zu können, muss die Editierdistanz relativ zu den Längen der Strings betrachtet werden. Dazu bilden wir die Distanz auf das Intervall $[0,1]$ ab. Da die Distanz zwischen zwei Strings $a,b$ maximal $\max(|a|,|b|)$ ist und minimal $0$ (die Strings sind identisch), lässt sich die relative Editierdistanz zu $$\frac{d(a,b)}{\max(|a|,|b|)}$$ berechnen. Die relative Ähnlichkeit der Strings berechnet sich dann zu $$1-\frac{d(a,b)}{\max(|a|,|b|)}=\frac{\max(|a|,|b|)-d(a,b)}{\max(|a|,|b|)}$$.
+Um die entsprechende Transformationsmatrix einer beliebigen Rotation direkt zu bekommen, bietet OpenCV die Funktion \texttt{cv::getRotationMatrix2D()} an, welche neben dem Rotationswinkel (gemessen in Grad und gegen dem Uhrzeigersinn) auch einen Punkt übernimmt, um den rotiert werden soll.
 
-Um die relative Ähnlichkeit von $n$ erkannten Rechnungsnummern $a_k$ zu $n$ Sollwerten $b_k$ zu berechnen, wird das (gewichtete) arithmetische Mittel der relativen Ähnlichkeiten aller Paare $(a_k,b_k)$ berechnet.
-\begin{gather}
-    \frac{\sum\limits_{k=1}^{n}\max(|a_k|,|b_k|)\cdot \frac{\max(|a_k|,|b_k|)-d(a_k,b_b)}{\max(|a_k|,|b_k|)}}{\sum\limits_{k=1}^{n}\max(|a_k|,|b_k|)}\notag\\
-    =\frac{\sum\limits_{k=1}^{n}\max(|a_k|,|b_k|)-d(a_k,b_k)}{\sum\limits_{k=1}^{n}\max(|a_k|,|b_k|)}\notag\\
-    =\frac{\sum\limits_{k=1}^{n}\max(|a_k|,|b_k|)-\sum\limits_{k=1}^{n}d(a_k,b_k)}{\sum\limits_{k=1}^{n}\max(|a_k|,|b_k|)}\notag\\
-    =1-\frac{\sum\limits_{k=1}^{n}d(a_k,b_k)}{\sum\limits_{k=1}^{n}\max(|a_k|,|b_k|)}
-\end{gather}
-Die Auswertung ergab bei den Rechnungsnummern eine Erkennungsquote von etwa $86\,\%$ (es wird also im Durchschnitt $86\,\%$ einer Rechnungsnummer richtig erkannt). Bei der Erkennung von Textattributen (z.\,B. Orte oder Namen) sinkt diese auf etwa $68\,\%$. Da Amazon Textract keine Umlaute kennt, wurden die Tests noch mal mit einer Vorbearbeitung der Attribute (Umlaute werden bei den Sollwerten durch die entsprechenden Vokale ersetzt) durchgeführt. Die Erkennungsrate steigt damit auf $76\,\%$. Ein Abgleich der erkannten Wörter mit einem deutschen Wörterbuch würde diese Quote sicherlich (wie bei den Rechnungsnummern) auf über $80\,\%$ bringen, was als eine akzeptable Erkennungsrate gilt.
+Da eine affine Transformation Dreiecke auf Dreiecke abbildet, lässt sich eine eindeutige affine Transformation finden, welche eine geordnete Menge von drei nicht-kollinearen Punkten auf eine andere Menge dieser Art abbildet.
 
-Das entwickelte Framework zum Testen der Erkennungsrate verschiedenster Attribute wurde darüber hinaus auch zum Auswerten verschiedener Klassifizierungstechniken benutzt.
-\chapter{Fazit}
-Das Praktikum bei der Classcon Consulting GmbH hat mir wertvolle Einblicke in den beruflichen Alltag eines Kleinunternehmens im IT-Bereich gegeben. Besondern die Zusammenarbeit in kleinen Teams und die Absprache mit anderen Entwicklern hat sich als interessant und abwechslungsreich herausgestellt. Neben meiner Hauptaufgabe (Amazon Textract), welche hauptsächlich von mir alleine bearbeitet wurde, durfte ich an vielen Stellen in kleineren und auch größeren Projekten mithelfen. Die Teilnahme an regelmäßigen Entwicklerbesprechungen hat gezeigt, dass die Kommunikation im Team auch in kleineren Projekten von großer Bedeutung ist.
+OpenCV bietet dafür die Funktion \texttt{cv::getAffineTransform()} an. Diese übernimmt drei Punkte $(x_i,y_i)$, welche auf drei andere Punkte $(x_i^\prime,y_i^\prime)$ abgebildet werden sollen ($1\leq i\leq3$). Als Ergebnis liefert diese Funktion eine $2\times3$ Transformationsmatrix $\mathbf{M}$. Dabei ist $\mathbf{M}$ genau die Matrix der affinen Transformation, für die 
+\begin{align}
+\begin{bmatrix}x_i^\prime\\y_i^\prime\end{bmatrix}=\mathbf{M}\cdot\begin{bmatrix}x_i\\y_i\\1\end{bmatrix},1\leq i\leq3 \label{eq1}
+\end{align}.\cite{opencv6}
 
-Meine erworbenen Fähigkeiten und Kenntnisse aus dem Studium konnte ich vielseitig anwenden, einbringen und in vielen Bereichen auch vertiefen. Darüber hinaus konnte ich an viel neues Spezialwissen gewinnen, was so im Studium nicht behandelt wird. Neben den erworbenen Fachkenntnissen konnte ich auch einen groben Einblick in die Berufsbilder verschiedenster Berufe (Web-Entwicklung, Consultant, Backend-Programmierung) bekommen.
+Mit $$\mathbf{M}=\begin{bmatrix}m_{11}&m_{12}&m_{13}\\m_{21}&m_{22}&m_{23}\end{bmatrix}$$ wird dann intern von der Funktion ein $6\times6$ Gleichungssystem gelöst, um die Koeffizienten von $\mathbf{M}$ herauszufinden. Das Gleichungssystem lautet $$\begin{bmatrix}x_1&y_1&1&0&0&0\\x_2&y_2&1&0&0&0\\x_3&y_3&1&0&0&0\\0&0&0&x_1&y_1&1\\0&0&0&x_2&y_2&1\\0&0&0&x_3&y_3&1\end{bmatrix}\cdot\begin{bmatrix}m_{11}\\m_{12}\\m_{13}\\m_{21}\\m_{22}\\m_{23}\\\end{bmatrix}=\begin{bmatrix}x_1^\prime\\x_2^\prime\\x_3^\prime\\y_1^\prime\\y_2^\prime\\y_3^\prime\\\end{bmatrix}$$.
 
-Insgesamt hat sich die Praxisphase bei der Classcon Consulting GmbH als ein interessantes, abwechslungsreiches, forderndes und durchaus empfehlenswertes Praktikum herausgestellt.
+Alternativ dazu lassen sich auch zwei Matrizen $\mathbf{A},\mathbf{B}$ definieren mit $$\mathbf{A}=\begin{bmatrix}x_1&x_2&x_3\\y_1&y_2&y_3\\1&1&1\end{bmatrix},\mathbf{B}=\begin{bmatrix}x_1^\prime&x_2^\prime&x_3^\prime\\y_1^\prime&y_2^\prime&y_3^\prime\end{bmatrix}$$.
+
+Die Matrix $\mathbf{A}$ bildet die drei Standardbasisvektoren des $\mathbb{R}^3$ ($\vec{e}_1,\vec{e}_2,\vec{e}_3$) auf die drei Vertices des Dreiecks ab (in homogenen Koordinaten). Es gilt also $\begin{bmatrix}x_i&y_i&1\end{bmatrix}^\mathsf{T}=\mathbf{A}\vec{e}_i,1\leq i\leq3$. Allgemein werden alle Vektoren $\begin{bmatrix}\alpha&\beta&\gamma\end{bmatrix}^\mathsf{T}$ mit $\alpha+\beta+\gamma=1$ auf einen Vektor in der Ebene des Dreiecks (also einen Vektor mit $1$ als homogene Komponente) abgebildet. Gilt außerdem noch $\alpha,\beta,\gamma\geq0$, dann ist dies sogar ein Vektor im Dreieck.
+
+Die Matrix $\mathbf{B}$ hat ähnliche Eigenschaften wie $\mathbf{A}$. Hier wurden lediglich die Vertices des zweiten Dreiecks als Spaltenvektoren der Matrix verwendet. Außerdem fehlt hier jeweils die homogene Komponente in den Spaltenvektoren. Dadurch ist der Ergebnisvektor direkt ein Vektor im $\mathbb{R}^2$ (ohne homogene Komponente).
+
+Damit lässt sich $\mathbf{M}$ nun folgendermaßen als Komposition dieser beiden Matrizen darstellen:$$\mathbf{M}=\mathbf{B}\cdot\mathbf{A}^{-1}$$.
+
+Mit $$\begin{bmatrix}x_i&y_i&1\end{bmatrix}\xmapsto{\mathbf{A}^{-1}}\vec{e}_i\xmapsto{\mathbf{B}}\begin{bmatrix}x_i^\prime&y_i^\prime\end{bmatrix}$$ ist dies nach \ref{eq1} genau die gesuchte Matrix für die Transformation.
+
+Die folgende Abbildung zeigt das Ergebnis einer solchen Transformation. Im Bild mit der Breite $w$ und Höhe $h$ wird das Dreieck mit den Vertices $(0,0),(w-1,0),(0,h-1)$ auf das Dreieck mit den Vertices $(\frac{w-1}{2},\frac{h-1}{2}),(0,0),(w-1,0)$ abgebildet.
+\begin{figure}[H]
+    \centering
+    \subfloat[src\label{fig-opencv-affine-2-src}]{
+        \includegraphics[width=0.25\linewidth]{img/affine_2_src.png}
+    }
+    \quad\quad\quad\quad
+    \subfloat[dst\label{fig-opencv-affine-2-dst}]{
+        \includegraphics[width=0.25\linewidth]{img/affine_2_dst.png}
+    }
+    \caption{Abbildung zweier Dreiecke als affine Transformation}
+    \label{fig-opencv-affine-2}
+\end{figure}
+Um die Abbildung zwischen zwei allgemeinen (konvexen) Vierecken darzustellen, muss eine perspektivische Transformation gewählt werden. Schließlich bildet eine affine Transformation parallele Linien wieder auf parallele Linien ab, womit Parallelogramme stets auf Parallelogramme abgebildet werden.
+
+Eine solche perspektivische Transformation lässt sich durch eine $3\times3$ Matrix $\mathbf{P}$ darstellen, welche vier Punkte auf vier andere Punkte abbildet (genau genommen auf ein Vielfaches dieser Punkte), sodass: $$\begin{bmatrix}\lambda_i x_i^\prime\\\lambda_i y_i^\prime\\\lambda_i\end{bmatrix}=\underbrace{\begin{bmatrix}p_{11}&p_{12}&p_{13}\\p_{21}&p_{22}&p_{23}\\p_{31}&p_{32}&p_{33}\end{bmatrix}}_{\mathbf{P}}\cdot\begin{bmatrix}x_i\\y_i\\1\end{bmatrix},1\leq i\leq4$$.
+
+In OpenCV lässt sich diese Matrix mit der Funktion \texttt{cv::getPerspectiveTransform()} finden. Die Funktion \texttt{cv::warpPerspective()} übernimmt dann die eigentliche Transformation des Bildes mit der Matrix.
+\chapter{Metriken zur Bildrekonstruktion}
+Um Schiebepuzzles mit Bildern lösen zu können, muss zunächst das Ausgangsbild (als gewünschten Endzustand) bekannt sein. Der erste Schritt ist somit, dieses Bild aus einer Menge von (rechteckigen) Puzzlestücken zu rekonstruieren. Diese Art von Problemstellung erinnert an eine andere Form von Puzzle, welche im englischen Sprachraum als \textit{Jigsaw Puzzle} bezeichnet werden. Abbildung \ref{fig-jig-ex} zeigt ein Beispielpuzzle dieser Art.
+\begin{figure}[H]
+    \centering
+    \subfloat[Ausgangspuzzle\label{fig-jig-ex-1}]{
+        \includegraphics[width=0.70\linewidth]{img/jigex2.png}
+    }
+    \\
+    \subfloat[Teillösung\label{fig-jig-ex-2}]{
+        \includegraphics[width=0.60\linewidth,valign=t]{img/jigex3.png}
+    }
+    \quad
+    \subfloat[Lösung\label{fig-jig-ex-3}]{
+        \includegraphics[width=0.30\linewidth,valign=t]{img/jigex1.png}
+    }
+    \caption{Beispiel eines Jigsaw-Puzzles}
+    \label{fig-jig-ex}
+\end{figure}
+Normalerweise sind die Puzzlestücke dabei speziell geformt (oftmals ähnlich wie in Abb. \ref{fig-jig-ex}). Dies schränkt die Möglichkeiten der gültigen Zusammensetzungen des Puzzles stark ein, besonders da die Möglichkeit besteht zwischen Rahmenstücken und inneren Puzzlestücken zu unterscheiden (Stücke am Rand des Bildes haben mindestens eine glatte Kante). Dadurch entsteht ein Problem, welches sich teilweise nur durch die äußere Form der Puzzlestücke und deren Kompatibilität untereinander lösen lässt. Es gibt sogar Puzzle bei denen diese Information hinreichend ist um das Puzzle vollständig zu lösen (die Stücke selber weisen dann keine weiteren optischen Merkmale auf und sind meist einfarbig).
+
+Mit der Motivation später Schiebepuzzle lösen zu können, muss das Problem auf rechteckige Puzzlestücke verallgemeinert werden. Damit kann weder gesagt werden, ob ein Puzzlestück ein Rahmenstück ist oder sich im inneren des Puzzles befinden muss, noch können Aussagen über die Kompatibilität zweier Puzzlestücke gemacht werden, ohne dabei die Bilder der Puzzlestücke zu analysieren.
+
+Eine noch speziellere Variante von rechteckigen Jigsaw-Puzzles schränkt die Puzzlestücke auf eine quadratische Größe ein. Bei diesen Square Jigsaw Puzzles werden in der Literatur nach \cite{gallagher} zwischen drei Typen unterschieden. Alle Typen haben (sofern nicht anders definiert) Informationen über die Dimensionsgrößen ($m$ Zeilen, $n$ Spalten) des Puzzles. Alle Puzzleteile sind quadratisch (mit der gleichen Seitenlänge) und besitzen Farbinformationen (in Form von einem Bild für jedes Stück). Es gibt exakt $N=m\times n$ Puzzlestücke, womit das Puzzle also keine Lücken oder überschüssige Teile haben wird.
+
+Bei dem Type 1 Square Jigsaw Puzzle ist die Position der Puzzlestücke unbekannt, deren Orientierung jedoch fest und bekannt. Alle möglichen Puzzlestellungen sind dann eine Permutation der vorhandenen Puzzlestücke. Davon gibt es $N!$ verschiedene. Außerdem lassen sich somit zwei Puzzleteile $(x_i,x_j)$ auf vier verschiedene Arten zusammensetzen ($x_i$ kann links, rechts, oben oder unten von $x_j$ platziert werden). Jede Seite von $x_i$ hat nur eine Seite von $x_j$ als möglichen Partner. Das Type 1 Puzzle ist der am meisten untersuchteste Typ von den dreien und hat den Namen \textit{jig swap}\cite{loop} bekommen.
+
+Das Type 2 Puzzle lässt eine unbekannte Orientierung der Puzzleteile zu. Somit lassen die Puzzleteile sich nicht nur anordnen, sondern auch rotieren. Die Anzahl der möglichen Anordnungen des Puzzles vervielfacht sich somit um einen Faktor von $4^N$ auf insgesamt $4^N\cdot N!$. Zwei Puzzlestücke $(x_i,x_j)$ lassen sich nun auf $16$ verschiedene Arten anordnen, da jede Seite von $x_i$ mit jeder Seite von $x_j$ kombiniert werden kann.
+
+Beim Type 3 Puzzle ist die Orientierung zwar unbekannt, die Positionen der Puzzleteile sind jedoch fest und bekannt. Da die Anordnung fest ist und jedes Puzzlestück sich rotieren lässt, hat dieses Puzzle mit $4^N$ möglichen Anordnung die geringste Komplexität. Zwei Puzzlestücke $(x_i,x_j)$ lassen sich auch hier auf $16$ verschiedene Arten kombinieren. Der Unterschied dabei zu Type 1 und Type 2 Puzzles ist jedoch, dass nur die Kompatibilität zwischen Seiten von bereits benachbarten Teilen analysiert werden muss (da die Anordnung fest ist). Bei Type 1 und Type 2 Puzzles kommen für ein Teil $x_i$ alle anderen Teile $x_j,j\neq i$ als mögliche Nachbarn in Frage.
+
+Die Anzahl der möglichen Kombinationen die es gibt, wenn man zwei Seiten von zwei Puzzlestücken vergleichen möchte, ist bereits eine gute untere Schranke für die Laufzeit- und Speicherkomplexität von Algorithmen, welche die Kompatibilität aller Puzzlestücke (in allen möglichen Anordnungen) braucht, um Entscheidungen treffen zu können (um beispielsweise zunächst die Puzzlesteile zu kombinieren, welche von allen die höchste Kompatibilität aufweisen).
+
+Type 1 Puzzle müssen alle Puzzlestücke mit allen anderen Puzzlestücken vergleichen. Da die Kompatibilität zwischen zwei Stücken symmetrisch ist und es $4$ Möglichkeiten gibt die zwei Stücke in einem Type 1 Puzzle anzuordnen ergeben sich somit $$4\binom{N}{2}=2N(N-1)\in\Theta(N^2)$$ Kompatibilitäten die berechnet werden müssen.
+
+Bei Type 2 Puzzle ändert sich lediglich der konstante Faktor vor dem Binomialkoeffizienten von $4$ auf $16$, womit sich auch die Anzahl der berechneten Metriken vervierfach und somit auf $8N(N-1)$ wächst, was weiterhin $\Theta(N^2)$ ist.
+
+Im Gegensatz dazu werden bei Type 3 Puzzles lediglich die Kompatibilitäten zu den benachbarten Puzzlestücken berechnet. Durch die mögliche Rotation der beiden Stücke ergeben sich (wie bei Type 2) $16$ Möglichkeiten pro Paar. Jedes Paar entspricht einer (inneren) Kante im Puzzle (vgl. Abb. \ref{fig-type3}). Die Anzahl der vertikalen Kanten (in der Abbildung rot gekennzeichnet) entspricht $m(n-1)$, die Anzahl der horizontalen Kanten (in der Abbildung grün gefärbt) entspricht dann der Symmetrie nach $n(m-1)$. Damit ergeben sich insgesamt
+\begin{align*}
+    &16[m(n-1)+n(m-1)]\\
+    =&16[2mn-m-n]\\
+    =&16(2N-m-n)\in\Theta(N)
+\end{align*}
+mögliche Kompatibilität, die berechnet werden müssen.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.60\linewidth]{img/type3.png}
+    \caption{Anzahl der Kanten bei einem Type 3 Puzzle}
+    \label{fig-type3}
+\end{figure}
+Es ist zu beachten, dass $N$ bereits quadratisch wächst (bei einem Puzzle mit quadratischen Dimensionen $m=n$). Bei einem $n\times n$ Puzzle ist der Aufwand eines Type 3 Puzzles somit mindestens quadratisch von $n$ abhängig. Bei Type 1 und Type 2 Puzzles wächst dies noch schneller: $\Theta(N^2)=\Theta(n^4)$.
+
+Außerdem sei noch erwähnt, dass mögliche Lösungen beim Type 2 Puzzle aufgrund der erlaubten Rotation (und der Tatsache, dass die Position der Stücke nicht fixiert ist) nicht unbedingt eindeutig sind. Selbst wenn ein Algorithmus es schafft das Bild so zu rekonstruieren, dass jede Seite eines Puzzlestückes den richtigen Partner hat, kann es sein, dass das Gesamtbild jedoch rotiert ist.
+
+Im weiteren Verlauf dieser Arbeit werden hauptsächlich Type 1 Puzzles betrachtet, da Schiebepuzzle sowieso keine Rotation zulassen. Abbildung \ref{fig-jigswap} zeigt ein $8\times 8$ Type 1 Puzzle.
+\begin{figure}[H]
+    \centering
+    \subfloat[Permutiertes Puzzle\label{fig-jigswap-1}]{
+      \includegraphics[width=0.30\linewidth]{img/jigswap2.png}
+    }
+    \quad\quad\quad\quad
+    \subfloat[Gelöstes Puzzle\label{fig-jigswap-2}]{
+      \includegraphics[width=0.30\linewidth]{img/jigswap1.png}
+    }
+    \caption{Beispiel eines Type 1 Puzzles}
+    \label{fig-jigswap}
+\end{figure}
+Zur Rekonstruktion des Bildes werden Kompatibilitätsmetriken betrachtet, welche später als Information vom eigentlichen Algorithmus verwendet werden, um Entscheidungen zu treffen, welche Puzzlestücke miteinander kombiniert werden sollen und welche nicht.
+
+Genau genommen werden im Folgenden eher Metriken (Distanzfunktionen) betrachtet, die genau das Gegenteil von der Kompatibilität zweier Puzzlestücke darstellen. Den Begriff der Kompatibilität wurde jedoch in \cite{pomeranz} eingeführt und wird seitdem in weiterer Literatur verwendet.
+\section{$(L_p)^q$ Norm}
+Um Aussagen über die Kompatibilität bzw. die Unähnlichkeit (mit Hilfe einer Distanzfunktion) zweier Puzzlestücke zu machen, muss zunächst geklärt werden, wie die Distanz zweier Pixel beschrieben werden kann. Welche Pixel wirklich miteinander verglichen werden beim Vergleich zweier Puzzlestücke ist schließlich erst dann relevant, wenn Möglichkeiten bestehen, die Unähnlichkeit von zwei Pixeln anzugeben.
+
+Da weiterhin Farbbilder aus dem (OpenCV übglichen) BGR-Raum betrachtet werden und somit jeder Pixel drei Channel (mit je 8 Bit) hat, lässt sich ein Pixel als einen Vektor aus dem Raum $[0,256)^3$ auffassen. Damit lässt sich eine Norm $\|\cdot\|:[0,256)^3\rightarrow[0,\infty)$ definieren. Mit einer Norm lässt sich aber mit $d(\vec{u},\vec{v})\coloneqq\|\vec{u}-\vec{v}\|$ eine Metrik einführen.
+
+Die aus der Mathematik bekannte $L_p$ Norm mit $$L_p(\vec{v})=\|\vec{v}\|_p\coloneqq\sqrt[p]{\sum_{i=1}^{n}|v_i|^p},p\in\mathbb{R}^{\geq1}$$ liegt dabei am nächsten. Besonders die $L_2$ Norm (euklidische Norm) oder die $L_1$ Norm (Taxicab Norm oder Manhatten Norm) würden in Frage kommen. In \cite{pomeranz} wurde jedoch für Jigsaw Puzzles mit der $(L_p)^q$ Norm eine weitere (allgemeinere) Norm eigeführt. Die $(L_p)^q$ Norm berechnet sich zu $$(L_p)^q[\vec{v}]=\|\vec{v}\|_p^q\coloneqq \sqrt[\leftroot{-2}\uproot{5}\frac{p}{q}]{\sum_{i=1}^{n}|v_i|^p}$$.
+
+Die $(L_p)^q$ Norm ist damit die mit $q$ potenzierte $L_p$ Norm: $(L_p)^q[\vec{v}]\coloneqq(L_p[\vec{v}])^q$. Auch in \cite{pomeranz} (empirisch) gezeigt wurde, dass besonders $p=\frac{3}{10}$ und $q=\frac{1}{16}$ gute Ergebnisse liefern.
+\section{Dissimilarity-Based Compatibility (DBC)}
+Die erste Metrik beschrieben in \cite{pomeranz} ist die Dissimilarity-Based Compatibility (DBC). Diese summiert die Distanzen zweier Puzzlestücke entlang einer Kante auf. Da es für Type 1 Puzzle vier verschiedene Möglichkeiten gibt, zwei Stücke $x_i$ und $x_j$ anzuordnen, wird zunächt eine numerische Konstante $r\in\{0,1,2,3\}$ definiert, die diesen Zusammenhang darstellt.
+\begin{table}[H]
+    \centering
+    \begin{tabular}{c|c|c|c}
+        $r=0$ & $r=1$ & $r=2$ & $r=3$\\
+        \hline
+        \begin{tikzpicture}
+            \draw (0,0) rectangle (1,1) node[midway] {$x_i$};
+            \draw (1,0) rectangle (2,1) node[midway] {$x_j$};
+        \end{tikzpicture}&
+        \begin{tikzpicture}
+            \draw (0,0) rectangle (1,1) node[midway] {$x_j$};
+            \draw (0,1) rectangle (1,2) node[midway] {$x_i$};
+        \end{tikzpicture}&
+        \begin{tikzpicture}
+            \draw (0,0) rectangle (1,1) node[midway] {$x_j$};
+            \draw (1,0) rectangle (2,1) node[midway] {$x_i$};
+        \end{tikzpicture}&
+        \begin{tikzpicture}
+            \draw (0,0) rectangle (1,1) node[midway] {$x_i$};
+            \draw (0,1) rectangle (1,2) node[midway] {$x_j$};
+        \end{tikzpicture}
+    \end{tabular}
+    \caption{Räumlicher Zusammenhang zweier Puzzlestücke}
+    \label{tbl-spatial-relation}
+\end{table}
+Die DBC entlang einer Kante, die beim Zusammensetzen zweier Puzzlestücke entsteht, wird dann mit $D(x_i,x_j,r)$ bezeichnet. Da diese Metrik symmetrisch ist gilt außerdem $D(x_i,x_j,r)=D(x_j,x_i,r^\prime)$. Wobei $r^\prime$ die inverse Relation der beiden Puzzlestücke darstellt und sich zu $$r^\prime=(r+2)\bmod4$$ berechnet.
+
+Als Referenzstellung der beiden Puzzleteile wird im weiteren Verlauf $r=0$ verwendet ($x_i$ befindet sich also links von $x_j$). Andere Stellungen lassen sich entweder ähnlich berechnen (lediglich durch das Vertauschen der Dimensionen oder durch das Vertauschen von $i$ und $j$) oder sogar gleich berechnen, sofern die beiden Puzzlestücke zuvor entsprechend rotiert wurden.
+
+Diese DBC zweier Puzzlestücke $x_i(x,y)$ und $x_j(x,y)$ mit Höhe $h$ und Breite $w$ und basierend auf einer Norm $\|\cdot\|$ berechnet sich dann zu: $$D(x_i,x_j,0)=\sum_{k=0}^{h-1}\|x_i(w-1,k)-x_j(0,k)\|$$.
+
+Da diese Distanz bei rechteckigen Puzzlestücken die kürzeren Seiten generell bevorzugt (die Summanden sind stets positiv, womit selbst gute Kanten bei vielen Summanden große Werte liefern), kann diese Distanz noch durch die Anzahl der Summanden bzw. die Länge der Seite $K$ (bei $r=0$ beispielsweise die Höhe der Puzzlestücke) dividiert werden: $$\bar{D}(x_i,x_j,r)=\frac{1}{K}\cdot D(x_i,x_j,r)$$.
+
+Um diese Distanz gegebenenfalls noch auf das Intervall $[0,1]$ zu normalisieren, lässt sich die durchschnittliche Distanz (pro Summand) durch die maximale Distanz $d_{max}$ zwischen zwei Pixel dividieren. Diese maximale Distanz hängt von der gewählten Norm ab. Bei der euklidischen Norm ist dies beispielsweise $d_{max}=\sqrt{255^2+255^2+255^2}=\sqrt{3\cdot255^2}=\sqrt{3}\cdot255$.
+
+Damit lässt sich nun die Kompatibilität zweier Puzzlestücke als die Gegenwahrscheinlichkeit dieser relativen Distanz definieren:$$C(x_i,x_j,r)\coloneqq 1-\frac{\bar{D}(x_i,x_j,r)}{d_{max}}$$.
+
+Die DBC bietet eine simple Möglichkeit die Kompatibilität (oder Distanz) zwischen zwei Puzzlestücken zu berechnen. Die Berechnung einer solchen Distanz bezüglich einer Kante ist linear in der Länge dieser Kante $\Theta(K)$ (Höhe oder Breite der Puzzlestücke). Ein Nachteil ist, dass lediglich die äußersten Pixel eines Puzzlestückes betrachtet werden. Dadurch werden Farbübergänge, die zwar im Gesamtbild Sinn ergeben, an den Kanten als harsch angesehen, da diese dort für große Distanzen sorgen.
+\section{Prediction-Based Compatibility (PBC)}
+Um neben den Randpixeln auch noch die Informationen von deren (inneren) benachbarten Pixeln nutzen zu können, wird bei der Prediction-Based Compatibility (PBC) das Bild eines Puzzlestückes um einen Pixel in jede Richtung erweitert. Diese approximierten Pixel einer Seite werden dann anstatt den eigentlichen Pixeln dieser Seite (wie es bei der DBC der Fall ist) in der Distanzberechnung verwendet. Es wird also die Distanz zwischen einem approximierten Pixel in einem Puzzlestück und einem echten Pixel in einem anderen Puzzlestück ermittelt.
+
+Zur Approximierung der Farbwerte lässt sich ein Bild $I$ mit der Breite $w$ und der Höhe $h$ im BGR-Farbraum wieder als vektorwertige Funktion $\vec{I}(\vec{x}):[0,w)\times[0,h)\rightarrow[0,256)^3$ betrachten. Es wird eine lineare Approximierung nach Taylor gewählt. Um eine Entwicklungsstelle $\vec{x}_0$ gilt dann $$\vec{I}(\vec{x})\approx\vec{I}(\vec{x}_0)+J_I(\vec{x}_0)\cdot(\vec{x}-\vec{x_0})$$. Wobei mit $J_I(\vec{x}_0)$ die Jacobi-Matrix (ausgewertet an der Entwicklungsstelle $\vec{x}_0$) gemeint ist. Die Jacobi-Matrix fasst alle partiellen Ableitungen der Funktion zusammen (die Komponenten von $I$ werden entsprechend der Farbchannel als $b$, $g$ und $r$ bezeichnet): $$J_I=\begin{bmatrix}\frac{\partial b}{\partial x}&\frac{\partial b}{\partial y}\\\frac{\partial g}{\partial x}&\frac{\partial g}{\partial y}\\\frac{\partial r}{\partial x}&\frac{\partial r}{\partial y}\end{bmatrix}$$.
+
+Um die einzelnen Ableitungen numerisch zu bestimmen, werden finite Differenzen verwendet. Dabei wird unterschieden zwischen dem Forward-Differenzenquotienten $\Delta_F[f](x)$, Backward-Differenzenquotienten $\Delta_B[f](x)$ und Central-Differenzenquotienten $\Delta_C[f](x)$.
+\begin{align*}
+    \Delta_F[f](x) &= \frac{f(x+h)-f(x)}{h}\\
+    \Delta_B[f](x) &= \frac{f(x)-f(x-h)}{h}\\
+    \Delta_C[f](x) &= \frac{\Delta_F[f](x)+\Delta_B[f](x)}{2}\\
+                   &= \frac{f(x+h)-f(x-h)}{2h}
+\end{align*}
+Der Central-Differenzenquotient ist damit also das arithmetische Mittel vom Forward-Differenzenquotienten und vom Backward-Differenzenquotienten. Da die Ableitung einer Funktion $f$ an einer Stelle $x$ gerade der Grenzwert dieser Quotienten darstellt, für die $h\rightarrow0$, werden zur numerischen Berechnung kleine $h\neq0$ gewählt. Die Koordinaten $(x,y)$ eines Bildes können jedoch nur diskrete Werte annehmen, womit das kleinstmögliche $h$ somit $h=1$ ist. Das Aufstellen der Differenzenquotienten für vektorwertige Funktionen lässt sich analog zum skalaren Beispiel konstruieren (wobei die Funktionsdifferenz im Zähler dann eine Vektordifferenz ist, anders gesagt wird der Differenzenquotient für jede Komponente gebildet). Für Funktionen, die von mehreren Variablen abhängig sind, entsprechen die Differenzenquotienten dann einer Approximierung der partiellen Ableitungen, wobei lediglich der Parameter variiert wird, nach dem abgeleitet werden soll. Die restlichen Parameter werden konstant gehalten.
+
+Als Beispiel lässt sich somit ein Bild an den Rändern erweitern, indem der nächstgelegene Pixel als Entwicklungsstelle für die lineare Approximierung genommen wird. In Abbildung \ref{fig-pred} wird gezeigt, wie ein Bild sowohl nach oben als auch nach rechts um jeweils einen Pixel erweitert wird.
+
+Ein Pixel am (erweiterten) rechten Rand (in der Zeile $y$) des Bildes hat die Koordinaten $(w,y)$. Als Entwicklungsstelle wird der links benachbarte Pixel mit den Koordinaten $(w-1,y)$ gewählt. Der Farbwert des neuen (erweiterten) Pixels lässt sich dann mit
+\begin{align} \label{eq2}
+    \vec{I}(w,y) &= \vec{I}(w-1,y) + \begin{bmatrix}
+        \frac{\partial \vec{I}}{\partial x} &
+        \frac{\partial \vec{I}}{\partial y}
+    \end{bmatrix}
+    \biggr \rvert_{(x,y)=(w-1,y)} \cdot
+    \left( \begin{bmatrix}
+        w \\
+        y
+    \end{bmatrix} - \begin{bmatrix}
+        w-1 \\
+        y
+    \end{bmatrix} \right),&\forall y:0\leq y<h \nonumber \\
+    &= \vec{I}(w-1,y) + \begin{bmatrix}
+        \vec{I}_x(w-1,y) & \vec{I}_y(w-1,y)
+    \end{bmatrix} \cdot \begin{bmatrix}
+        1 \\
+        0
+    \end{bmatrix} \nonumber \\
+    &= \vec{I}(w-1,y) + \vec{I}_x(w-1,y)
+\end{align}
+approximieren.
+
+Bei der numerischen Approximierung der partiellen Ableitung von $\vec{I}$ entlang der $x$-Achse kommt ausschließlich der Backward-Differenzenquotient in Frage. Dies liegt daran, dass die Pixel mit einer $x$-Koordinate von $w-1$ sich in der letzten Spalte des Bildes befinden und somit entlang der $x$-Achse keinen rechts benachbarten Pixel haben. Damit ergibt sich:
+\begin{align} \label{eq3}
+    \vec{I}_x(w-1,y) &= \Delta_B\left[\vec{I}\right](w-1,y) \nonumber \\
+    &= \frac{\vec{I}(w-1,y)-\vec{I}(w-1-h,y)}{h} \nonumber \\
+\shortintertext{Mit $h=1$ folgt}
+    \vec{I}_x(w-1,y) &= \vec{I}(w-1,y)-\vec{I}(w-2,y)
+\end{align}
+Insgesamt ergibt sich mit \ref{eq2} und \ref{eq3} irgendwas.
+\begin{figure}[H]
+    \centering
+    \subfloat[Originalbild\label{fig-pred-orig}]{
+      \includegraphics[width=0.40\linewidth,valign=t]{img/linear_orig.png}
+    }
+    \quad\quad
+    \subfloat[Obere rechte Ecke im Originalbild\label{fig-pred-orig2}]{
+      \includegraphics[width=0.20\linewidth,valign=t]{img/linear_orig2.png}
+    }
+    \\
+    \subfloat[a\label{fig-15-puzzle-image-scrambled}]{
+        \includegraphics[width=0.20\linewidth]{img/linear_nosat.png}
+    }
+    \quad\quad\quad\quad
+    \subfloat[b\label{fig-15-puzzle-image-solved}]{
+        \includegraphics[width=0.20\linewidth]{img/linear_sat.png}
+    }
+    \caption{asdf}
+    \label{fig-pred}
+\end{figure}
+\section{Dynamic Time Warping (DTW)}
+reee
+\section{Mahalanobis Gradient Compatibility (MGC)}
+doch heute
 
 \backmatter
 

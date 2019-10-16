@@ -1,14 +1,71 @@
-\begin{thebibliography}{2}
+\begin{thebibliography}{11}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
 
+\bibitem[ope({\natexlab{a}})]{opencv}
+About opencv.
+\newblock Website, {\natexlab{a}}.
+\newblock Online erhältlich unter \url{https://opencv.org/about/}; abgerufen
+  am 16. September 2019.
+
+\bibitem[ope({\natexlab{b}})]{opencv2}
+Opencv: cv::mat class reference.
+\newblock Website, {\natexlab{b}}.
+\newblock Online erhältlich unter
+  \url{https://docs.opencv.org/master/d3/d63/classcv_1_1Mat.html}; abgerufen am
+  17. September 2019.
+
+\bibitem[ope({\natexlab{c}})]{opencv3}
+Opencv: Introduction.
+\newblock Website, {\natexlab{c}}.
+\newblock Online erhältlich unter
+  \url{https://docs.opencv.org/master/d1/dfb/intro.html}; abgerufen am 19.
+  September 2019.
+
+\bibitem[ope({\natexlab{d}})]{opencv4}
+Opencv: Hardware acceleration layer - interface.
+\newblock Website, {\natexlab{d}}.
+\newblock Online erhältlich unter
+  \url{https://docs.opencv.org/master/d1/d1b/group__core__hal__interface.html};
+  abgerufen am 20. September 2019.
+
+\bibitem[ope({\natexlab{e}})]{opencv5}
+Opencv: Load, modify, and save an image.
+\newblock Website, {\natexlab{e}}.
+\newblock Online erhältlich unter
+  \url{https://docs.opencv.org/master/db/d64/tutorial_load_save_image.html};
+  abgerufen am 23. September 2019.
+
+\bibitem[ope({\natexlab{f}})]{opencv6}
+Opencv: Geometric image transformations.
+\newblock Website, {\natexlab{f}}.
+\newblock Online erhältlich unter
+  \url{https://docs.opencv.org/master/da/d54/group__imgproc__transform.html};
+  abgerufen am 26. September 2019.
+
+\bibitem[Dolev~Pomeranz(2011)]{pomeranz}
+Ohad Ben-Shahar Dolev~Pomeranz, Michal~Shemesh.
+\newblock A fully automated greedy square jigsaw puzzle solver.
+\newblock \emph{IEEE conference on Computer Vision and Pattern Recognition
+  (CVPR)}, 2011.
+
+\bibitem[Gallagher(2012)]{gallagher}
+Andrew~C. Gallagher.
+\newblock Jigsaw puzzles with pieces of unknown orientation.
+\newblock 2012.
+
 \bibitem[Jerry~Slocum(2006)]{sloson}
 Dic~Sonneveld Jerry~Slocum.
 \newblock \emph{The 15 Puzzle Book: How it Drove the World Crazy}.
 \newblock Slocum Puzzle Foundation, 2006.
+
+\bibitem[Kilho~Son(2013)]{loop}
+David B.~Cooper Kilho~Son, James~Hays.
+\newblock Solving square jigsaw puzzles with loop constraints.
+\newblock 2013.
 
 \bibitem[Perelman(1988)]{perelman}
 Yakov~Isidorovich Perelman.

@@ -7,6 +7,7 @@
 #include <string>
 #include <random>
 #include <limits>
+#include <opencv2/imgproc.hpp>
 
 #include "DisjointSetForest.hpp"
 #include "Puzzle.hpp"
@@ -103,8 +104,100 @@ cv::Mat reconstruct_image(const cv::Mat& original, const std::vector<std::vector
 	return re;
 }
 
+cv::Mat my_get_affine_transform(cv::Point2f u0, cv::Point2f u1, cv::Point2f u2, cv::Point2f v0, cv::Point2f v1, cv::Point2f v2)
+{
+	/*
+	cv::Mat a(3, 3, CV_32F);
+	a.at<float>(0, 0) = (u1 - u0).x; a.at<float>(0, 1) = (u2 - u0).x; a.at<float>(0, 2) = u0.x;
+	a.at<float>(1, 0) = (u1 - u0).y; a.at<float>(1, 1) = (u2 - u0).y; a.at<float>(1, 2) = u0.y;
+	a.at<float>(2, 0) = 0;           a.at<float>(2, 1) = 0;           a.at<float>(2, 2) = 1;
+
+	cv::Mat b(3, 3, CV_32F);
+	b.at<float>(0, 0) = (v1 - v0).x; b.at<float>(0, 1) = (v2 - v0).x; b.at<float>(0, 2) = v0.x;
+	b.at<float>(1, 0) = (v1 - v0).y; b.at<float>(1, 1) = (v2 - v0).y; b.at<float>(1, 2) = v0.y;
+	b.at<float>(2, 0) = 0;           b.at<float>(2, 1) = 0;           b.at<float>(2, 2) = 1;
+
+	auto tmp = b * a.inv();
+	return tmp({ 0, 2 }, { 0, 3 });
+	*/
+
+	cv::Mat a(3, 3, CV_32F);
+	a.at<float>(0, 0) = u0.x; a.at<float>(0, 1) = u1.x; a.at<float>(0, 2) = u2.x;
+	a.at<float>(1, 0) = u0.y; a.at<float>(1, 1) = u1.y; a.at<float>(1, 2) = u2.y;
+	a.at<float>(2, 0) = 1;    a.at<float>(2, 1) = 1;    a.at<float>(2, 2) = 1;
+
+	cv::Mat b(2, 3, CV_32F);
+	b.at<float>(0, 0) = v0.x; b.at<float>(0, 1) = v1.x; b.at<float>(0, 2) = v2.x;
+	b.at<float>(1, 0) = v0.y; b.at<float>(1, 1) = v1.y; b.at<float>(1, 2) = v2.y;
+	//b.at<float>(2, 0) = 1;    b.at<float>(2, 1) = 1;    b.at<float>(2, 2) = 1;
+
+	auto tmp = b * a.inv();
+	return tmp;
+}
+
 int main(int argc, char* argv[])
 {
+	cv::Mat src = cv::imread("img/lena2.jpg");
+
+	cv::Mat dst(src.rows + 2, src.cols + 2, src.type(), cv::Scalar(255, 0, 0));
+	src.copyTo(dst({1,src.rows+1},{1,src.cols+1}));
+
+	for (int row = 1; row <= src.rows; row++)
+	{
+		for (int c = 0; c < 3; c++)
+		{
+			dst.at<cv::Vec3b>(row, src.cols + 1)[c] = cv::saturate_cast<unsigned char>(2 * dst.at<cv::Vec3b>(row, src.cols)[c] - dst.at<cv::Vec3b>(row, src.cols - 1)[c]);
+			dst.at<cv::Vec3b>(row, 0)[c] = cv::saturate_cast<unsigned char>(2 * dst.at<cv::Vec3b>(row, 1)[c] - dst.at<cv::Vec3b>(row, 2)[c]);
+		}
+	}
+
+	for (int col = 1; col <= src.cols; col++)
+	{
+		for (int c = 0; c < 3; c++)
+		{
+			dst.at<cv::Vec3b>(src.rows + 1, col)[c] = cv::saturate_cast<unsigned char>(2 * dst.at<cv::Vec3b>(src.rows, col)[c] - dst.at<cv::Vec3b>(src.rows - 1, col)[c]);
+			dst.at<cv::Vec3b>(0, col)[c] = cv::saturate_cast<unsigned char>(2 * dst.at<cv::Vec3b>(1, col)[c] - dst.at<cv::Vec3b>(2, col)[c]);
+		}
+	}
+
+	for (int c = 0; c < 3; c++)
+	{
+		dst.at<cv::Vec3b>(src.rows + 1, src.cols + 1)[c] = cv::saturate_cast<unsigned char>(
+			3 * dst.at<cv::Vec3b>(src.rows, src.cols)[c]
+			- dst.at<cv::Vec3b>(src.rows, src.cols - 1)[c]
+			- dst.at<cv::Vec3b>(src.rows - 1, src.cols)[c]
+		);
+
+		dst.at<cv::Vec3b>(0, src.cols + 1)[c] = cv::saturate_cast<unsigned char>(
+			3 * dst.at<cv::Vec3b>(1, src.cols)[c]
+			- dst.at<cv::Vec3b>(1, src.cols - 1)[c]
+			- dst.at<cv::Vec3b>(2, src.cols)[c]
+		);
+
+		dst.at<cv::Vec3b>(src.rows + 1, 0)[c] = cv::saturate_cast<unsigned char>(
+			3 * dst.at<cv::Vec3b>(src.rows, 1)[c]
+			- dst.at<cv::Vec3b>(src.rows, 2)[c]
+			- dst.at<cv::Vec3b>(src.rows - 1, 1)[c]
+		);
+
+		dst.at<cv::Vec3b>(0, 0)[c] = cv::saturate_cast<unsigned char>(
+			3 * dst.at<cv::Vec3b>(1, 1)[c]
+			- dst.at<cv::Vec3b>(1, 2)[c]
+			- dst.at<cv::Vec3b>(2, 1)[c]
+		);
+	}
+
+	cv::namedWindow("src");
+	cv::imshow("src", src);
+
+	cv::namedWindow("dst");
+	cv::imshow("dst", dst);
+
+	cv::waitKey();
+	cv::destroyAllWindows();
+
+	return 0;
+
 	cv::Mat img = cv::imread("img/lena2.jpg");
 	if (img.empty())
 	{
