@@ -21,6 +21,7 @@
 \usepackage[export]{adjustbox}
 \usepackage{subfig}
 \usepackage{tikz}
+\usepackage{slashbox}
 
 \title[Bericht]{Classcon Consulting GmbH}
 \subtitle{d.velop AG}
@@ -171,7 +172,7 @@ Im Gegensatz dazu teilen \texttt{cv::Mat}-Objekte ihre Resourcen (den darunterli
 
 Die Kopiersemantik von \texttt{cv::Mat} ist dann von wichtiger Bedeutung, wenn es gilt, einen Teilbereich einer Matrix zu extrahieren oder zu ändern. Solche Bereiche werden als Region of Interest (ROI) bezeichnet und können eine oder mehrere Zeilen, eine oder mehrere Spalten, eine Diagonale oder ein rechteckiger Bereich aus der Matrix sein. Diese Operationen sind weiterhin alle $\Theta(1)$, da lediglich ein neuer Matrix-Header erstellt werden muss und die eigentlichen Elemente der Matrix nicht kopiert werden, sondern nur referenziert werden. Damit wirken sich Änderungen der Daten in einer Matrix also auch implizit auf alle anderen Matrizen aus, die diese Daten referenzieren.
 
-\section{Saturate-Casting}
+\section{Saturate-Casting}\label{section-sat}
 Die einzelnen Pixels eines Bildes sind in OpenCV Elemente einer zweidimensionalen \texttt{cv::Mat}. Ob diese Elemente skalar oder vektorwertig sind hängt vom gewählten Farbraum ab. Die Wertebereiche der einzelnen Channel eines Elementes hängen wiederum vom gewählten Datentyp ab (vgl. \ref{section-pixeltypes}). Dabei werden oftmals 8- oder 16-bit (signed oder unsigned) per Channel gewählt. Für unsigned 8-bit (Datentyp \texttt{cv::uchar} in OpenCV) stehen damit nur ganzzahlige Werte aus dem (halboffenen) Intervall $[0, 256)$ zu Verfügung. Viele Operationen auf Bildern (z.\,B. das Interpolieren von Bildern oder das Konvertieren zwischen verschiedenen Farbräumen) können Werte ausserhalb dieses Intervalles erzeugen. Anstatt jedoch nur die niedrigsten 8 Bits des Ergebnisses zu verwenden (was in einem Bild unmittelbar zu sichtbaren Artifakten führt), bietet OpenCV einen \texttt{cv::saturate\_cast<>()} an, welcher den berechneten Wert auf den nächsten Wert im zugelassenen Wertebereich vom Datentyp abbildet. Dazu wird der Wert zunächst gerundet. Falls der gerundet Wert ausserhalb des gültigen Wertebereiches liegt, wird dieser auf den nächsten Wert gültigen Wert gesetzt (jeweils auf das Minimum oder Maximum der Intervalls, je nachdem ob der Wert auf dem Zahlenstrahl links oder rechts vom Intervall liegt). Der letzte Schritt wird auch als \textit{Clamping} bezeichnet. Eine mögliche Implementation\cite{opencv3} für einen 8-bit Channel mit einem berechneten Wert $v$ ist $$v'=\min\{\max\{\lfloor v+0.5\rfloor,0\},255\}$$.
 \section{Datentypen für Pixel}\label{section-pixeltypes}
 Anstatt die Wahl des Datentyps für Pixel generisch zu halten (mithilfe von C++ Templates), gibt OpenCV eine feste limitierte Menge an primitiven Datentypen für Matrizen vor.\cite{opencv3} Der Grund dafür ist, dass große Template Klassen die Compilezeit und die größe des Codes stark erhöhen. Außerdem lassen sich Templates nur schlecht in Definition und Implementation aufteilen (wie es sonst mit Header- und Source-Dateien üblich ist). Des Weiteren besitzen die anderen Sprachen, welche von OpenCV unterstützt werden (Python, MATLAB und Java), keine oder nur begrenzte Sprachkonstrukte, welche die Implementation von Templates ermöglichen würde. Stattdessen basiert die aktuelle OpenCV Implementation hauptsächlich auf Polymorphismus. In C++ stehen aus Performancegründen (um die dynamische Laufzeitbindung von polymorphen Methoden zu vermeiden) jedoch einzelne Template Klassen, Methoden und Funktionen zur Verfügung (dazu gehört auch der \texttt{cv::saturate\_cast<>()}.
@@ -411,7 +412,7 @@ Da weiterhin Farbbilder aus dem (OpenCV übglichen) BGR-Raum betrachtet werden u
 Die aus der Mathematik bekannte $L_p$ Norm mit $$L_p(\vec{v})=\|\vec{v}\|_p\coloneqq\sqrt[p]{\sum_{i=1}^{n}|v_i|^p},p\in\mathbb{R}^{\geq1}$$ liegt dabei am nächsten. Besonders die $L_2$ Norm (euklidische Norm) oder die $L_1$ Norm (Taxicab Norm oder Manhatten Norm) würden in Frage kommen. In \cite{pomeranz} wurde jedoch für Jigsaw Puzzles mit der $(L_p)^q$ Norm eine weitere (allgemeinere) Norm eigeführt. Die $(L_p)^q$ Norm berechnet sich zu $$(L_p)^q[\vec{v}]=\|\vec{v}\|_p^q\coloneqq \sqrt[\leftroot{-2}\uproot{5}\frac{p}{q}]{\sum_{i=1}^{n}|v_i|^p}$$.
 
 Die $(L_p)^q$ Norm ist damit die mit $q$ potenzierte $L_p$ Norm: $(L_p)^q[\vec{v}]\coloneqq(L_p[\vec{v}])^q$. Auch in \cite{pomeranz} (empirisch) gezeigt wurde, dass besonders $p=\frac{3}{10}$ und $q=\frac{1}{16}$ gute Ergebnisse liefern.
-\section{Dissimilarity-Based Compatibility (DBC)}
+\section{Dissimilarity-Based Compatibility (DBC)} \label{section-dbc}
 Die erste Metrik beschrieben in \cite{pomeranz} ist die Dissimilarity-Based Compatibility (DBC). Diese summiert die Distanzen zweier Puzzlestücke entlang einer Kante auf. Da es für Type 1 Puzzle vier verschiedene Möglichkeiten gibt, zwei Stücke $x_i$ und $x_j$ anzuordnen, wird zunächt eine numerische Konstante $r\in\{0,1,2,3\}$ definiert, die diesen Zusammenhang darstellt.
 \begin{table}[H]
     \centering
@@ -442,7 +443,11 @@ Die DBC entlang einer Kante, die beim Zusammensetzen zweier Puzzlestücke entste
 
 Als Referenzstellung der beiden Puzzleteile wird im weiteren Verlauf $r=0$ verwendet ($x_i$ befindet sich also links von $x_j$). Andere Stellungen lassen sich entweder ähnlich berechnen (lediglich durch das Vertauschen der Dimensionen oder durch das Vertauschen von $i$ und $j$) oder sogar gleich berechnen, sofern die beiden Puzzlestücke zuvor entsprechend rotiert wurden.
 
-Diese DBC zweier Puzzlestücke $x_i(x,y)$ und $x_j(x,y)$ mit Höhe $h$ und Breite $w$ und basierend auf einer Norm $\|\cdot\|$ berechnet sich dann zu: $$D(x_i,x_j,0)=\sum_{k=0}^{h-1}\|x_i(w-1,k)-x_j(0,k)\|$$.
+Diese DBC zweier Puzzlestücke $x_i(x,y)$ und $x_j(x,y)$ mit Höhe $h$ und Breite $w$ und basierend auf einer Norm $\|\cdot\|$ berechnet sich dann zu:
+\begin{align} \label{eq-dbc}
+    D(x_i,x_j,0)=\sum_{k=0}^{h-1}\|x_i(w-1,k)-x_j(0,k)\|
+\end{align}
+.
 
 Da diese Distanz bei rechteckigen Puzzlestücken die kürzeren Seiten generell bevorzugt (die Summanden sind stets positiv, womit selbst gute Kanten bei vielen Summanden große Werte liefern), kann diese Distanz noch durch die Anzahl der Summanden bzw. die Länge der Seite $K$ (bei $r=0$ beispielsweise die Höhe der Puzzlestücke) dividiert werden: $$\bar{D}(x_i,x_j,r)=\frac{1}{K}\cdot D(x_i,x_j,r)$$.
 
@@ -498,7 +503,34 @@ Bei der numerischen Approximierung der partiellen Ableitung von $\vec{I}$ entlan
 \shortintertext{Mit $h=1$ folgt}
     \vec{I}_x(w-1,y) &= \vec{I}(w-1,y)-\vec{I}(w-2,y)
 \end{align}
-Insgesamt ergibt sich mit \ref{eq2} und \ref{eq3} irgendwas.
+Insgesamt ergibt sich mit \ref{eq2} und \ref{eq3} die vollständige Formel zu Berechnung des erweiterten Randes vom Bild.
+\begin{align} \label{eq4}
+    \vec{I}(w,y)=2\vec{I}(w-1,y)-\vec{I}(w-2,y)
+\end{align}
+Die Formulierung einer solchen Approximierung für Pixel an anderen Seiten des Bildes lässt sich ähnlich angeben. Lediglich bei der Approximierung der Pixel in einer (neuen) Ecke des Bildes müssen beide partiellen Ableitungen approximiert werden (als Entwicklungsstelle wird die alte Ecke des Bildes genommen, womit sowohl ein Schritt entlang der x-Achse, also auch einen Schritt entlang der y-Achse gegangen wird).
+
+Außerdem ist noch zu beachten, dass mit der reinen Berechnung nach \ref{eq4} noch nicht sichergestellt ist, dass die Channel des neuen Pixels sich auch wieder in dem Wertebereich $[0,256)$ befinden. Es gilt also zu beachten, dass die Berechnung keine modulare Arithmetik verwenden sollte (dazu sollte die Berechnung in einem größeren Vorzeichen behafteten Datentyp stattfinden). Um die Werte danach wieder auf das Intervall $[0,256)$ zu bringen, sollte dann unbedingt der in \ref{section-sat} angesprochene \texttt{cv::saturate\_cast<>()} verwendet werden.
+
+Der folgende Ausschnitt an Quelltext zeigt, wie die Berechnung nach \ref{eq4} mit einem Quellbild \texttt{src} und einem Zielbild \texttt{dst} in OpenCV umgesetzt werden kann.
+\begin{lstlisting}[caption=Lineare Approximierung (nach Taylor) von Pixel am rechten Bildrand, label=lst-pred-sat]
+for (size_t row = 0; row < src.rows; row++)
+{
+    for (size_t ch = 0; ch < 3; ch++)
+    {
+        dst.at<cv::Vec3b>(row, src.cols)[ch] =
+            cv::saturate_cast<cv::uchar>(
+                  2 * dst.at<cv::Vec3b>(row, src.cols - 1)[ch]
+                -     dst.at<cv::Vec3b>(row, src.cols - 2)[ch]
+            )
+        ;
+    }
+}
+\end{lstlisting}
+Um den \texttt{cv::saturate\_cast<>()} geeignet anwenden zu können, werden die Pixel im Quelltext Channel für Channel durchgegangen (Schleife in Zeile 3). Außerdem wird mit der Multiplikation der numerischen Konstante $2$ in Zeile 7 die komplette Berechnung implizit zu einer Berechnung mit Integer Werten. Wäre dies hier nicht der Fall, würde auch die Saturierung des berechneten Wertes nichts daran ändern, dass bereits bei der Berechnung selber gegebenenfalls Over- oder Underflows aufgetreten sind.
+
+Abbildung \ref{fig-pred} zeigt neben dem Ausgangsbild und der oberen rechten Ecke dieses Bildes, zwei Varianten zur Berechnung der Approximierung.
+
+In \ref{fig-pred-nosat} wurde der Saturate-Cast weggelassen, wodurch der (zunächst richtig) berechnete Wert bei der Zuweisung an einen kleineren Datentypen die Informationen in den höheren Bits verliert. Als Ergebnis entstehen einzelne Pixel, die stark vom eigentlichen Bildverlauf abweichen. Suggerieren zwei benachbarte Pixel etwa einen immer dunkler werdeden Farbverlauf, so kann es vorkommen, dass der approximierte Pixel als so dunkel angenommen wird, dass die Werte der Channel bei der Berechnung negativ werden. Diese Annahme ist nicht falsch. Ein impliziter Cast zu einem \texttt{uchar} bewirkt dann jedoch, dass die Channel sehr große Werte annehmen. Das bereits beschriebene Clamping vom Saturate-Cast verhindert dies, sodass ein überaus dunkler Pixel in jedem Channel gegebenenfalls auf den dunkelsten Wert (welcher $0$ entspricht) gesetzt wird. Die gleiche Berechnung mit einem Saturate-Cast liefert, wie in \ref{fig-pred-sat} zu sehen ist, eine zum Farbverlauf passende und somit realistisch aussehende Approximierung der neuen Randpixel.
 \begin{figure}[H]
     \centering
     \subfloat[Originalbild\label{fig-pred-orig}]{
@@ -509,20 +541,74 @@ Insgesamt ergibt sich mit \ref{eq2} und \ref{eq3} irgendwas.
       \includegraphics[width=0.20\linewidth,valign=t]{img/linear_orig2.png}
     }
     \\
-    \subfloat[a\label{fig-15-puzzle-image-scrambled}]{
+    \subfloat[Berechnung ohne Saturierung\label{fig-pred-nosat}]{
         \includegraphics[width=0.20\linewidth]{img/linear_nosat.png}
     }
-    \quad\quad\quad\quad
-    \subfloat[b\label{fig-15-puzzle-image-solved}]{
+    \quad\quad\quad\quad\quad\quad\quad\quad
+    \subfloat[Berechnung mit Saturierung\label{fig-pred-sat}]{
         \includegraphics[width=0.20\linewidth]{img/linear_sat.png}
     }
-    \caption{asdf}
+    \caption{Lineare Approximierung der Pixel am rechten und am oberen Bildrand}
     \label{fig-pred}
 \end{figure}
+Um diese Art der Approximierung nun zu nutzen um die Kompatibilität zweier Puzzlestücke herauszufinden, wird ähnlich wie in \ref{section-dbc} vorgegangen. Als Referenzstellung wird wieder $r=0$ gewählt, womit sich ein Puzzlestück $x_i$ links von einem anderen Puzzlestück $x_j$ befindet. Dabei wird die Berechnung diesmal jedoch in zwei Teile eingeteilt. Es wird zunächst die Distanz betrachtet, die entsteht wenn man die rechte Seite von $x_i$ approximiert und mit den (echten) Pixeln der linkten Seite von $x_j$ vergleicht. Diese Distanz $D_L$ berechnet sich dann analog zu der DBC in \ref{eq-dbc}. Der einzige Unterschied besteht darin, dass die approximierte Spalte an Pixeln von $x_i$ genommen wird. In der Formel aus \ref{eq-dbc} wird also das $x_i(w-1,k)$ zu einem $x_i(w,k)$ geändert, was für die Pixel in der (nicht existierenden, aber approximierten) Spalte von $x_i$ steht. Dann ergibt sich:
+\begin{align}\label{eq-DL}
+    D_L(x_i,x_j,0)&=\sum_{k=0}^{h-1}\|x_i(w,k)-x_j(0,k)\| \nonumber \\
+\shortintertext{Entsprechend der Approximierung in \ref{eq4} lässt sich $x_i(w,k)$ aber als die Linearkombination zweier echten Pixel von $x_i$ berechnen}
+    D_L(x_i,x_j,0)&=\sum_{k=0}^{h-1}\|2x_i(w-1,k)-x_i(w-2,k)-x_j(0,k)\|
+\end{align}
+Um weiterhin garantieren zu können, dass die Distanz zwischen zwei Puzzlestücken symmetrisch ist, wird die Gesamtdistanz zweier Puzzlestücke als die Summe beider Distanzen der Approximierungen gebildet. Dazu wird nun $D_R(x_i,x_j,0)$ ähnlich wie in \ref{eq-DL} berechnet.
+\begin{align}\label{eq-DR}
+    D_R(x_i,x_j,0)&=\sum_{k=0}^{h-1}\|x_i(w-1,k)-2x_j(0,k)+x_j(1,k)\|
+\end{align}
+Wurden beide Seiten berechnet, so lässt sich die gesamte Distanz zu $D(x_i,x_j,r)=D_L(x_i,x_j,r)+D_R(x_i,x_j,r)$ berechnen. Damit ist sichergestellt, dass weiterhin der Symmetrie nach $D(x_i,x_j,r)=D\left(x_i,x_j,\left(r+2\right)\bmod4\right)$ gilt.
+
+Da ähnlich wie bei der DBC in \ref{section-dbc} die Distanzen entlang einer Kante aufsummiert werden, ist die Berechnung einer Distanz linear in der Länge dieser Kante. Bei der PBC kommen entsprechend noch zusätzliche Berechnung zur Approximierung der Pixel dazu. Um die Anzahl der konstanten Schritte möglichst minimal zu halten (im Austausch von zusätzlichem Speicherplatz), lassen sich die approximierten Seiten eines Puzzlestückes nur einmal initial berechnen und dann zwischenspeichern. Damit müssen für jedes der $N$ Puzzlestücke zwei horizontale Kanten der Breite $w$ (oben und unten) und zwei vertikale Kanten der Höhe $h$ (links und rechts) abgespeichert werden. Insgesamt müssen damit $2N(w+h)$ Pixel berechnet und abgespeichert werden (alle jeweils mit drei Channel).
 \section{Dynamic Time Warping (DTW)}
-reee
+Eine weitere Methode zur Berechnung der Gesamtdistanz zwischen zwei Puzzlestücken wurde in \cite{hungarian} beschrieben. Intuitiv betrachtet lässt sich vermuten, dass der Vergleich zweier Pixel sich nicht nur auf unmittelbar benachbarte Pixel entlang einer Achse (beispielsweise linke und rechte Nachbarn) beschränken sollte.
+
+Abbildung \ref{fig-dtw-ex} zeigt als Beispiel zwei $8\times1$ Bildränder $\mathcal{A}$ und $\mathcal{B}$, welche beispielsweise nach \ref{section-dbc} mit der DBC verglichen werden. Wird als Norm die $L_1$ Norm gewählt (Summe der absoluten Differenzen oder auch Manhatten oder Taxicab-Norm), ergibt sich nach dem aufsummieren dieser Distanzen eine Gesamtdistanz von $2246$.
+\begin{figure}[H]
+    \centering
+    \subfloat[$\mathcal{A}$\label{fig-dtw-ex-a}]{
+      \includegraphics[width=0.06\linewidth]{img/dtw_ex_a.png}
+    }
+    \quad\quad\quad\quad
+    \subfloat[$\mathcal{B}$\label{fig-dtw-ex-b}]{
+      \includegraphics[width=0.06\linewidth]{img/dtw_ex_b.png}
+    }
+    \caption{Distanzberechnung bei direkter Zuordnung der Pixel}
+    \label{fig-dtw-ex}
+\end{figure}
+Bitte töte mich
+\begin{figure}[H]
+    \begin{center}
+        \begin{tabular}{|cTc|c|c|c|c|c|c|c|c|}
+            \hline
+            \backslashbox{$\mathcal{A}$}{$\mathcal{B}$} & $\varnothing$ & \cellcolor[rgb]{0.10,0.51,0.11} & \cellcolor[rgb]{0.29,0.53,0.81} & \cellcolor[rgb]{0.60,0.37,0.00} & \cellcolor[rgb]{0.40,1.00,0.02} & \cellcolor[rgb]{0.98,0.83,0.76} & \cellcolor[rgb]{0.44,0.00,0.00} & \cellcolor[rgb]{0.30,0.17,0.62} & \cellcolor[rgb]{0.31,0.85,0.73}\\\thickhline
+            $\varnothing$ & \cellcolor{blue!25}0 & $\infty$ & $\infty$ & $\infty$ & $\infty$ & $\infty$ & $\infty$ & $\infty$ & $\infty$\\\hline
+            \cellcolor[rgb]{0.47,0.31,0.19} & $\infty$ & \cellcolor{blue!25}$167$ & $430$ & $529$ & $764$ & $1174$ & $1308$ & $1494$ & $1811$\\\hline
+            \cellcolor[rgb]{0.13,0.32,0.15} & $\infty$ & \cellcolor{blue!25}$235$ & $431$ & $602$ & $803$ & $1267$ & $1371$ & $1507$ & $1824$\\\hline
+            \cellcolor[rgb]{0.22,0.29,0.91} & $\infty$ & $525$ & \cellcolor{blue!25}$339$ & $689$ & $1054$ & $1170$ & $1531$ & $1496$ & $1706$\\\hline
+            \cellcolor[rgb]{0.55,0.71,0.16} & $\infty$ & $704$ & $618$ & \cellcolor{blue!25}$480$ & $625$ & $917$ & $1169$ & $1487$ & $1728$\\\hline
+            \cellcolor[rgb]{0.09,0.53,0.23} & $\infty$ & $739$ & $817$ & $707$ & \cellcolor{blue!25}$729$ & $1063$ & $1197$ & $1411$ & $1676$\\\hline
+            \cellcolor[rgb]{0.82,0.54,0.73} & $\infty$ & $1086$ & $898$ & $990$ & $1110$ & \cellcolor{blue!25}$853$ & $1273$ & $1451$ & $1622$\\\hline
+            \cellcolor[rgb]{0.65,0.32,0.33} & $\infty$ & $1331$ & $1169$ & $1007$ & $1303$ & $1179$ & \cellcolor{blue!25}$1071$ & $1271$ & $1596$\\\hline
+            \cellcolor[rgb]{0.03,0.26,0.57} & $\infty$ & $1531$ & $1365$ & $1327$ & $1429$ & $1614$ & $1386$ & \cellcolor{blue!25}$1172$ & \cellcolor{blue!25}$1434$\\\hline
+        \end{tabular}
+    \end{center}
+    \caption{Backtracking im DTW-Algorithmus}
+    \label{fig-levenshtein-backtracking}
+\end{figure}
+Bro please kill me lol
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.30\linewidth]{img/dtw_ex2.png}
+    \caption{Distanzberechnung bei direkter Zuordnung der Pixel}
+    \label{fig-dtw-ex2}
+\end{figure}
 \section{Mahalanobis Gradient Compatibility (MGC)}
-doch heute
+aaaaaaaaaaaaaaaaaaaaa
 
 \backmatter
 

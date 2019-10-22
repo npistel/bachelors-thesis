@@ -31,9 +31,14 @@
 \contentsline {figure}{\numberline {\relax 3.3}{\ignorespaces Beispiel eines Type 1 Puzzles\relax }}{17}{figure.caption.7}% 
 \contentsline {subfigure}{\numberline {(a)}{\ignorespaces {Permutiertes Puzzle}}}{17}{subfigure.3.1}% 
 \contentsline {subfigure}{\numberline {(b)}{\ignorespaces {Gel\IeC {\"o}stes Puzzle}}}{17}{subfigure.3.2}% 
-\contentsline {figure}{\numberline {\relax 3.4}{\ignorespaces asdf\relax }}{21}{figure.caption.9}% 
-\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {Originalbild}}}{21}{subfigure.4.1}% 
-\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {Obere rechte Ecke im Originalbild}}}{21}{subfigure.4.2}% 
-\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {a}}}{21}{subfigure.4.3}% 
-\contentsline {subfigure}{\numberline {(d)}{\ignorespaces {b}}}{21}{subfigure.4.4}% 
+\contentsline {figure}{\numberline {\relax 3.4}{\ignorespaces Lineare Approximierung der Pixel am rechten und am oberen Bildrand\relax }}{22}{figure.caption.9}% 
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {Originalbild}}}{22}{subfigure.4.1}% 
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {Obere rechte Ecke im Originalbild}}}{22}{subfigure.4.2}% 
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {Berechnung ohne Saturierung}}}{22}{subfigure.4.3}% 
+\contentsline {subfigure}{\numberline {(d)}{\ignorespaces {Berechnung mit Saturierung}}}{22}{subfigure.4.4}% 
+\contentsline {figure}{\numberline {\relax 3.5}{\ignorespaces Distanzberechnung bei direkter Zuordnung der Pixel\relax }}{24}{figure.caption.10}% 
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {$\mathcal {A}$}}}{24}{subfigure.5.1}% 
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {$\mathcal {B}$}}}{24}{subfigure.5.2}% 
+\contentsline {figure}{\numberline {\relax 3.6}{\ignorespaces Backtracking im DTW-Algorithmus\relax }}{24}{figure.caption.11}% 
+\contentsline {figure}{\numberline {\relax 3.7}{\ignorespaces Distanzberechnung bei direkter Zuordnung der Pixel\relax }}{25}{figure.caption.12}% 
 \ttl@tocsep 

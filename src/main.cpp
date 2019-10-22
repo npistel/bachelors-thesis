@@ -135,8 +135,86 @@ cv::Mat my_get_affine_transform(cv::Point2f u0, cv::Point2f u1, cv::Point2f u2, 
 	return tmp;
 }
 
+size_t normal_distance(cv::Mat a, cv::Mat b)
+{
+	size_t sum = 0;
+
+	for (int i = 0; i < 8; i++)
+	{
+		for (int ch = 0; ch < 3; ch++)
+		{
+			int u = a.at<cv::Vec3b>(i, 0)[ch];
+			int v = b.at<cv::Vec3b>(i, 0)[ch];
+			sum += std::abs(u - v);
+		}
+	}
+
+	return sum;
+}
+
+size_t dtw(cv::Mat a, cv::Mat b)
+{
+	std::array<std::array<size_t, 8 + 1>, 8 + 1> m{};
+	for (auto& n : m) n.fill(std::numeric_limits<size_t>::max());
+    m[0][0] = 0;
+    
+    for (size_t i = 1; i <= 8; i++)
+    {
+        for (size_t j = 1; j <= 8; j++)
+        {
+			size_t sum = 0;
+			for (size_t ch = 0; ch < 3; ch++)
+			{
+				int u = a.at<cv::Vec3b>(i - 1, 0)[ch];
+				int v = b.at<cv::Vec3b>(j - 1, 0)[ch];
+				sum += std::abs(u - v);
+			}
+
+            m[i][j] = sum + std::min({
+                m[i - 1][j    ],
+                m[i    ][j - 1],
+                m[i - 1][j - 1]
+            });
+
+			int xyz = 5;
+        }
+    }
+    
+	return m[8][8];
+}
+
 int main(int argc, char* argv[])
 {
+	cv::Mat a(8, 1, CV_8UC3);
+	cv::Mat b(8, 1, CV_8UC3);
+
+	std::srand(3);
+
+	for (int i = 0; i < 8; i++)
+	{
+		for (int ch = 0; ch < 3; ch++)
+		{
+			a.at<cv::Vec3b>(i, 0)[ch] = std::rand() % 256;
+			b.at<cv::Vec3b>(i, 0)[ch] = std::rand() % 256;
+		}
+	}
+
+	std::cout << normal_distance(a, b) << std::endl;
+	std::cout << dtw(a, b) << std::endl;
+
+	cv::namedWindow("a", cv::WINDOW_FREERATIO);
+	cv::imshow("a", a);
+
+	cv::namedWindow("b", cv::WINDOW_FREERATIO);
+	cv::imshow("b", b);
+
+	cv::waitKey();
+	cv::destroyAllWindows();
+
+	return 0;
+
+	/*-------------------------------------------*/
+
 	cv::Mat src = cv::imread("img/lena2.jpg");
 
 	cv::Mat dst(src.rows + 2, src.cols + 2, src.type(), cv::Scalar(255, 0, 0));

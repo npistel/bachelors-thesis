@@ -1,4 +1,4 @@
-\begin{thebibliography}{11}
+\begin{thebibliography}{12}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -45,6 +45,12 @@ Opencv: Geometric image transformations.
 \newblock Online erhältlich unter
   \url{https://docs.opencv.org/master/da/d54/group__imgproc__transform.html};
   abgerufen am 26. September 2019.
+
+\bibitem[Alajlan(2009)]{hungarian}
+Naif Alajlan.
+\newblock Solving square jigsaw puzzles using dynamic programming and the
+  hungarian procedure.
+\newblock \emph{American Journal of Applied Sciences}, 2009.
 
 \bibitem[Dolev~Pomeranz(2011)]{pomeranz}
 Ohad Ben-Shahar Dolev~Pomeranz, Michal~Shemesh.
