@@ -337,7 +337,7 @@ Um die Abbildung zwischen zwei allgemeinen (konvexen) Vierecken darzustellen, mu
 Eine solche perspektivische Transformation lässt sich durch eine $3\times3$ Matrix $\mathbf{P}$ darstellen, welche vier Punkte auf vier andere Punkte abbildet (genau genommen auf ein Vielfaches dieser Punkte), sodass: $$\begin{bmatrix}\lambda_i x_i^\prime\\\lambda_i y_i^\prime\\\lambda_i\end{bmatrix}=\underbrace{\begin{bmatrix}p_{11}&p_{12}&p_{13}\\p_{21}&p_{22}&p_{23}\\p_{31}&p_{32}&p_{33}\end{bmatrix}}_{\mathbf{P}}\cdot\begin{bmatrix}x_i\\y_i\\1\end{bmatrix},1\leq i\leq4$$.
 
 In OpenCV lässt sich diese Matrix mit der Funktion \texttt{cv::getPerspectiveTransform()} finden. Die Funktion \texttt{cv::warpPerspective()} übernimmt dann die eigentliche Transformation des Bildes mit der Matrix.
-\chapter{Metriken zur Bildrekonstruktion}
+\chapter{Metriken zur Bildrekonstruktion}\label{ch-metrics}
 Um Schiebepuzzles mit Bildern lösen zu können, muss zunächst das Ausgangsbild (als gewünschten Endzustand) bekannt sein. Der erste Schritt ist somit, dieses Bild aus einer Menge von (rechteckigen) Puzzlestücken zu rekonstruieren. Diese Art von Problemstellung erinnert an eine andere Form von Puzzle, welche im englischen Sprachraum als \textit{Jigsaw Puzzle} bezeichnet werden. Abbildung \ref{fig-jig-ex} zeigt ein Beispielpuzzle dieser Art.
 \begin{figure}[H]
     \centering
@@ -566,7 +566,7 @@ Um weiterhin garantieren zu können, dass die Distanz zwischen zwei Puzzlestück
 Wurden beide Seiten berechnet, so lässt sich die gesamte Distanz zu $D(x_i,x_j,r)=D_L(x_i,x_j,r)+D_R(x_i,x_j,r)$ berechnen. Damit ist sichergestellt, dass weiterhin der Symmetrie nach $D(x_i,x_j,r)=D\left(x_i,x_j,\left(r+2\right)\bmod4\right)$ gilt.
 
 Da ähnlich wie bei der DBC in \ref{section-dbc} die Distanzen entlang einer Kante aufsummiert werden, ist die Berechnung einer Distanz linear in der Länge dieser Kante. Bei der PBC kommen entsprechend noch zusätzliche Berechnung zur Approximierung der Pixel dazu. Um die Anzahl der konstanten Schritte möglichst minimal zu halten (im Austausch von zusätzlichem Speicherplatz), lassen sich die approximierten Seiten eines Puzzlestückes nur einmal initial berechnen und dann zwischenspeichern. Damit müssen für jedes der $N$ Puzzlestücke zwei horizontale Kanten der Breite $w$ (oben und unten) und zwei vertikale Kanten der Höhe $h$ (links und rechts) abgespeichert werden. Insgesamt müssen damit $2N(w+h)$ Pixel berechnet und abgespeichert werden (alle jeweils mit drei Channel).
-\section{Dynamic Time Warping (DTW)}
+\section{Dynamic Time Warping (DTW)}\label{section-dtw}
 Eine weitere Methode zur Berechnung der Gesamtdistanz zwischen zwei Puzzlestücken wurde in \cite{hungarian} beschrieben. Intuitiv betrachtet lässt sich vermuten, dass der Vergleich zweier Pixel sich nicht nur auf unmittelbar benachbarte Pixel entlang einer Achse (beispielsweise linke und rechte Nachbarn) beschränken sollte.
 
 Abbildung \ref{fig-dtw-ex} zeigt als Beispiel zwei $8\times1$ Bildränder: $R$ (etwa der rechte Bildrand eines Puzzlestückes $x_i$) und $S$ (der linke Rand eines anderen Puzzlestückes $x_j$). Diese sollen beispielsweise nach \ref{section-dbc} mit der DBC verglichen werden. Wird als Norm die $L_1$ Norm gewählt (Summe der absoluten Differenzen oder auch Manhatten oder Taxicab-Norm), ergibt sich nach dem aufsummieren dieser $8$ Distanzen eine Gesamtdistanz von $2246$.
@@ -672,8 +672,93 @@ Markiert man sich nun den Weg (blau hinterlegt in \ref{tbl-dtw-back}), der beim 
     \label{fig-dtw-ex2}
 \end{figure}
 Wie zu sehen ist, ist dieses Matching auch gültig, da jedes Element mindestens einen Partner hat und sich außerdem keine Verbindungen überkreuzen.
-\section{Mahalanobis Gradient Compatibility (MGC)}
-erklären und natürlich auch kurz fazit ggf mit dtw vergl idk alg komplett erklären yuhu
+\section{Mahalanobis Gradient Compatibility (MGC)}\label{section-mgc}
+Die Mahalanobis Gradient Compatibility (MGC) wurde zuerst in \cite{gallagher} beschrieben und später in weiteren Werken \cite{linear,paikin,loop,robust,crisjim} verwendet oder je nach Problemstellung leicht angepasst.
+
+Bei dieser Art der Kompatibilität wird zunächst von allen vier Seiten jedes Puzzlestückes der durchschnittliche Wert der Ableitungen (vgl. \ref{section-pbc}) berechnet (für allen drei Farb-Channels). Mit diesen Ableitungen und dem Durchschnitt lässt sich dann die Kovarianzmatrix bezüglich diesen Ableitungen berechnen. Beim Vergleich zweier Puzzlestücke werden dann wieder beide Seiten betrachtet. Es wird zunächst die Mahalanobis-Distanz von allen Ableitungen zwischen den Puzzlestücken bezüglich der Verteilung von einem Puzzlestück berechnet und aufsummiert. Um die Symmetrie beizubehalten wird dies auch noch von der anderen Seite gemacht. Die Mahalanobis-Distanz berechnet dabei die (euklidische) Distanz eines Ableitungsvektors (mit drei Komponenten für die entsprechenden Channels) bezüglich eines Koordinatensystems welches durch den Durchschnittsvektor und der Kovarianzmatrix (des jeweils anderen Puzzlestückes) beschrieben wird. Der Durchschnittsvektor bildet dabei den Ursprung des Koordinatensystems und die (normierten) Eigenvektoren der Kovarianzmatrix bilden die Achsen. Die Mahalanobis-Distanz führt zunächst diese Koordinatentransformation durch, um danach die Distanz eines Vektors in diesem Koordinatensystem berechnen zu können.
+
+Es werden im Folgenden wieder zwei Puzzlestücke $x_i$ und $x_j$ betrachtet, wobei $r=0$ und $x_i$ damit links von $x_j$ platziert wird. Die Distanz $D(x_i,x_j,r)$ wird wieder in zwei Teile aufgeteilt (ähnlich wie bei der PBC in \ref{section-pbc}): $D(x_i,x_j,r)=D_L(x_i,x_j,r)+D_R(x_i,x_j,r)$. Damit ist die Symmetrie der Distanz garantiert und es gilt $D(x_i,x_j,r)=D(x_i,x_j,r')$. Es wird im Folgenden dann nur die Berechnung für $D_L(x_i,x_j,0)$ aufgeführt. Für diese Berechnung ist es zunächst nötig, die Ableitungen von $x_i$ an der rechten Seite zu berechnen. Wie in \ref{section-pbc} wird dafür der Backward-Differenzenquotient entlang der x-Achse genommen. In der Literatur werden diese Ableitungen als Gradient $G$ bezeichnet. Für die rechte Seite von $x_i$ ergeben sich die Ableitungsvektoren dann folgendermaßen (es ist zu beachten, dass ein $G$ drei Komponenten hat):
+\begin{align}\label{eq-mgc1}
+    G_k=x_i(w-1,k)-x_i(w-2,k),\;\forall 0\leq k<h
+\end{align}
+Damit lässt sich dann der durchschnittliche Ableitungsvektor bestimmen:
+\begin{align}\label{eq-mgc2}
+    \mu=\frac{1}{h}\sum_{k=0}^{h-1}G_k
+\end{align}
+Mit allen Ableitungsvektoren und dem durchschnittlichen Ableitungsvektor lässt sich dann die Kovarianzmatrix $S$ bestimmen. Dies ist hier eine $3\times3$ Matrix und lässt sich folgendermaßen bestimmen:
+\begin{align}\label{eq-mgc3}
+    S=\frac{1}{h-1}\sum_{k=0}^{h-1}(G_k-\mu)(G_k-\mu)^\mathsf{T}
+\end{align}
+Um numerische Probleme bei der späteren Invertierung von $S$ zu vermeiden, lassen sich einige \textit{dummy} Gradienten mit in die Berechnung der Matrix $S$ einbeziehen. Dabei wurde sich an \cite{gallagher,crisjim} orientiert und es wurden neun solcher Gradienten gewählt. Diese Gradienten lauten
+\begin{align*}
+    &(0,0,0),(1,1,1),(-1,-1,-1),\\
+    &(0,0,1),(0,1,0),(1,0,0),\\
+    &(-1,0,0),(0,-1,0),(0,0,-1)
+\end{align*}
+Die Mahalanobis-Distanz von einem Vektor $x$ berechnet sich dann zu:
+\begin{align}\label{eq-mgc4}
+    D_M(x)=\sqrt{(x-\mu)^\mathsf{T}S^{-1}(x-\mu)}
+\end{align}
+Es ist nun möglich mit \ref{eq-mgc2}, \ref{eq-mgc3} und \ref{eq-mgc4} die einseitige Gesamtdistanz $D_L(x_i,x_j,0)$ zu definieren. Dabei ist lediglich zu beachten, dass nach \cite{gallagher} die Wurzeloperation aus \ref{eq-mgc4} weggelassen wird.
+\begin{align}\label{eq-mgc5}
+    D_L(x_i,x_j,0)=\sum_{k=0}^{h-1}(G_k^{i\rightarrow j}-\mu)^\mathsf{T}S^{-1}(G_k^{i\rightarrow j}-\mu)
+\end{align}
+Dabei ist $G_k^{i\rightarrow j}$ der Ableitungsvektor der beim Übergang von einem Puzzlestück zum anderen entsteht, wenn man die beiden Puzzlestücke $x_i$ und $x_j$ nun (mit $x_i$ links von $x_j$) zusammenfügt. Dafür gilt:
+\begin{align}\label{eq-mgc6}
+    G_k^{i\rightarrow j}=x_j(0,k)-x_i(w-1,k),\;\forall 0\leq k<h
+\end{align}
+Bezüglich der Implementation lässt sich sagen, dass es durchaus möglich ist (ähnlich wie in \ref{section-pbc}), die Ableitungsvektoren, den durchschnittlichen Ableitungsvektor und auch die Inverse der Kovarianzmatrix (es wird zu jederzeit nur die Inverse von $S$ benötigt, daher lohnt es sich nicht auch $S$ selber abzuspeichern) jeder Seite (und für jedes Puzzlestück) nur einmal zu berechnen und diese dann abzuspeichern. Bei dem eigentlichen Vergleich zweier Puzzlestücke müssen dann nur \ref{eq-mgc5} und \ref{eq-mgc6} berechnet werden. Trotz der großen Anzahl und höheren Komplexität der Berechnungen, ist das Laufzeitverhalten der kompletten Prozedur linear in der Länge der Kante (beispielsweise $h$ wie in den obigen Gleichungen). Berechnungen wie \ref{eq-mgc3} oder \ref{eq-mgc5} haben aufgrund der Matrizenmultiplikationen zwar größeren konstanten Aufwand (in der Summe), da jede Matrix aber die Dimensionen $1\times3$, $3\times1$ oder $3\times3$ besitzt, sind die Dimensionen der Matrizen und somit auch alle Operationen mit diesen Matrizen konstant.
+
+Diese Linearität dieses Verfahrens bietet einen großen Vorteil bei der Berechnung von sehr hochauflösenden Bildern (bzw. hochauflösenden Puzzlestücken). Verfahren wie etwa DTW (\ref{section-dtw}) sind dort aufgrund der quadratischen Laufzeit eher weniger geeignet. Diese Tatsache und ein komplexeres Verfahren zur Bewertung der Übergänge zwischen zwei Puzzlestücken (im Vergleich zu der trivialeren PBC in \ref{section-pbc}), hat dazu geführt, dass selbst komplexere Jigsaw-Puzzle-Solver (wie etwa \cite{paikin}) noch diese Metrik verwenden. Aus diesen Gründen wurde diese Metrik auch für den folgenden Algorithmus verwendet.
+\chapter{Algorithmus zur Puzzle-Assemblierung}
+Ausgestattet mit einer Vielzahl von Metriken aus \ref{ch-metrics} gilt es nun einen Algorithmus zu entwickeln, der die eigentliche Assemblierung des Puzzles übernimmt. Dabei wird aktuell noch von einem Jigsaw-Puzzle ausgegangen bei dem keine Puzzlestücke fehlen (bei Schiebepuzzles fehlt entsprechend ein Stück, auf diesen Sonderfall wird dort eingegangen, wo dieser Fall Probleme beim Algorithmus bereitet). Da das Jigsaw-Puzzle nachweisbar als NP-Hard gilt \cite{dem}, beruhen alle bekannten algorithmischen Puzzle-Löser auf einen heuristischen Ansatz, um große Puzzle lösen zu können.
+
+Aktuelle Methoden zum Lösen von Jigsaw-Puzzles lassen sich grob in zwei Kategorien aufteilen:
+\begin{enumerate}
+    \item Greedy Methoden \cite{loop,pomeranz,gallagher}, welche probieren aus den paarweisen Distanzen der einzelnen Puzzlestücke iterativ ein Gesamtbild zu assemblieren, indem in jedem Schritt die günstigsten bzw. besten Puzzlestücke miteinander verbunden werden.
+    \item Globale Methoden, welche probieren eine globale Kompatibilitätsfunktion zu maximieren (bzw. eine globale Distanzfunktion zu minimieren) um dabei ein globales Maximum (oder Minimum im Falle einer Distanzfunktion) zu finden. Darunter fallen unter anderem Ansätze aus der genetischen Programmierung \cite{genetic}, linearen Programmierung \cite{linear} und auch probabilistische Verfahren \cite{cho}.
+\end{enumerate}
+In dieser Arbeit wird sich auf das Spannbaum Verfahren von Gallagher \cite{gallagher} fokussiert. Dieses Verfahren lässt sich in die Kategorie der Greedy Methoden einordnen und basiert hauptsächlich auf der Observierung, dass gängige Algorithmen zur Berechnung eines minimalen Spannbaums (Minimum Spanning Tree - MST) mit wenigen Änderungen bereits in der Lage dazu sind, simple Jigsaw-Puzzle zu assemblieren. Diese Idee wurde dann so perfektioniert, dass Gallagher selber in der Lage dazu war, Puzzle mit mehreren tausend Puzzlestücken perfekt zu rekonstruieren. Neben dieser vielversprechenden Ergebnisse und der Tatsache, dass dieses Verfahren auch das erste Verfahren war, welches die MGC (vgl. \ref{section-mgc}) verwendet hat (auch diese wurde von Gallagher selber in \cite{gallagher} beschrieben), basiert dieses Verfahren trotz State-of-the-Art Ergebnisse hauptsächlich auf Methoden der Graphentheorie. Andere Verfahren mit vergleichbaren Ergebnissen (etwa das probabilistische Verfahren von Cho et al. \cite{cho}) basieren auf tiefliegendere und komplexere stochastische Zusammenhänge.
+
+Neben dem Algorithmus selber und einige Änderungen um diesen auch für Schiebepuzzle möglich zu machen, wird außerdem eine effiziente Datenstruktur beschrieben, auf die der Algorithmus arbeiten wird. Dabei handelt es sich um eine modifizierte Version der Disjoint-Set-Datenstruktur oder auch Disjoint-Set-Forest.\cite{dsf} Bei den Anforderungen dieser Datenstruktur wird sich sowohl an Gallagher selber gerichtet \cite{gallagher}, als auch an C. Zanoci und J. Andress Beschreibung von Gallaghers Algorithmus.\cite{crisjim}
+\section{Baum-basierte Assemblierung nach Gallagher}
+Es wird das Jigsaw-Puzzle Problem als Graph $G=(V,E)$ betrachtet mit der Menge der Puzzlestücke als Vertices $V$ und die Menge der möglichen Verbindungen von zwei Puzzlestücken als Kanten $E$. Diese Kanten sind gewichtet und erhalten ihre Kantengewichte nach einer der in Kapitel \ref{ch-metrics} vorgestellten Metriken (vorzugsweise die MGC). Außerdem sei zu beachten, dass zwei Puzzlestücken nicht nur durch eine Kante sondern durch exakt vier Kanten in Verbindung stehen - jeweils eine für jede mögliche räumliche Anordnung der beiden Puzzleteile (vgl. Tabelle \ref{tbl-spatial-relation}).
+
+Da das fertige Puzzle eine Zusammenhangskomponente des Graphen darstellt (und zwar eine mit minimaler oder nahezu minimaler Kantengewichtssumme), bietet sich ein Algorithmus zur Berechnung des minimalen Spannbaums an. Ein solcher Algorithmus wäre in der Lage eine solche minimale Zusammenhangskomponente zu finden. Der minimale Spannbaum der durch einen solchen Algorithmus entstehen würde stellt in aller Regel jedoch keine legale Puzzlestellung dar. Dazu muss zusätzlich noch sichergestellt werden, dass jederzeit keine zwei Puzzlestücke in der Zusammenhangskomponente übereinander liegen. Diese zusätzliche Einschränkung des Algorithmus ist eine weitere Motivation für die Implementation einer modifizierten Disjoint-Set-Datenstruktur, die den räumlichen Zusammenhang der Zusammenhangskomponenten kennt und vermeidet, dass Zusammenhangskomponenten zusammengeführt werden, welche zu übereinander liegenden Puzzlestücken führen würden.
+
+Entsprechend solch einer Datenstruktur wird damit im Zusammenhang der Algorithmus von Kruskal \cite{kruskal} betrachtet, um den minimalen Spannbaum in einem Graphen zu finden. Dabei werden am Anfang des Algorithmus alle Vertices (die Puzzlestücke) zunächst als seperate Zusammenhangskomponenten aufgefasst. Damit bildet jeder Vertex einen Baum, die Menge aller Bäume wird als Wald (Forest) bezeichnet. Daraufhin werden die Kanten des Graphen in absteigender Reihenfolge (bezüglich des Kantengewichts) betrachtet. Verbindet eine Kante zwei Vertices, welche sich bereits in der selben Zusammenhangskomponente befinden, so wird diese Kante nicht zum Baum hinzugefügt, da diese dort sonst eine Schleife erzeugen würde. Im Falle wo diese Kante zwei Vertices verbinden würde, welche sich in verschiedenen Zusammenhangskomponenten befinden, so wird diese Kante zum Baum hinzugefügt. Dieser Schritt verbindet die beiden Zusammenhangskomponenten zu einer größeren Zusammenhangskomponente. Dieser Vorgang wird solange wiederholt, wie noch Kanten vorhanden sind und es sich noch kein Spannbaum gebildet hat (es existieren noch mindestens zwei seperate Bäume im Wald).
+
+Die normale Disjoint-Set-Datenstruktur (Disjoint-Set-Forest) \cite{dsf} übernimmt dabei die Aufgabe, die Menge der Vertices $V$ in disjunkte zusammenhängende Mengen (Zusammenhangskomponenten) zu partitionieren. Die üblichen Operationen auf eine solche Datenstruktur sind unter anderem das Initialisieren eines solchen disjunkten Waldes mit $n$ Elementen (was in $\Theta(n)$ Zeit möglich ist), das Testen, ob zwei Elemente sich in der selben Menge befinden und das Vereinigen zweier Mengen.
+
+Die Laufzeit der letzten beiden Operationen hängt stark von der Implementation der Datenstruktur ab. Bei einer guten Implementation sind beide Operationen durchschnittlich $\Theta(\alpha(n))$.\cite{dsf-log,dsf-lower,tarjan,tarjan2,tarjan3} Wobei $\alpha(n)$ für die inverse Funktion der eindimensionalen Ackermann-Funktion $f(n)=A(n,n)$ steht. Die Funktion $f(n)$ nimmt bereits für kleine $n$ sehr große Werte an. So ist bereits $f(4)=A(4,4)=2\uparrow\uparrow7-3$ in Knuth's \textit{uparrow} Notation. Als Potenz ergibt sich der \textit{Power-Tower} $f(4)=2^{2^{2^{2^{2^{2^2}}}}}-3$. Die einfachste Potenz die dies noch darstellen kann ist $f(4)=2^{2^{2^{65536}}}-3$. Selbst die innerste Potenz $2^{65536}$ ist bereits unvorstellbar groß. Dementsprechend lässt sich sagen, dass die inverse Ackermann-Funktion selbst für sehr große $n$ stets Werte annehmen wird, die $4$ nicht überschreiten. Damit lässt sich sagen, dass Operationen mit einem Laufzeitverhalten von $\Theta(\alpha(n))$ \textit{quasi konstant} sind.
+
+Ein Disjoint-Set-Forest (DSF) wird in der Regel als kompaktes Array implementiert. Jedes Element im Array ist dann ein Element im Forest (also ein Element eines Baums im Wald). Die Array-Indizes können dann dazu dienen die Elemente zu identifizieren. Jedes Element enthält dann zusätzlich noch einen Parent-Pointer (bei Arrays bietet sich auch ein Parent-Index an). Um zwei Mengen später effizient vereinigen zu können, lässt sich auch noch ein zusätzliches Feld definieren, welches die Anzahl der Elemente mitspeichert, die sich in dem selben Baum wie das Element befinden. Dieses Feld ist nur für Elemente von Bedeutung, die die Wurzel ihres Baumes darstellen (da nur dort die Anzahl erhöht wird). Die Beziehungen der Elemente über den Parent-Index bilden einen \textit{rückverweisenden} Baum: Es lässt sich bei jedem beliebigen Element starten und solange der Parent-Index verfolgen, bis dieser entweder ungültig (\texttt{null}) ist oder (bei Arrays üblich) ein Element der Parent von sich selber ist. Dieses Element ist die Wurzel des Baums, der alle Elemente enthält, die dieses Element auch als Wurzel haben. Dieses Wurzelelement \textit{repräsentiert} seine Menge.
+
+Die \texttt{InitForest} Operation initialisiert einen DSF mit einer vorgegeben Kapazität $n$. Jedes Element befindet sich anfangs in seiner eigenen Menge.
+\begin{algorithm}[H]
+    \caption{Initialisierung eines Disjoint-Set-Forest}\label{alg-dsf-init}
+    \begin{algorithmic}
+        \Procedure{InitForest}{$n$}
+            \State nodes $\gets$ array$[n]$
+            \For{$i=1$ to $n$}
+                \State nodes$[i]$.parent $\gets i$\Comment{Element ist Wurzel seiner Menge}
+                \State nodes$[i]$.size $\gets 1$\Comment{Menge enthält nur dieses Element}
+            \EndFor
+        \EndProcedure
+    \end{algorithmic}
+\end{algorithm}
+Die FindRoot Operation übernimmt ein Element $x$ und gibt den Index des Wurzelelementes der Menge zurück in der sich $x$ befindet.
+\begin{algorithm}[H]
+    \caption{FindRoot Operation mit Pfadkomprimierung}\label{alg-dsf-find}
+    \begin{algorithmic}
+        \Function{FindRoot}{$x$}
+            \If{$x$.parent $\neq x$}
+                \State $x$.parent $\gets$ FindRoot($x$.parent)
+            \EndIf
+            \State \Return $x$.parent
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
 
 \backmatter
 

@@ -1,4 +1,4 @@
-\begin{thebibliography}{12}
+\begin{thebibliography}{26}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -52,16 +52,51 @@ Naif Alajlan.
   hungarian procedure.
 \newblock \emph{American Journal of Applied Sciences}, 2009.
 
+\bibitem[Bernard A.~Galler(1964)]{dsf}
+Michael J.~Fischer Bernard A.~Galler.
+\newblock An improved equivalence algorithm.
+\newblock \emph{Communications of the ACM}, 1964.
+
+\bibitem[Cris~Zanoci(2016)]{crisjim}
+Jim~Andress Cris~Zanoci.
+\newblock Making puzzles less puzzling: An automatic jigsaw puzzle solver.
+\newblock 2016.
+
+\bibitem[Debajyoti~Mondal()]{robust}
+Stephane~Durocher Debajyoti~Mondal, Yang~Wang.
+\newblock Robust solvers for square jigsaw puzzles.
+
 \bibitem[Dolev~Pomeranz(2011)]{pomeranz}
 Ohad Ben-Shahar Dolev~Pomeranz, Michal~Shemesh.
 \newblock A fully automated greedy square jigsaw puzzle solver.
 \newblock \emph{IEEE conference on Computer Vision and Pattern Recognition
   (CVPR)}, 2011.
 
+\bibitem[Dror~Sholomon(2013)]{genetic}
+Nathan S.~Netanyahu Dror~Sholomon, Omid~David.
+\newblock A genetic algorithm-based solver for very large jigsaw puzzles.
+\newblock \emph{Proceedings of the IEEE Conference on Computer Vision and
+  Pattern Recognition}, 2013.
+
+\bibitem[Erik D.~Demaine(2007)]{dem}
+Martin L.~Demaine Erik D.~Demaine.
+\newblock Jigsaw puzzles, edge matching, and polyomino packing: Connections and
+  complexity.
+\newblock 2007.
+
 \bibitem[Gallagher(2012)]{gallagher}
 Andrew~C. Gallagher.
 \newblock Jigsaw puzzles with pieces of unknown orientation.
 \newblock 2012.
+
+\bibitem[Genady~Paikin()]{paikin}
+Ayellet~Tal Genady~Paikin.
+\newblock Solving multiple square jigsaw puzzles with missing pieces.
+
+\bibitem[J.~E.~Hopcroft(1973)]{dsf-log}
+J.~D.~Ullman J.~E.~Hopcroft.
+\newblock Set merging algorithms.
+\newblock \emph{SIAM Journal on Computing}, 1973.
 
 \bibitem[Jerry~Slocum(2006)]{sloson}
 Dic~Sonneveld Jerry~Slocum.
@@ -73,9 +108,47 @@ David B.~Cooper Kilho~Son, James~Hays.
 \newblock Solving square jigsaw puzzles with loop constraints.
 \newblock 2013.
 
+\bibitem[Kruskal(1956)]{kruskal}
+J.~B. Kruskal.
+\newblock On the shortest spanning subtree of a graph and the traveling
+  salesman problem.
+\newblock \emph{Proceedings of the American Mathematical society}, 1956.
+
+\bibitem[M.~Fredman(1989)]{dsf-lower}
+M.~Saks M.~Fredman.
+\newblock The cell probe complexity of dynamic data structures.
+\newblock \emph{Proceedings of the Twenty-First Annual ACM Symposium on Theory
+  of Computing}, 1989.
+
 \bibitem[Perelman(1988)]{perelman}
 Yakov~Isidorovich Perelman.
 \newblock \emph{Fun with Maths and Physics : Brain Teasers Tricks Illusions}.
 \newblock MIR Publishers (Moscow), 1988.
+
+\bibitem[Robert Endre~Tarjan(1984)]{tarjan3}
+Jan van~Leeuwen Robert Endre~Tarjan.
+\newblock Worst-case analysis of set union algorithms.
+\newblock \emph{Journal of the ACM}, 1984.
+
+\bibitem[Rui~Yu(2015)]{linear}
+Lourdes~Agapito Rui~Yu, Chris~Russell.
+\newblock Solving jigsaw puzzles with linear programming.
+\newblock 2015.
+
+\bibitem[Taeg Sang~Cho(2010)]{cho}
+William T.~Freeman Taeg Sang~Cho, Shai~Avidan.
+\newblock A probabilistic image jigsaw puzzle solver.
+\newblock \emph{Computer Vision and Pattern Recognition (CVPR)}, 2010.
+
+\bibitem[Tarjan(1975)]{tarjan}
+Robert~Endre Tarjan.
+\newblock Efficiency of a good but not linear set union algorithm.
+\newblock \emph{Journal of the Assoclatlon for Computing Machinery}, 1975.
+
+\bibitem[Tarjan(1979)]{tarjan2}
+Robert~Endre Tarjan.
+\newblock A class of algorithms which require non-linear time to maintain
+  disjoint sets.
+\newblock \emph{Journal of Computer and System Sciences}, 1979.
 
 \end{thebibliography}
