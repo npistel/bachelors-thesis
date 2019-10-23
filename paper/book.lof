@@ -6,6 +6,7 @@
 \ttl@tocsep 
 \ttl@tocsep 
 \ttl@tocsep 
+\ttl@tocsep 
 \contentsline {figure}{\numberline {\relax 1.1}{\ignorespaces Zwei Arten des 15-Puzzle\relax }}{1}{figure.caption.1}% 
 \contentsline {subfigure}{\numberline {(a)}{\ignorespaces {15-Puzzle mit Zahlen (gemischt)}}}{1}{subfigure.1.1}% 
 \contentsline {subfigure}{\numberline {(b)}{\ignorespaces {15-Puzzle mit Zahlen (gel\IeC {\"o}st)}}}{1}{subfigure.1.2}% 
@@ -36,9 +37,9 @@
 \contentsline {subfigure}{\numberline {(b)}{\ignorespaces {Obere rechte Ecke im Originalbild}}}{22}{subfigure.4.2}% 
 \contentsline {subfigure}{\numberline {(c)}{\ignorespaces {Berechnung ohne Saturierung}}}{22}{subfigure.4.3}% 
 \contentsline {subfigure}{\numberline {(d)}{\ignorespaces {Berechnung mit Saturierung}}}{22}{subfigure.4.4}% 
-\contentsline {figure}{\numberline {\relax 3.5}{\ignorespaces Distanzberechnung bei direkter Zuordnung der Pixel\relax }}{24}{figure.caption.10}% 
-\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {$\mathcal {A}$}}}{24}{subfigure.5.1}% 
-\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {$\mathcal {B}$}}}{24}{subfigure.5.2}% 
-\contentsline {figure}{\numberline {\relax 3.6}{\ignorespaces Backtracking im DTW-Algorithmus\relax }}{24}{figure.caption.11}% 
-\contentsline {figure}{\numberline {\relax 3.7}{\ignorespaces Distanzberechnung bei direkter Zuordnung der Pixel\relax }}{25}{figure.caption.12}% 
+\contentsline {figure}{\numberline {\relax 3.5}{\ignorespaces Direkte Zuordnung der Pixel\relax }}{24}{figure.caption.10}% 
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {$R$}}}{24}{subfigure.5.1}% 
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {$S$}}}{24}{subfigure.5.2}% 
+\contentsline {figure}{\numberline {\relax 3.6}{\ignorespaces Euclidean Matching im Vergleich mit DTW\relax }}{25}{figure.caption.11}% 
+\contentsline {figure}{\numberline {\relax 3.7}{\ignorespaces Zuordnung der Pixel beim DTW-Algorithmus\relax }}{30}{figure.caption.13}% 
 \ttl@tocsep 

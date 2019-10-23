@@ -22,6 +22,7 @@
 \usepackage{subfig}
 \usepackage{tikz}
 \usepackage{slashbox}
+\usepackage{hyperref}
 
 \title[Bericht]{Classcon Consulting GmbH}
 \subtitle{d.velop AG}
@@ -77,6 +78,7 @@ Nope.
 
 \tableofs
 \lstlistoflistings
+\listofalgorithms
 
 \mainmatter
 
@@ -404,7 +406,7 @@ Im weiteren Verlauf dieser Arbeit werden hauptsächlich Type 1 Puzzles betrachte
 Zur Rekonstruktion des Bildes werden Kompatibilitätsmetriken betrachtet, welche später als Information vom eigentlichen Algorithmus verwendet werden, um Entscheidungen zu treffen, welche Puzzlestücke miteinander kombiniert werden sollen und welche nicht.
 
 Genau genommen werden im Folgenden eher Metriken (Distanzfunktionen) betrachtet, die genau das Gegenteil von der Kompatibilität zweier Puzzlestücke darstellen. Den Begriff der Kompatibilität wurde jedoch in \cite{pomeranz} eingeführt und wird seitdem in weiterer Literatur verwendet.
-\section{$(L_p)^q$ Norm}
+\section{$(L_p)^q$ Norm}\label{section-norm}
 Um Aussagen über die Kompatibilität bzw. die Unähnlichkeit (mit Hilfe einer Distanzfunktion) zweier Puzzlestücke zu machen, muss zunächst geklärt werden, wie die Distanz zweier Pixel beschrieben werden kann. Welche Pixel wirklich miteinander verglichen werden beim Vergleich zweier Puzzlestücke ist schließlich erst dann relevant, wenn Möglichkeiten bestehen, die Unähnlichkeit von zwei Pixeln anzugeben.
 
 Da weiterhin Farbbilder aus dem (OpenCV übglichen) BGR-Raum betrachtet werden und somit jeder Pixel drei Channel (mit je 8 Bit) hat, lässt sich ein Pixel als einen Vektor aus dem Raum $[0,256)^3$ auffassen. Damit lässt sich eine Norm $\|\cdot\|:[0,256)^3\rightarrow[0,\infty)$ definieren. Mit einer Norm lässt sich aber mit $d(\vec{u},\vec{v})\coloneqq\|\vec{u}-\vec{v}\|$ eine Metrik einführen.
@@ -456,7 +458,7 @@ Um diese Distanz gegebenenfalls noch auf das Intervall $[0,1]$ zu normalisieren,
 Damit lässt sich nun die Kompatibilität zweier Puzzlestücke als die Gegenwahrscheinlichkeit dieser relativen Distanz definieren:$$C(x_i,x_j,r)\coloneqq 1-\frac{\bar{D}(x_i,x_j,r)}{d_{max}}$$.
 
 Die DBC bietet eine simple Möglichkeit die Kompatibilität (oder Distanz) zwischen zwei Puzzlestücken zu berechnen. Die Berechnung einer solchen Distanz bezüglich einer Kante ist linear in der Länge dieser Kante $\Theta(K)$ (Höhe oder Breite der Puzzlestücke). Ein Nachteil ist, dass lediglich die äußersten Pixel eines Puzzlestückes betrachtet werden. Dadurch werden Farbübergänge, die zwar im Gesamtbild Sinn ergeben, an den Kanten als harsch angesehen, da diese dort für große Distanzen sorgen.
-\section{Prediction-Based Compatibility (PBC)}
+\section{Prediction-Based Compatibility (PBC)}\label{section-pbc}
 Um neben den Randpixeln auch noch die Informationen von deren (inneren) benachbarten Pixeln nutzen zu können, wird bei der Prediction-Based Compatibility (PBC) das Bild eines Puzzlestückes um einen Pixel in jede Richtung erweitert. Diese approximierten Pixel einer Seite werden dann anstatt den eigentlichen Pixeln dieser Seite (wie es bei der DBC der Fall ist) in der Distanzberechnung verwendet. Es wird also die Distanz zwischen einem approximierten Pixel in einem Puzzlestück und einem echten Pixel in einem anderen Puzzlestück ermittelt.
 
 Zur Approximierung der Farbwerte lässt sich ein Bild $I$ mit der Breite $w$ und der Höhe $h$ im BGR-Farbraum wieder als vektorwertige Funktion $\vec{I}(\vec{x}):[0,w)\times[0,h)\rightarrow[0,256)^3$ betrachten. Es wird eine lineare Approximierung nach Taylor gewählt. Um eine Entwicklungsstelle $\vec{x}_0$ gilt dann $$\vec{I}(\vec{x})\approx\vec{I}(\vec{x}_0)+J_I(\vec{x}_0)\cdot(\vec{x}-\vec{x_0})$$. Wobei mit $J_I(\vec{x}_0)$ die Jacobi-Matrix (ausgewertet an der Entwicklungsstelle $\vec{x}_0$) gemeint ist. Die Jacobi-Matrix fasst alle partiellen Ableitungen der Funktion zusammen (die Komponenten von $I$ werden entsprechend der Farbchannel als $b$, $g$ und $r$ bezeichnet): $$J_I=\begin{bmatrix}\frac{\partial b}{\partial x}&\frac{\partial b}{\partial y}\\\frac{\partial g}{\partial x}&\frac{\partial g}{\partial y}\\\frac{\partial r}{\partial x}&\frac{\partial r}{\partial y}\end{bmatrix}$$.
@@ -567,25 +569,87 @@ Da ähnlich wie bei der DBC in \ref{section-dbc} die Distanzen entlang einer Kan
 \section{Dynamic Time Warping (DTW)}
 Eine weitere Methode zur Berechnung der Gesamtdistanz zwischen zwei Puzzlestücken wurde in \cite{hungarian} beschrieben. Intuitiv betrachtet lässt sich vermuten, dass der Vergleich zweier Pixel sich nicht nur auf unmittelbar benachbarte Pixel entlang einer Achse (beispielsweise linke und rechte Nachbarn) beschränken sollte.
 
-Abbildung \ref{fig-dtw-ex} zeigt als Beispiel zwei $8\times1$ Bildränder $\mathcal{A}$ und $\mathcal{B}$, welche beispielsweise nach \ref{section-dbc} mit der DBC verglichen werden. Wird als Norm die $L_1$ Norm gewählt (Summe der absoluten Differenzen oder auch Manhatten oder Taxicab-Norm), ergibt sich nach dem aufsummieren dieser Distanzen eine Gesamtdistanz von $2246$.
+Abbildung \ref{fig-dtw-ex} zeigt als Beispiel zwei $8\times1$ Bildränder: $R$ (etwa der rechte Bildrand eines Puzzlestückes $x_i$) und $S$ (der linke Rand eines anderen Puzzlestückes $x_j$). Diese sollen beispielsweise nach \ref{section-dbc} mit der DBC verglichen werden. Wird als Norm die $L_1$ Norm gewählt (Summe der absoluten Differenzen oder auch Manhatten oder Taxicab-Norm), ergibt sich nach dem aufsummieren dieser $8$ Distanzen eine Gesamtdistanz von $2246$.
 \begin{figure}[H]
     \centering
-    \subfloat[$\mathcal{A}$\label{fig-dtw-ex-a}]{
+    \subfloat[$R$\label{fig-dtw-ex-a}]{
       \includegraphics[width=0.06\linewidth]{img/dtw_ex_a.png}
     }
     \quad\quad\quad\quad
-    \subfloat[$\mathcal{B}$\label{fig-dtw-ex-b}]{
+    \subfloat[$S$\label{fig-dtw-ex-b}]{
       \includegraphics[width=0.06\linewidth]{img/dtw_ex_b.png}
     }
-    \caption{Distanzberechnung bei direkter Zuordnung der Pixel}
+    \caption{Direkte Zuordnung der Pixel}
     \label{fig-dtw-ex}
 \end{figure}
-Bitte töte mich
+Die Farben in Beispiel \ref{fig-dtw-ex} suggerieren bereits, dass eine andere Zuordnung, welche nicht nur ausschließlich direkt benachbarte Pixel vergleicht, eine geringere Distanz ergeben könnte. So würde beispielsweise das Verschieben von $S$ um einen Pixel nach unten dafür sorgen, dass viele ähnliche Pixel (blau mit blau und grün mit grün) verglichen werden könnte.
+
+Ein Algorithmus der dieses Problem behandelt ist der Dynamic Time Warping (DTW) Algorithmus. Ursprünglich wurde der Algorithmus entwickelt, um die best mögliche Zuordnung (die Zuordnung mit der geringsten Distanz bzw. mit der größten Ähnlichkeit) von zwei zeitabhängigen Sequenzen zu bestimmen (die nicht zwingend gleicher Länge sein müssen). Möchte man beispielsweise Aussagen über die Ähnlichkeit zweier Audiosignale machen, in denen zwei verschiedene Personen die gleiche Sequenz von Wörtern vorlesen (ein Anwendungsbeispiel aus dem Bereich der automatische Spracherkennung), so würde ein direkter Vergleich der beiden Signale auf zwei grundlegende Probleme stoßen: Werden ausschließlich die Frequenzen verglichen, die in den Signalen am gleichen Zeitpunkt $t$ auftreten, so müsste vorausgesetzt werden, dass die beiden Signale die gleiche Länge $T$ haben, was aufgrund der unterschiedlichen Sprachgeschwindigkeit von Menschen sehr unwahrscheinlich ist. Und selbst wenn beide Signale eine gleiche Länge aufweisen, so sorgt genau diese Sprachgeschwindigkeit dafür, dass gegebenenfalls ein Signal zeitlich immer leicht verschoben ist. Somit würden zwei ähnliche Signale als komplett verschieden anerkannt werden, weil bei der Zuordnung der Frequenzen nicht beachtet wird, dass gleiche Frequenzen zeitverschoben auftreten können. Abbildung \ref{fig-dtw-vs} zeigt zwei Beispiel Matchings einer zeitabhängigen Sequenz. Eine direkte Zuordnung (euklidisches Matching) sorgt dafür, dass zeitlich verschobene aber ähnliche Frequenzen nicht einander zugeordnet werden können. Der DTW-Algorithmus findet das beste Matching, indem die Sequenzen so \textit{verzerrt} werden, dass diese Zuordnung der ähnlichen Frequenzen möglich wird.
 \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.60\linewidth]{img/eu_vs_dtw.jpg}
+    \caption{Euclidean Matching im Vergleich mit DTW}
+    \caption*{Quelle: Wiki Commons: File:Euclidean vs DTW.jpg (\url{https://commons.wikimedia.org/wiki/File:Euclidean_vs_DTW.jpg})}
+    \label{fig-dtw-vs}
+\end{figure}
+Im Gegensatz zu zeitabhängigen Sequenzen (welche ein Beispiel für stetige Sequenzen sind) ist die Zuordnung zwischen zwei Pixelsequenzen diskret, da es nur eine endliche Anzahl an Indizes gibt. Bevor der Algorithmus selber beschrieben werden kann, sollte festgelegt werden, welche Eigenschaften eine Zuordnung aufweisen muss um gültig zu sein (bzw. welche Matchings zulässig sind).
+
+Es werden zwei Sequenzen $R=(r_1,\dots,r_m)$ und $S=(s_1,\dots,s_n)$ betrachtet, mit entsprechenden Längen $|R|=m$ und $S=n$ (im konkreten Fall, wo $R$ und $S$ Seitenränder von Puzzlestücken sind gilt natürlich $m=n$). Auf den Elementen der Sequenz sei eine Metrik bzw. Distanzfuntkion $d(r_i,r_j)$ definiert. Bei den Bildpunkten lässt sich die Matrik mit einer Norm $\|\cdot\|$ nach \ref{section-norm} als $d(r_i,r_j)=\|r_i-r_j\|$ definieren. Gesucht ist die minimale Gesamtdistanz $D$ als Summe einzelner Distanzen durch das Matching jeweils zweier Elemente aus den Sequenzen $D(R,S)=\sum_{i,j}d(r_i,r_j)$. Dieses Matching muss folgende Eigenschaften beachten:
+\begin{enumerate}
+    \item Jedes Element muss mindestens einen Summanden zur Gesamtdistanz beitragen. Anders gesagt muss jedes Element aus einer Sequenz mit mindestens einem Element aus der anderen Sequenz verbunden werden. Es existieren also keine Elemente, die bei der Berechnung nicht in die Gesamtdistanz mit einfließen.
+    \item Ein Matching $(r_i,s_j)$ besagt, dass das Element $r_i$ mit dem Element $s_j$ verbunden wurde (es wird also $d(r_i,s_j)$ aufsummiert). Existiert solch ein Matching $(r_i,s_j)$, dann darf kein Matching $(r_k,s_l)$ existieren mit $(k<i\land l>j)\lor (k>i\land l<j)$. Anschaulich bedeutet dies, dass Zuordnungen sich nicht überkreuzen dürfen (wie auch in Abbildung \ref{fig-dtw-vs} zu sehen ist.
+    \item Zusammen implizieren Punkt 1 und 2 damit außerdem, dass beide Anfangs- und Endelemente der beiden Sequenzen stets in Verbindung stehen. Es existieren also mit Sicherheit die Verbindungen $(r_1,s_1)$ und $(r_m,s_n)$. Um dies zu begründen, wird die Verbindung $(r_1,s_1)$ betrachtet (die Begründung für beide Endelemente der Sequenzen geht analog). Nach Punkt 1 muss mindestens ein Matching $(r_1,s_k)$ existieren. Ist $k=1$, so gilt Punkt 3 trivialerweise. Andernfalls kann $k$ nur größer $1$ sein. Jetzt gilt nach Punkt 1 wieder, dass aber auch eine Verbindung $(r_l,s_1)$ existieren muss. Wählt man nun auch ein $l>1$, so existieren gleichzeitig die Verbindungen $(r_1,s_{k>1})$ und $(r_{l>1},s_1)$. Nach Punkt 2 kreuzen die beiden Verbindungen sich dann aber. Es würde also nur ein $l\leq1$ in Frage kommen. Das einzige $l$ was damit in Frage kommt, wäre $l=1$. Auch damit existiert also wieder die Verbindung $(r_1,s_1)$.
+\end{enumerate}
+Der DTW-Algorithmus arbeitet rekursiv. Dabei werden Teillösungen der Gesamtdistanz $D(R,S)$ betrachtet, die sich auf die Gesamtdistanz zwischen einem Präfix von $R$ und einem Präfix von $S$ beziehen. Diese Zwischenlösungen werden im Folgenden als $D_{i,j}(R,S)$ geschrieben und stellen die Gesamtdistanz zwischen den ersten $i$ Elementen von $R$ und den ersten $j$ Elementen von $S$ dar. Es gilt also $D_{i,j}(R,S)\coloneqq D((r_1,\dots,r_i),(s_1,\dots,s_j))$. Die am Ende gesuchte Gesamtdistanz von allen Elementen von $R$ und allen Elementen von $S$ ist dann $D(R,S)\coloneqq D_{m,n}(R,S)$. Mit dieser Schreibweise lässt sich der Algorithmus dann folgendermaßen rekursiv definieren:
+\begin{align}\label{eq-dtw-cases}
+    D_{i,j}(R,S)=\begin{cases}
+        0&i=0\land j=0\\
+        d(r_i,s_j)+\min\begin{cases}
+            D_{i-1,j}(R,S)\\
+            D_{i,j-1}(R,S)\\
+            D_{i-1,j-1}(R,S)
+        \end{cases}&1\leq i\leq m\land1\leq j\leq n\\
+        \infty&\text{sonst}
+    \end{cases}
+\end{align}
+Der erste Fall ist der Basisfall, wo die Gesamtdistanz von zwei leeren Sequenzen berechnet werden soll. Da somit keine Verbindungen zwischen Elementen entstehen können und somit auch keine Distanzen berechnet werden können, wird definiert dass $D(\varnothing,\varnothing)=0$. Beim dritten Fall der Fallunterscheidung handelt es sich auch um einen Basisfall. Hier ist $i=0\lor j=0$ nicht aber $i=0\land j=0$. Damit soll die Gesamtdistanz von einer nicht leeren Sequenz und einer leeren Sequenz berechnet werden. Da jedoch jedes Element mindestens Teil einer Verbindung sein muss und es keine möglichen Partner für Elemente aus der nicht leeren Sequenz gibt (da die andere Sequenz leer ist), wird die Distanz hier als maximal bzw. $\infty$ definiert. Da der Algorithmus probiert zu minimieren, wird also niemals eine Zuordnung gewählt, die im Laufe des Algorithmus auf solch einen Fall trifft (da offensichtlich nicht alle Elemente einen Partner zugewiesen bekommen haben und das Matching somit nicht gültig ist). Im Rekursionsschritt werden dann die Elemente $r_i$ und $s_j$ verbunden und deren Distanz $d(r_i,s_j)$ berechnet und mit der minimalen Distanz aller Rekursionsfälle addiert. Dabei wird zwischen drei Fällen unterschieden. Da sowohl $r_i$ als auch $s_j$ nun mindestens einen Partner besitzen, lassen sich diese von den jeweiligen Sequenzen ausschließen und es kann mit dem entsprechenden Präfix der Sequenz weitergerechnet werden. Dabei können beide ausgeschlossen werden, womit im weiteren Verlauf keine Verbindung mehr mit $r_i$ oder $s_j$ hergestellt werden kann oder es wird genau einer von beiden ausgeschlossen, wobei der jeweils andere in der nächsten Rekursionstiefe wieder eine (weitere) Verbindung mit dem Vorgänger von dem ausgeschlossenen Element aufbaut. Es sei zu beachten, dass zu keiner Zeit im Algorithmus eine Verbindung mit einem Element aufgebaut werden kann, welches sich außerhalb der beiden Präfixe befindet. Damit ist implizit sichergestellt, dass ein Matching nie zwei Verbindung enthält, welche sich kreuzen.
+
+Da eine rekursive Implementation nach \ref{eq-dtw-cases} gleiche Teilprobleme öfters berechnet, ergibt sich aufgrund der kombinatorischen Explosion des Algorithmus ein exponentielles Laufzeitverhalten. Der DTW-Algorithmus ist ein klassisches Problem der dynamischen Programmierung (DP) und erinnert in seiner Formulierung stark an andere ähnliche DP-Probleme, wie etwa die Berechnung der Editierdistanz (Levenshtein-Distanz) von zwei Sequenzen oder der Berechnung der größten gemeinsamen Teilsequenz von zwei Sequenzen (Longest Increasing Subsequence - LCS).
+
+Stattdessen wird der DTW-Algorithmus in der Regel als iterativer Algorithmus formuliert, welcher die Teilprobleme in einem $m\times n$ Array speichert, um diese Zwischenergebnisse nicht erneut berechnen zu müssen (dies wird auch als Memoisation bezeichnet). Dabei wählt man einen Bottom-Up Ansatz: Es werden zunächst die Basisfälle in das Array eingetragen. Daraufhin lässt sich so über das Array iterieren, dass jeder Wert direkt berechnet werden kann (da die nötigen Teilprobleme bereits gelöst wurden und deren Ergebnisse abgespeichert wurden). Am Ende ist das komplette Array gefüllt und man kann die Gesamtdistanz zum Ausgangsproblem einfach im Array auslesen und zurückgeben.
+
+Der Folgende Ausschnitt an Pseudocode (\ref{alg-dtw}) beschreibt diese Art des DTW-Algorithmus.
+\begin{algorithm}[H]
+    \caption{DTW-Algorithmus}\label{alg-dtw}
+    \begin{algorithmic}[1]
+        \Function{DTW}{$R:[r_1\dots r_m],S:[s_1\dots s_n]$}
+            \State $D\gets\text{array}[0\dots m,0\dots n]$
+            \State $D[0,0]\gets0$
+            \For{$i=1\text{ to }m$}
+                \State $D[i,0]\gets\infty$
+            \EndFor
+            \For{$j=1\text{ to }n$}
+                \State $D[0,j]\gets\infty$
+            \EndFor
+            \For{$i=1\text{ to }m$}
+                \For{$j=1\text{ to }n$}
+                    \State $D[i,j]\gets d(r_i,s_j)+\min\begin{cases}D[i-1,j]\\D[i,j-1]\\D[i-1,j-1]\end{cases}$
+                \EndFor
+            \EndFor
+            \State \Return $D[m,n]$
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+Die Laufzeitkomplexität von Algorithmus \ref{alg-dtw} ist nun nicht mehr exponentiell sondern polynomial. Die dafür ausschlaggebende Operation ist die Berechnung in Zeile 12. Diese Operation ist zwar konstant, wird aufgrund der Schleifen in Zeile 10 und Zeile 11 jedoch exakt $m\cdot n$ mal ausgeführt. Dementsprechend ist das Laufzeitverhalten vom DTW-Algorithmus $\Theta(m\cdot n)$. Angewandt auf den Anwendungsfall, die minimale Distanz zweier Kanten von zwei Puzzlestücken zu berechnen, ist dieser Algorithmus damit quadratisch in der Länge der Kante (hier mit $K$ bezeichnet): $\Theta(K^2)$. Im Vergleich dazu war die Berechnung nach einer euklidischen Zuordnung (beschrieben anhand der DBC in \ref{section-dbc}) linear. Außerdem besitzt Algorithmus \ref{alg-dtw} auch eine Speicherkomplexität von $\Theta(m\cdot n)$, um die Zwischenergebnisse per Memoisation im Array zwischenspeichern zu können. Es existieren für solche Art von DP-Algorithmen einfache Erweiterungen, welche die Speicherkomplexität auf $\Theta(\min(m,n))$ verbessern können. Die Begründung dafür ist, dass bei genauerer Betrachtung des Algorithmus auffällt, dass zur Berechnung in Zeile 12 lediglich Zwischenergebnisse aus der aktuell betrachteten Zeile und der vorherigen Zeile notwendig sind. Zwei Zeilen als zusätzlicher Speicher sind also hinreichend zur Berechnung des Endergebnisses (und es lässt sich auch zeigen, dass dies sich noch weiter auf nur eine Zeile und eine zusätzliche Variable verbessern lässt, was jedoch an der Speicherkomplexität nichts ändert). Da der Speicheraufwand jedoch selbst in der Version, welche in Algorithmus \ref{alg-dtw} dargestellt wird, bereits vergleichsweise gering ist und die zusätzlichen Zwischenergebnisse in der Matrix durchaus hilfreiche Informationen über das eigentliche Matching liefern, gilt Algorithmus \ref{alg-dtw} an dieser Stelle als hinreichend gut. Als Begründung für die erste Aussage (dass der Speicheraufwand vergleichsweise gering ist), lässt sich sagen, dass zu jederzeit nur eine solche Matrix im Speicher liegen sollte, welche außerdem bei jeder Berechnung wiederverwendet werden kann. Im Vergleich dazu wurde bei der PBC in \ref{section-pbc} für alle vier Seiten von jedem Puzzlestück eine zusätzliche Zeile bzw. Spalte an approximierten Pixeln zwischengespeichert.
+
+Um zuletzt noch zu zeigen, dass die Zwischenergebnisse in der Matrix verwendet werden können, um das Matching zweier Sequenzen bestimmen zu können (und nicht nur die Distanz von diesem minimalen Matching), wird wieder das Beispiel \ref{fig-dtw-ex} betrachtet. Ein euklidisches Matching mit der $L_1$ Norm ergab eine Distanz von $2246$. Tabelle \ref{tbl-dtw-back} zeigt die Matrix nach einem Durchlauf des Algorithmus mit den Pixel-Sequenzen $R$ und $S$ aus Abbildung \ref{fig-dtw-ex}. Wie an der untersten rechten Zelle zu erkennen ist, ist die minimale Distanz $1434$. Da $1434<2246$ existiert also ein Matching was nicht dem euklidischen Matching entspricht, aber geringere Distanzen liefert.
+
+Dazu lässt sich mit den Werten in der Matrix nun der Algorithmus zurückverfolgen (Backtracking). Dazu wird rechts unten beim Endergebnis gestartet. An dieser Stelle wurden die letzten beiden Pixel von $R$ und $S$ verbunden (deshalb ist die Zelle farblich hinterlegt). Außerdem wurde an dieser Stelle die Entscheidung getroffen, als Teillösung die Lösung zu nehmen, die den letzten Pixel von $S$ ausschließt (da dies die Teillösung war mit der geringsten Gesamtdistanz als Zwischenergebnis). Es wird also in der Zelle links vom Endergebnis weiter gemacht. Dort lässt sich wieder ablesen, welche Pixel verbunden wurden und anhand der Werte in den benachbarten Zellen (direkt links, direkt oben und diagonal links-oben der aktuell betrachteten Zelle) lässt sich sagen, welche Entscheidung der Algorithmus an dieser Stelle getroffen hat. Dies lässt sich bis zum Basisfall zurückverfolgen, wo beide Präfixe der Sequenzen leer sind. Es sei gesagt, dass auch der erste Pixel von $R$ mit dem ersten Pixel von $S$ verbunden wird (es wurde bereits gezeigt, dass sowohl die Anfangs-, als auch die Endelemente beider Sequenzen stets verbunden werden).
+\begin{table}[H]
     \begin{center}
         \begin{tabular}{|cTc|c|c|c|c|c|c|c|c|}
             \hline
-            \backslashbox{$\mathcal{A}$}{$\mathcal{B}$} & $\varnothing$ & \cellcolor[rgb]{0.10,0.51,0.11} & \cellcolor[rgb]{0.29,0.53,0.81} & \cellcolor[rgb]{0.60,0.37,0.00} & \cellcolor[rgb]{0.40,1.00,0.02} & \cellcolor[rgb]{0.98,0.83,0.76} & \cellcolor[rgb]{0.44,0.00,0.00} & \cellcolor[rgb]{0.30,0.17,0.62} & \cellcolor[rgb]{0.31,0.85,0.73}\\\thickhline
+            \backslashbox{$R$}{$S$} & $\varnothing$ & \cellcolor[rgb]{0.10,0.51,0.11} & \cellcolor[rgb]{0.29,0.53,0.81} & \cellcolor[rgb]{0.60,0.37,0.00} & \cellcolor[rgb]{0.40,1.00,0.02} & \cellcolor[rgb]{0.98,0.83,0.76} & \cellcolor[rgb]{0.44,0.00,0.00} & \cellcolor[rgb]{0.30,0.17,0.62} & \cellcolor[rgb]{0.31,0.85,0.73}\\\thickhline
             $\varnothing$ & \cellcolor{blue!25}0 & $\infty$ & $\infty$ & $\infty$ & $\infty$ & $\infty$ & $\infty$ & $\infty$ & $\infty$\\\hline
             \cellcolor[rgb]{0.47,0.31,0.19} & $\infty$ & \cellcolor{blue!25}$167$ & $430$ & $529$ & $764$ & $1174$ & $1308$ & $1494$ & $1811$\\\hline
             \cellcolor[rgb]{0.13,0.32,0.15} & $\infty$ & \cellcolor{blue!25}$235$ & $431$ & $602$ & $803$ & $1267$ & $1371$ & $1507$ & $1824$\\\hline
@@ -598,17 +662,18 @@ Bitte töte mich
         \end{tabular}
     \end{center}
     \caption{Backtracking im DTW-Algorithmus}
-    \label{fig-levenshtein-backtracking}
-\end{figure}
-Bro please kill me lol
+    \label{tbl-dtw-back}
+\end{table}
+Markiert man sich nun den Weg (blau hinterlegt in \ref{tbl-dtw-back}), der beim Backtracking der Matrix entsteht, so lassen sich alle Verbindungen zwischen den einzelnen Pixeln ablesen und in Abbildung \ref{fig-dtw-ex} eintragen. Das dabei entstandende Matching ist in Abbildung \ref{fig-dtw-ex2} dargestellt.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.30\linewidth]{img/dtw_ex2.png}
-    \caption{Distanzberechnung bei direkter Zuordnung der Pixel}
+    \caption{Zuordnung der Pixel beim DTW-Algorithmus}
     \label{fig-dtw-ex2}
 \end{figure}
+Wie zu sehen ist, ist dieses Matching auch gültig, da jedes Element mindestens einen Partner hat und sich außerdem keine Verbindungen überkreuzen.
 \section{Mahalanobis Gradient Compatibility (MGC)}
-aaaaaaaaaaaaaaaaaaaaa
+erklären und natürlich auch kurz fazit ggf mit dtw vergl idk alg komplett erklären yuhu
 
 \backmatter
 

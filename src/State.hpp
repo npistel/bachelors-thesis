@@ -21,6 +21,8 @@ class State
 			for (this->hole_index = 0; this->hole_index < this->data.size() && this->data[this->hole_index] != hole_value; this->hole_index++) continue;
 		}
 
+
+
 		std::size_t inversions() const
 		{
 			std::size_t count = 0;
