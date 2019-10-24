@@ -1,3 +1,6 @@
 \contentsline {algorithm}{\numberline {1}{\ignorespaces DTW-Algorithmus\relax }}{28}{algorithm.1}% 
 \contentsline {algorithm}{\numberline {2}{\ignorespaces Initialisierung eines Disjoint-Set-Forest\relax }}{36}{algorithm.2}% 
 \contentsline {algorithm}{\numberline {3}{\ignorespaces FindRoot Operation mit Pfadkomprimierung\relax }}{36}{algorithm.3}% 
+\contentsline {algorithm}{\numberline {4}{\ignorespaces Union Operation als Union by Size\relax }}{37}{algorithm.4}% 
+\contentsline {algorithm}{\numberline {5}{\ignorespaces Erweiterte InitForest Operation\relax }}{38}{algorithm.5}% 
+\contentsline {algorithm}{\numberline {6}{\ignorespaces Erweiterte FindRoot Operation\relax }}{39}{algorithm.6}% 

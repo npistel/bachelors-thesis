@@ -23,6 +23,7 @@
 \usepackage{tikz}
 \usepackage{slashbox}
 \usepackage{hyperref}
+\usepackage{esvect}
 
 \title[Bericht]{Classcon Consulting GmbH}
 \subtitle{d.velop AG}
@@ -747,18 +748,105 @@ Die \texttt{InitForest} Operation initialisiert einen DSF mit einer vorgegeben K
         \EndProcedure
     \end{algorithmic}
 \end{algorithm}
-Die FindRoot Operation übernimmt ein Element $x$ und gibt den Index des Wurzelelementes der Menge zurück in der sich $x$ befindet.
+Die \texttt{FindRoot} Operation übernimmt den Index $i$ eines Elementes $x_i$ und gibt den Index des Wurzelelementes der Menge zurück in der sich $x_i$ befindet. Diese Operation arbeitet sich solange den Baum hoch bis ein Element gefunden wurde, welches als Parent-Index sich selbst eingetragen hat. Der Index dieses Elementes wird dann zurückgegeben. An dieser Stelle lässt sich noch eine wichtige Verbesserung vornehmen, welche notwendig (jedoch noch nicht hinreichend) dafür ist, das durch die inverse Ackermann-Funktion beschränkte Laufzeitverhalten zu garantieren. Diese Erweiterung wird als Pfadkomprimierung bezeichnet und soll dafür sorgen, dass alle Elemente die auf dem Weg der \texttt{FindRoot} Operation betrachtet werden, als direkte Kinder des Wurzelelementes eingetragen werden. Damit wird ein gegebenenfalls sehr langer Pfad im Baum durch viele kleine Pfade (direkte Verbindungen zwischen den Elementen des Pfades und des Wurzelelementes) ersetzt. Dies ist eine valide Operation, da die Zugehörigkeit zu einer Menge lediglich von dem Wurzelelement des Baums bestimmt wird und in keinster Weise von den Beziehungen abhängt, die die Elemente untereinander haben. Dadurch das Bäume so stets \textit{flach} gehalten werden, wird das Laufzeitverhalten dieser und anderer Operationen die den Baum nach oben traversieren deutlich verbessert. Die \texttt{FindRoot} Operation mit Pfadkomprimierung wird dann in der Regel folgendermaßen rekursiv definiert:
 \begin{algorithm}[H]
     \caption{FindRoot Operation mit Pfadkomprimierung}\label{alg-dsf-find}
     \begin{algorithmic}
-        \Function{FindRoot}{$x$}
-            \If{$x$.parent $\neq x$}
-                \State $x$.parent $\gets$ FindRoot($x$.parent)
+        \Function{FindRoot}{$i$}
+            \If{nodes$[i]$.parent $\neq i$}
+                \State nodes$[i]$.parent $\gets$ FindRoot(nodes$[i]$.parent)
             \EndIf
-            \State \Return $x$.parent
+            \State \Return nodes$[i]$.parent
         \EndFunction
     \end{algorithmic}
 \end{algorithm}
+Die \texttt{Union} Operation übernimmt zwei Indizes $i,j$, welche für die Elemente $x_i,x_j$ stehen und vereinigt die Menge in der sich $x_i$ befindet mit der Menge in der sich $x_j$ befindet. Falls $x_i$ und $x_j$ sich bereits in der selben Menge befinden, muss die Operationen keine weiteren Änderungen an der Datenstruktur vornehmen. Ein Wahrheitswert als Rückgabewert der Funktion informiert darüber, ob die Mengen vereinigt wurden (\texttt{true}) oder nicht (\texttt{false}). Der Algorithmus bestimmt dafür zunächst die beiden Indizes $k,l$ der Wurzelelemente $r_i,r_j$ indem die Operation \texttt{FindRoot} entsprechend mit $i$ und $j$ aufgerufen wird. Sind diese Indizes gleich so wird \texttt{false} zurückgegeben. Andernfalls wird eines der beiden Wurzelelemente (hier beispielsweise $r_j$) als das neue Wurzelelement für die vereinigte Menge festgelegt. Dafür wird der Parent von $r_i$ auf den Index von $r_j$ gesetzt. Ein kompletter Baum wird also direkt an der Wurzel des anderen Baumes angehängt. Es entsteht ein neuer großer Baum. Selbst mit Pfadkomprimierung in der \texttt{FindRoot} Operation kann das Vereinigen zweier Mengen dazu führen, dass die Bäume sehr schnell in die Tiefe wachsen (wodurch die \texttt{FindRoot} Operation und damit auch die \texttt{Union} Operation lange Pfade traversieren muss). Als weitere notwendige Erweiterung für die Effizient der Datenstruktur (entsprechend der inversen Ackermann-Funktion) muss versichert werden, dass stets der kleinere der beiden Bäume an den größeren angehängt wird. Dabei bezieht sich die Größe der Bäume auf die Anzahl der Elemente in der Menge. Diese Erweiterung wird als \textit{Union by Size} bezeichnet. Zusammen mit der Pfadkomprimierung in \texttt{FindRoot} ist damit das durchschnittliche Laufzeitverhalten von $\Theta(\alpha(n))$ garantiert.
+\begin{algorithm}[H]
+    \caption{Union Operation als Union by Size}\label{alg-dsf-union}
+    \begin{algorithmic}
+        \Function{Union}{$i,j$}
+            \State $k\gets$ FindRoot(i)
+            \State $l\gets$ FindRoot(j)
+            \If{$k=l$}
+                \State \Return false\Comment{$x_i$ und $x_j$ befinden sich in der selben Menge}
+            \EndIf
+            \If{nodes$[k]$.size $>$ nodes$[l]$.size}
+                \State Swap($k,l$)\Comment{$k$ ist der Wurzelindex der kleineren Menge}
+            \EndIf
+            \State nodes$[k]$.parent $\gets l$\Comment{Kleinere Menge and die größere anhängen}
+            \State nodes$[l]$.size $\gets$ nodes$[l]$.size $+$ nodes$[k]$.size\Comment{Anzahl aktualisieren}
+            \State \Return true
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+Um die normale DSF-Datenstruktur für das rekonstruieren von Puzzles anzupassen, müssen zunächst weitere Attribute zu der Datenstruktur hinzugefügt werden, welche die räumliche Beziehung der Mengenelemente (welche jetzt konkret Puzzlestücke sind) beschreiben.
+
+Neben einem Parent-Index, sollte jedes Element zusätzlich noch seine relative Position zu seinem Parent in Form von zweidimensionalen Koordinaten abspeichern. Dabei zeigt die positive x-Achse wieder nach rechts und die positive y-Achse nach unten. Die Koordinaten eines Elementes $v$ bezüglich seines Parent $p$ wird dann durch den Vektor von $p$ nach $v$ ausgedrückt: $\vv{pv}$. Alle Elemente einer Menge befinden sich in einem gemeinsamen Koordinatensystem, wobei das Wurzelelement den Ursprung dieses Koordinatensystems bildet.
+
+Auch das Attribut welches die Anzahl der Elemente in der Menge des Elementes angibt (welches lediglich dann von Nutzen ist, wenn das Element ein Wurzelelement ist) lässt sich ersetzen (dabei muss aufgepasst werden, dass diese Information nicht komplett verloren geht, da die Anzahl für Algorithmus \ref{alg-dsf-union} benötigt wird). Stattdessen bekommt jedes Element (auch wenn das Attribut wieder nur für Wurzelelemente gedacht ist) eine Menge von geordneten Paaren. Diese Paare bestehen aus einem Elementindex und aus einer Koordinate. Ein solches Paar repräsentiert ein Element $v$ im Baum des Wurzelelementes $r$ und die Koordinate ist die \textit{absolute} Koordinate dieses Elementes im Koordinatensystem der Menge (also $\vv{rv}$). Jedes Wurzelelement kennt also alle Elemente seiner Menge und weiß auch wo diese Elemente sich relativ zu ihm befinden. Die Kardinalität der Menge ist dann die Anzahl der Elemente in diesem Baum, womit klar wird wieso das Attribut \texttt{size} entfernt wurde: Diese Information ist nun implizit durch die Menge aller Elemente gegeben.
+
+Als letztes Attribut soll sich die Datenstruktur auch merken, wie viele aktive Bäume sich im Wald befinden. Anfangs sind dies $n$ Bäume für $n$ Elemente (da jedes Element in seiner eigenen Menge ist), im Hinblick auf den Algorithmus von Kruskal ist es aber besonders interessant, wann diese Anzahl $1$ ist (und somit eine Zusammenhangskomponente entstanden ist).
+
+Damit lassen sich nun Algorithmen \ref{alg-dsf-init}, \ref{alg-dsf-find}, \ref{alg-dsf-union} so anpassen, dass die Datenstruktur für die Rekonstruktion von Puzzles geeignet ist (und somit die Aufgabe übernimmt, nur gültige Zusammensetzungen von Puzzlestücken als Zusammenhangskomponenten zuzulassen).
+\begin{algorithm}[H]
+    \caption{Erweiterte InitForest Operation}\label{alg-dsf-init2}
+    \begin{algorithmic}[1]
+        \Procedure{InitForest}{$n$}
+            \State nodes $\gets$ array$[n]$
+            \State tree\_count $\gets n$\Comment{Anzahl der aktiven Bäume ist anfangs $n$}
+            \For{$i=1$ to $n$}
+                \State nodes$[i]$.parent $\gets i$\Comment{Element ist Wurzel seiner Menge}
+                \State nodes$[i]$.parent\_coords $\gets(0,0)$
+                \State nodes$[i]$.tree $\gets$ set$\{(index:i,root\_coords:(0,0))\}$
+            \EndFor
+        \EndProcedure
+    \end{algorithmic}
+\end{algorithm}
+Zeile 6 in Algorithmus \ref{alg-dsf-init2} definiert für ein Element $v$ die relativen Koordinaten zu seinem Parent als die Koordinaten des Vektors $\vv{pv}$. Da alle Elemente aber anfangs sich selber als Parent haben gilt $\vv{pv}=\vv{vv}=\vec{0}$. Zeile 7 erstellt die Menge, die alle Elemente mit Index und Koordinate (bezüglich des Wurzelelement der Menge) enthält. Anfangs ist jedes Element in seiner eigenen Menge und das einzige Paar was bei der Initialisierung eingetragen werden muss ist das mit Paar mit dem Index des eigenen Elementes und den Koordinaten $(0,0)$. Da jedes Element anfangs die Wurzel seiner Menge darstellt, befindet sich dieses Element auch im Ursprung des Koordinatensystems (welches ja seinen Ursprung beim Wurzelelement der Menge hat). Anders gesagt ist anfangs $r=v$ und damit $\vv{rv}=\vv{vv}=\vec{0}$.
+\begin{algorithm}[H]
+    \caption{Erweiterte FindRoot Operation}\label{alg-dsf-find2}
+    \begin{algorithmic}[1]
+        \Function{FindRoot}{$i$}
+            \If{nodes$[i]$.parent $\neq i$}
+                \State k $\gets$ FindRoot(nodes$[i]$.parent)
+                \State $\vv{rp}\gets$ nodes$[$nodes$[i]$.parent$]$.parent\_coords
+                \State nodes$[i]$.parent\_coords $\gets\vv{rp}$ $+$ nodes$[i]$.parent\_coords
+                \State nodes$[i]$.parent = k
+            \EndIf
+            \State \Return nodes$[i]$.parent
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+Algorithmus \ref{alg-dsf-find2} übernimmt neben der Rückgabe des Wurzelindex weiterhin eine Pfadkomprimierung. Da die Koordinaten eines Elementes $v$ bezüglich seines Parent $p$ bei der Pfadkomprimierung ihre Gültigkeit verlieren, weil das Element durch die Komprimierung einen neuen Parent (das Wurzelelement) bekommt, muss die Koordinate von $\vv{pv}$ auf $\vv{rv}$ geändert werden. Dazu muss jedoch zunächst $\vv{rp}$ bekannt sein. Diesen Vektor bekommt man durch einen rekursiven Aufruf von \texttt{FindRoot} mit dem Parent als Parameter. Dann wird dort die Pfadkomprimierung angestoßen und $p$ bekommt die Wurzel als Parent. Dies geht bis zum Basisfall der Rekursion weiter. Beim Abbau der Rekursion werden dann alle Vektoren aufaddiert. Für einen Pfad von $v$ nach $r$ mit $m$ Zwischenelementen $q_1\dots q_m$ baut sich durch die Rekursion folgende Summe auf:$$\underbrace{\vec{0}+\vv{r q_m}+\vv{q_m q_{m-1}}+\dots+\vv{q_2 q_1}}_{\vv{r q_1}}+\vv{q_1 v}=\vv{r v}$$
+Damit lässt sich erklären, was genau in Algorithmus \ref{alg-dsf-find2} passiert (und warum die Reihenfolge der einzelnen Statements genau so gewählt ist). Beim Aufruf von \texttt{FindRoot} mit einem Index der für Element $v$ steht, wird in Zeile 3 der Index des Wurzelelementes zwischengespeichert ($k$). Viel wichtiger noch ist, dass nach Abschluss dieser Zeile der rekursive Schritt fertig ist und für das Parent-Element $p$ nun im Koordinaten-Feld der Vektor $\vv{rp}$ steht. Da der Index des Parents noch bekannt ist (deswegen wurde der Index des Wurzelelementes zunächst nur zwischengespeichert), lässt sich dieser Vektor einfach nach Zeile 4 auslesen. Die Addition in Zeile 5 berechnet dann $\vv{rp}+\vv{pv}=\vv{rv}$. Jetzt lässt sich ohne Probleme die Pfadkomprimierung abschließen, indem man das zuvor gefundene Wurzelelement als Parent von $v$ erklärt (Zeile 6).
+
+Als simples Beispiel ist in Abbildung \ref{fig-dsf-vec} ein Koordinatensystem dargestellt. Es wird ein Element $v$ betrachtet mit einem Parent $p$, Grandparent $g$ und Root $r$. Dabei ist $r$ der Ursprung des Koordinatensystems. Die Vektoren $\vv{pv},\vv{gp},\vv{rg}$ beschreiben die relativen Position von einem Element bezüglich seines Parents. Ziel ist es $\vv{rv}=\vv{rg}+\vv{gp}+\vv{pv}$ zu berechnen. Die Rekursion bewirkt, dass zunächst $\vv{rp}=\vv{rg}+\vv{gp}$ berechnet wird und dann mit dem Ergebnis das gesuchte $\vv{rv}=\vv{rp}+\vv{pv}$.
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \draw[step=1cm,gray,very thin] (0,0) grid (8,8);
+        
+        \draw[thick] (0.5,4)--(4,4);
+        \draw[thick] (4,7.5)--(4,4);
+        \draw[thick,->] (4,4) node[anchor=south east] {$r$} -- (7.5,4) node[anchor=west] {$x$};
+        \draw[thick,->] (4,4) -- (4,0.5) node[anchor=north] {$y$};
+
+        \fill[black] (6,1) node[anchor=north west] {$v$} circle (0.04cm);
+        \fill[black] (2,2) node[anchor=north east] {$p$} circle (0.04cm);
+        \fill[black] (7,5) node[anchor=south west] {$g$} circle (0.04cm);
+
+        \draw[red,thick,->] (4,4) -- (6.98,4.98) node[above,midway] {$\vv{rg}$};
+        \draw[blue,thick,->] (7,5) -- (2.02,2.02) node[below,pos=0.40] {$\vv{gp}$};
+        \draw[purple,thick,->] (2,2) -- (5.98,1.02) node[below,midway] {$\vv{pv}$};
+        \draw[black!40!green,thick,->] (4,4) -- (2.02,2.02) node[above,pos=0.60] {$\vv{rp}=\vv{rg}+\vv{gp}$};
+        \draw[orange,thick,->] (4,4) -- (5.98,1.02) node[above,midway] {$\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\vv{rv}=\vv{rg}+\vv{gp}+\vv{pv}=\vv{rp}+\vv{pv}$};
+    \end{tikzpicture}
+    \caption{Koordinatentransformation im DSF bei Pfadkomprimierung}
+    \label{fig-dsf-vec}
+\end{figure}
+aaaaa
+\begin{figure}[H]
+\end{figure}
 
 \backmatter
 
