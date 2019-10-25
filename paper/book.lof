@@ -44,4 +44,13 @@
 \contentsline {figure}{\numberline {\relax 3.7}{\ignorespaces Zuordnung der Pixel beim DTW-Algorithmus\relax }}{30}{figure.caption.13}% 
 \ttl@tocsep 
 \contentsline {figure}{\numberline {\relax 4.1}{\ignorespaces Koordinatentransformation im DSF bei Pfadkomprimierung\relax }}{40}{figure.caption.14}% 
+\contentsline {figure}{\numberline {\relax 4.2}{\ignorespaces Die 4 Stages eines Puzzles im Gesamtalgorithmus\relax }}{43}{figure.caption.15}% 
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {Ausgangspuzzle}}}{43}{subfigure.2.1}% 
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {Puzzle nach Spanning-Tree Algorithmus}}}{43}{subfigure.2.2}% 
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {Puzzle nach Trimming}}}{43}{subfigure.2.3}% 
+\contentsline {subfigure}{\numberline {(d)}{\ignorespaces {Puzzle nach Filling}}}{43}{subfigure.2.4}% 
+\contentsline {figure}{\numberline {\relax 4.3}{\ignorespaces Fehler beim Filling Algorithmus\relax }}{45}{figure.caption.16}% 
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {Gew\IeC {\"u}nschte L\IeC {\"o}sung}}}{45}{subfigure.3.1}% 
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {L\IeC {\"o}sung mit falschem Filling}}}{45}{subfigure.3.2}% 
+\ttl@tocsep 
 \ttl@tocsep 

@@ -17,3 +17,8 @@
 \contentsline {section}{\numberline {3.5}{Mahalanobis Gradient Compatibility (MGC)}}{30}{section.3.5}% 
 \contentsline {chapter}{\numberline {4}{Algorithmus zur Puzzle-Assemblierung}}{33}{chapter.4}% 
 \contentsline {section}{\numberline {4.1}{Baum-basierte Assemblierung nach Gallagher}}{34}{section.4.1}% 
+\contentsline {section}{\numberline {4.2}{Trimming}}{43}{section.4.2}% 
+\contentsline {section}{\numberline {4.3}{Filling}}{44}{section.4.3}% 
+\contentsline {section}{\numberline {4.4}{Kanten-Vorverarbeitung}}{45}{section.4.4}% 
+\contentsline {section}{\numberline {4.5}{Ergebnis}}{45}{section.4.5}% 
+\contentsline {chapter}{\numberline {5}{L\IeC {\"o}sbarkeit eines Schiebepuzzles}}{47}{chapter.5}% 

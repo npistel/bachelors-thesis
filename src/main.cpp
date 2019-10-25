@@ -13,7 +13,7 @@
 #include "Puzzle.hpp"
 #include "State.hpp"
 
-constexpr int m = 4; // rows
+constexpr int m = 30; // rows
 constexpr int n = m; // cols
 constexpr int N = m * n;
 
@@ -185,6 +185,7 @@ size_t dtw(cv::Mat a, cv::Mat b)
 
 int main(int argc, char* argv[])
 {
+	/*
 	cv::Mat a(8, 1, CV_8UC3);
 	cv::Mat b(8, 1, CV_8UC3);
 
@@ -212,9 +213,11 @@ int main(int argc, char* argv[])
 	cv::destroyAllWindows();
 
 	return 0;
+	*/
 
 	/*-------------------------------------------*/
 
+	/*
 	cv::Mat src = cv::imread("img/lena2.jpg");
 
 	cv::Mat dst(src.rows + 2, src.cols + 2, src.type(), cv::Scalar(255, 0, 0));
@@ -275,15 +278,16 @@ int main(int argc, char* argv[])
 	cv::destroyAllWindows();
 
 	return 0;
+	*/
 
-	cv::Mat img = cv::imread("img/lena2.jpg");
+	cv::Mat img = cv::imread("img/lena3.jpg");
 	if (img.empty())
 	{
 		std::cout << "could not open image" << std::endl;
 		return 0;
 	}
 
-	Puzzle p(img, m, n, N-1);
+	Puzzle p(img, m, n, n+1);
 	p.shuffle(true);
 	
 	cv::namedWindow("source_image");
@@ -293,7 +297,7 @@ int main(int argc, char* argv[])
 	cv::imshow("start_state", p.get_image());
 
 	int hole = p.orig_hole_index;
-	auto M = p.distance_matrix();
+	auto M = p.prediction_distance_matrix();
 
 	std::vector<Edge> edges;
 	for (int i = 0; i < N; i++)
@@ -336,7 +340,16 @@ int main(int argc, char* argv[])
 		dsf.insert_edge(edges[i].v1, edges[i].v2, edges[i].orientation);
 	}
 
-	State goal_state = dsf.reconstruct_images(m, n, M).front();
+	//State goal_state = dsf.reconstruct_images(m, n, M).front();
+	State goal_state = State(1,1,0);
+	auto bigoof = dsf.reconstruct_images(m, n, M);
+	for (int i = 0; i < bigoof.size(); i++)
+	{
+		cv::namedWindow(std::to_string(i));
+		cv::imshow(std::to_string(i), reconstruct_image(img, bigoof[i]));
+	}
+	cv::waitKey();
+	return 0;
 
 	cv::namedWindow("goal_state");
 	cv::imshow("goal_state", p.get_image(goal_state));

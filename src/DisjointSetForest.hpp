@@ -316,12 +316,12 @@ class DisjointSetForest
 					if (this->nodes[i].tree.size() == 1) continue;
 
 					auto img = this->reconstruct_image(i);
-					//images.push_back(img);
+					images.push_back(img);
 
 					auto trimmed = this->trim(img, height, width);
 					auto trimmed_image = trimmed.first;
 					auto extra_pieces = trimmed.second;
-					//images.push_back(trimmed_image);
+					images.push_back(trimmed_image);
 
 					auto holes = this->find_holes(trimmed_image);
 

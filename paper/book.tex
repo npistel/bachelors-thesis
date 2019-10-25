@@ -773,7 +773,7 @@ Die \texttt{Union} Operation übernimmt zwei Indizes $i,j$, welche für die Elem
             \If{nodes$[k]$.size $>$ nodes$[l]$.size}
                 \State Swap($k,l$)\Comment{$k$ ist der Wurzelindex der kleineren Menge}
             \EndIf
-            \State nodes$[k]$.parent $\gets l$\Comment{Kleinere Menge and die größere anhängen}
+            \State nodes$[k]$.parent $\gets l$\Comment{Kleinere Menge an die größere anhängen}
             \State nodes$[l]$.size $\gets$ nodes$[l]$.size $+$ nodes$[k]$.size\Comment{Anzahl aktualisieren}
             \State \Return true
         \EndFunction
@@ -844,9 +844,142 @@ Als simples Beispiel ist in Abbildung \ref{fig-dsf-vec} ein Koordinatensystem da
     \caption{Koordinatentransformation im DSF bei Pfadkomprimierung}
     \label{fig-dsf-vec}
 \end{figure}
-aaaaa
+Bei der \texttt{Union} Operation gilt es nun die neuen implementierten Informationen (in Form von räumlichen Beziehungen der Elemente) so zu verwenden, dass nur dann vereinigt wird, wenn dabei keine zwei Puzzlestücke übereinander liegen. Dazu wird optimistischer Weise eine Vereinigung der beiden Mengen berechnet, welche die Paare von Elementindizes inklusive Koordinaten enthalten. Da diese Koordinaten sich jedoch auf zwei verschiedene Koordinatensysteme beziehen, muss zunächst in einer dieser Mengen eine Transformationen dieser Koordinaten vorgenommen werden. Diese Vereinigung wird dann nur bezüglich der Koordinate eines solchen Paares gebildet. Mit der Kardinalität dieser Vereinigungsmenge lässt sich dann feststellen, ob die beiden Bäume vereinigt werden können oder nicht. Da nun das Vereinigen zweier Bäume konkret das Zusammenstecken zweier Puzzlestücke darstellt ist es bei dieser Operation nun auch notwendig zu wissen, wie diese beiden Stücke zusammengesetzt werden. Dazu wird eine numerische Konstante $r$ definiert nach Tabelle \ref{tbl-spatial-relation} mit übergeben.
+\begin{algorithm}[H]
+    \caption{Erweiterte Union Operation}\label{alg-dsf-union2}
+    \begin{algorithmic}[1]
+        \Function{Union}{$i,j,r$}
+            \State $k\gets$ FindRoot(i)
+            \State $l\gets$ FindRoot(j)
+            \If{$k=l$}
+                \State \Return false\Comment{$v_i$ und $v_j$ befinden sich in der selben Menge}
+            \EndIf
+            \If{nodes$[k]$.tree.size $>$ nodes$[l]$.tree.size}
+                \State Swap($k,l$)\Comment{$k$ ist der Wurzelindex der kleineren Menge}
+                \State Swap($i,j$)\Comment{$i$ ist Index vom Element der kleineren Menge}
+                \State $r\gets(r+2)\bmod4$\Comment{Inverse Beziehung von $v_i,v_j$ berechnen}
+            \EndIf
+            \State tree$_i^\prime$ $\gets$ set $\{\}$
+            \ForAll{$(u,\vv{r_i v_u})\in$ nodes$[k]$.tree}
+                \State tree$_i^\prime$ $\gets$ tree$_i^\prime$ $\cup\:\{(u,\vv{r_j r_i}+\vv{r_i v_u})\}$
+            \EndFor
+            \If{tree$_i^\prime$ $\cap$ nodes$[l]$.tree $\neq\varnothing$}
+                \State \Return false\Comment{Stücke überschneiden sich}
+            \EndIf
+            \State nodes$[l]$.tree $\gets$ nodes$[l]$.tree $\cup$ tree$_i^\prime$
+            \State nodes$[k]$.parent $\gets l$\Comment{Kleinere Menge an die größere anhängen}
+            \State nodes$[k]$.parent\_coords $\gets\vv{r_j r_i}$
+            \State nodes$[k]$.tree $\gets$ set $\{\}$
+            \State tree\_count $\gets$ tree\_count $-\:1$
+            \State \Return true
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+Der interessante Teil des Algorithmus läuft zwischen Zeile 12 und 19 ab. Kommt der Algorithmus erfolgreich bis Zeile 12, so befinden sich die beiden Elemente $v_i,v_j$ nicht in der selben Menge. Außerdem ist an dieser Stelle sichergestellt, dass $v_i$ stets das Element der kleineren Menge ist (die Wurzel $r_i$ des Baumes dieses Elementes soll an die Wurzel $r_j$ des größeren Baumes des anderen Elementes angehängt werden). Beide Wurzeln $r_i,r_j$ kennen alle Elemente ihrer Menge mit den Koordinaten in dem Koordinatensystem der Menge. Beim Vereinigen bekommt $r_j$ nun alle Elemente von $r_i$. Dazu müssen aber die Koordinaten aller Elemente zunächst angepasst werden. Für ein Element $v_u$ in der Menge von $r_i$ ist die Koordinate dieses Elementes in der Form $\vv{r_i v_u}$ angegeben. Um $v_u$ in die Menge aller Elemente aus $r_j$ übernehmen zu können muss diese Koordinate in die Form $\vv{r_j v_u}$ gebracht werden. Dazu muss berechnet werden:
+\begin{align}\label{eq-dsf-trans}
+    \vv{r_j v_u}&=\vv{r_j r_i}+\vv{r_i v_u}
+\end{align}
+Es ist also der Vektor $\vv{r_j r_i}$ gesucht (die relative Position von der Wurzel $r_i$ zu $r_j$). Diese standen zuvor in keinerlei Beziehung, da jede Menge ihr eigenes Koordinatensystem besitzt. Bei der Zusammensetzung von $v_i$ und $v_j$ lässt sich jedoch eine Beziehung der beiden Wurzeln beschreiben. Zunächst sei gesagt, dass der Parameter $r$ der Methode (die räumliche Beziehung der beiden Elemente) exakt den Vektor $\vv{v_j v_i}$ bestimmt. Dieser lässt sich direkt der Tabelle \ref{tbl-spatial-relation} entnehmen. Beispielsweise ist $\vv{v_j v_i}=(-1,0)$ genau dann wenn $r=0$.
+
+Da beide Wurzeln alle Koordinaten ihrer Elemente kennen (und somit auch die Koordinaten der entsprechenden $v$'s), könnte diese Menge durchsuchen. Dies dauert aber zu lange und ist dank der neuen erweiterten Pfadkomprimierung aus Algorithmus \ref{alg-dsf-find2} nicht nötig. In Zeile 2 und 3 von Algorithmus \ref{alg-dsf-union2} werden die Indizes von $r_i,r_j$ bestimmt dabei werden $v_i,v_j$ aber direkte Kinder ihrer entsprechenden Wurzeln. Dank der Koordinatentransformation nach Abbildung \ref{fig-dsf-vec} stehen die Koordinaten $\vv{r_i v_i}$ und $\vv{r_j v_j}$ direkt als Attribut in den jeweiligen Elementen drin. Damit sind alle Informationen zur Berechnung von $\vv{r_j r_i}$ vollständig und es gilt:
+\begin{align}\label{eq-dsf-trans2}
+    \vv{r_j r_i}&=\vv{r_j v_j}+\vv{v_j v_i}+\underbrace{\vv{v_i r_i}}_{=-\vv{r_i v_i}}\nonumber\\
+    \vv{r_j r_i}&=\vv{r_j v_j}+\vv{v_j v_i}-\vv{r_i v_i}
+\end{align}
+Somit lässt sich $\vv{r_j r_i}$ noch vor den Eintritt in die Schleife in Zeile 13 berechnen. Diese Schleife verwendet dann $\vv{r_j r_i}$ zusammen mit Gleichung \ref{eq-dsf-trans} lässt sich dann $\vv{r_j v_u}$ berechnen. Am Ende der Schleife ergibt sich die Menge aller Paare mit Elementen von $r_i$ jedoch in den Koordinaten von $r_j$. Jetzt lässt sich bezüglich der Koordinaten dieser Paare die Durchschnittsmenge von dieser neu berechneten Menge und von der Menge bilden, die $r_j$ bereits kennt. Ist diese Durchschnittsmenge nicht leer, so bekommen zwei Elemente beim Vereinigen der Bäume die gleiche Koordinate. Anders gesagt: Zwei Puzzlestücke würden sich überschneiden. Andernfalls kann bereits die Vereinigungsmenge der beiden Paar-Mengen gebildet werden, diese muss schließlich die alte Paar-Menge von $r_j$ überschreiben. In der Implementation wird oftmals wie schon erwähnt ein optimistischer Ansatz gewählt und es wird direkt die Vereinigungsmenge gebildet, da die Durchschnittsmenge eigentlich nicht gebraucht wird (außer um auf eine nicht leere Menge zu überprüfen). Nach dem Inklusion-Exklusion-Prinzips lässt sich die Kardinalität der Durchschnittsmenge dann aus den Kardinalitäten der beiden Mengen und der Kardinalität der Vereinigungsmenge berechnen: $|A\cap B|=|A|+|B|-|A\cup B|$. Diese Kardinalität lässt sich dann auf $0$ überprüfen und es muss stets nur eine Mengenoperation angewandt werden.
+
+Das Zurücksetzen der Paar-Menge von dem (nun nicht mehr Wurzel-) Element $r_i$ in Zeile 22 ist optional, bietet sich jedoch an um den Speicheraufwand der Datenstruktur zu verringern.
+
+Da bei der Vereinigungsoperation nur ein Element ($r_i$) seinen Parent (von keinen Parent auf $r_j$) ändert (abgesehen von der Pfadkomprimierung die implizit im Algorithmus stattfindet), gibt es auch nur eine Parent-Koordinate, welche angepasst werden muss. Dies geschieht in Zeile 21 mit dem zuvor berechneten Vektor $\vv{r_j r_i}$, welcher genau diese relative Koordinate vom Element $r_i$ relativ zu seinem neuen Parent $r_j$ beschreibt. Alle Elemente unterhalb von $r_i$ ändern zwar implizit ihr Wurzelelement von $r_i$ auf $r_j$, jedoch nicht ihr Parent-Element, womit alle Parent-Koordinaten weiterhin konsistent sind.
+
+Damit ist der Hauptalgorithmus der Datenstruktur komplett beschrieben. An dieser Stelle sollte klar sein, dass iteratives Vereinigen der Bäume zu einer Zusammenhangskomponente führt, welche außerdem keine Puzzlestücke enthält, die sich überschneiden. Damit ist jedoch noch nicht garantiert, das das entstandende Bild auch die gewünschten Dimensionen des Puzzles ($m\times n$) besitzt. Auch dazu wird sich an Gallagher \cite{gallagher,crisjim} orientiert und noch zwei simple Schritte eingeführt: Trimming und Filling.
 \begin{figure}[H]
+    \centering
+    \subfloat[Ausgangspuzzle\label{fig-dsf-stages-1}]{
+      \includegraphics[width=0.35\linewidth]{img/dsf-1.png}
+    }
+    \quad\quad
+    \subfloat[Puzzle nach Spanning-Tree Algorithmus\label{fig-dsf-stages-2}]{
+      \includegraphics[width=0.35\linewidth]{img/dsf-2.png}
+    }
+    \\
+    \subfloat[Puzzle nach Trimming\label{fig-dsf-stages-3}]{
+        \includegraphics[width=0.35\linewidth]{img/dsf-3.png}
+    }
+    \quad\quad
+    \subfloat[Puzzle nach Filling\label{fig-dsf-stages-4}]{
+        \includegraphics[width=0.35\linewidth]{img/dsf-4.png}
+    }
+    \caption{Die 4 Stages eines Puzzles im Gesamtalgorithmus}
+    \label{fig-dsf-stages}
 \end{figure}
+\section{Trimming}
+Sobald nur noch eine Zusammenhangskomponente im Forest vorhanden ist, lässt sich die Wurzel dieses Spannbaums im Array auffinden. Diese Wurzel kennt alle Elemente inklusive den relativen Koordinate zu sich selbst. Mit den minimalen und maximalen x- und y-Koordinaten aller Elemente lässt sich die Anzahl der nötigen Zeilen und Spalten bestimmen, um alle Elemente in einem Rechteck darzustellen. Der Punkt mit der minimalen x-Koordinate aller Elemente und der minimalen y-Koordinate aller Elemente (die obere-linke Ecke des Rechtecks) wird Urpsrung des neuen Koordinatensystems. Durch eine simple Vektordifferenz zwischen den Wurzelkoordinaten eines Elementes und den Koordinaten dieses Ursprungs (auch in Wurzelkoordinaten) ergibt sich die Koordinate eines Elementes in dem neuen Frame. Das Ergebnis dieser Rekonstruktion ist in Abbildung \ref{fig-dsf-stages-2} dargestellt.
+
+Aus diesem Zwischenergebnis soll dann ein Rechteck extrahiert werden, welches die Dimensionen des Puzzles besitzt. Dazu wird dem Algorithmus diese Information mitgeteilt (Anzahl der Zeilen und Spalten vom Puzzle). Dieser legt dann eine Art Sliding-Window über das zuvor rekonstruierte Puzzle und summiert die Anzahl der belegten Puzzlefelder auf. Die Position, die ein Puzzle ergeben würde, was am dichtesten gefüllt ist (also am meisten Stücke platziert sind), wird als beste Position definiert.
+
+Im nächsten Schritt wird das Puzzle aus \ref{fig-dsf-stages-2} so getrimmt, dass der Teil des Puzzles, welcher sich innerhalb dieses Sliding-Windows (welches an der zuvor bestimmten Position angebracht wird) befindet, in ein neues Zwischenergebnis übernommen wird. Das dabei entstehende Bild besitzt nun die gewünschten Dimensionsgrößen, enthält aber noch nicht belegte Plätze (vgl. Abbildung \ref{fig-dsf-stages-3}). Alle Stücke die nicht übernommen wurden, werden in einer Menge zwischengespeichert. Es gilt nun im nächsten Schritt, alle Stücke dieser Menge bestmöglich auf die freihen Plätze des Puzzles zu verteilen.
+\section{Filling}
+Bevor das Puzzle gefüllt wird, sollen zunächst die möglichen Plätze für Stücke analyisert werden. Die freien Plätze werden dabei in $5$ Buckets eingeteilt: Buckets $0\dots4$. Die Nummer des Bucket steht für die Anzahl der benachbarten belegten Felder. Die Idee dabei ist, zunächst die Buckets in absteigender Reihenfolge abzuarbeiten, da die Felder mit mehr Nachbarn auch mehr Informationen darüber liefern können, wie gut ein Stück in das Feld passt. Außerdem gilt zu beachten, dass im Laufe dieses Verfahren Puzzlestücke aus den niedrigen Buckets durch das Füllen der Plätze wiederrum Nachbarn bekommen und somit solange \textit{promoted} werden, bis diese Stücke selber platziert werden.
+
+Dieses Verfahren funktioniert wie von \cite{gallagher,crisjim} gezeigt, gut für Puzzle, die keine fehlenden Puzzlestücke haben. Damit ist dies der erste (und auch einzige Schritt) im ganzen Algorithmus, der hier leicht abgeändert werden muss. Schließlich fehlt bei Schiebepuzzles immer exakt ein Puzzlestück. Der Algorithmus wird dementsprechend angepasst. Es sei aber gesagt, dass dieses Verfahren nicht gut erweiterbar ist auf mehrere fehlende Puzzlestücke. Diese Problemstellung ist ein viel schwierigeres Problem, welches auch schon entsprechend Aufmerksamkeit in der Literatur bekommen hat. \cite{paikin}
+
+Die ursprüngliche Idee ist es, alle Kombinationen aus noch nicht platzierten Stücken und freien Plätzen eines Buckets durchzuprobieren. Dabei wird in jedem Durchgang der höchste Bucket ausgewählt, der mindestens ein Element enthält. Durch die gleichen Distanzen welche auch schon für den Hauptalgorithmus genommen wurden, lässt sich vergleichen, wie gut ein Puzzlestück in ein freies Feld passt. Es wird wieder Greedy vorgegangen, womit das beste Paar aus Puzzlestück und Platz kombiniert werden. Das Stück wird platziert und aus der Menge entfernt. Auch der (nun nicht mehr) freie Platz wird aus seinem entsprechenden Bucket platziert. Außerdem werden dabei ggf. die Nachbarn des Platzes aktualisiert. Befinden sich dort freie Plätze, so können diese alle einen Bucket höher platziert werden (da ein freier Nachbarplatz nun gefüllt wurde). Dieser Vorgang wird so lange wiederholt, wie sich noch nicht platzierte Stücke in der Menge befinden.
+
+An dieser Stelle ist klar, dass dies bei einem Schiebepuzzle ziemlich schief gehen kann. Ist das freie Feld des Schiebepuzzles beispielsweise von keinen freien Feldern umgeben, hat dieses (selbst wenn es schlechte Kompatibilitäten mit den Puzzlestücken aufweist) eine so hohe Priorität bearbeitet zu werden, dass es mit großer Wahrscheinlichkeit trotzdem fälschlicherweise gefüllt wird. Abbildung \ref{fig-dsf2} zeigt ein Beispiel solch eines Fehlers.
+\begin{figure}[H]
+    \centering
+    \subfloat[Gewünschte Lösung\label{fig-dsf2-1}]{
+      \includegraphics[width=0.50\linewidth]{img/dsf2-1.png}
+    }
+    \subfloat[Lösung mit falschem Filling\label{fig-dsf2-1}]{
+      \includegraphics[width=0.50\linewidth]{img/dsf2-2.png}
+    }
+    \caption{Fehler beim Filling Algorithmus}
+    \label{fig-dsf2}
+\end{figure}
+Um dieses Problem zu lösen, wird das Verfahren nur leicht angepasst. Anstatt den höchsten Bucket mit mindestens einem Element zu nehmen (was dazu führt, dass dieser Platz auf jeden Fall belegt wird, was wiederrum zu den Fehler in Abb. \ref{fig-dsf2} führt), wird der höchste Bucket mit mindestens zwei Elementen genommen und sofern ein höherer Bucket mit exakt einem Element existiert, dann konkurriert dieses Element mit allen Elementen des niedrigeren Buckets. Existiert der freie Platz des Schiebepuzzles etwa in Bucket 4, so würden zunächst alle anderen freien Plätze mit vier Nachbarn vergeben werden sofern die Metrik stimmt (da es kein passendes Stück für diesen Platz gibt). Danach ist dieses Element alleine im Bucket, wird aber nicht automatisch ausgewählt, sondern wird jetzt zusammen mit den Elementen aus Bucket 3 gegen die noch nicht platzierten Stücke verglichen. Somit ist sichergestellt, dass das Element was am Ende der Prozedur über bleibt, nicht irgendein Element ist, sondern das Element, was im Vergleich zu allen anderen Elementen immer die schlechteste Kompatibilität mit den Puzzlestücken hatte.
+\section{Kanten-Vorverarbeitung}
+Hier kommt noch was.
+\section{Ergebnis}
+Wie bereits in Abbildung \ref{fig-dsf-stages} gezeigt wurde, ist der Algorithmus in der Lage Puzzles von bis zu 1000 Puzzlestücken (die Abbildung zeigt in $30\times30$ Beispiel) perfekt zu lösen. Diese Genauigkeit ist zu einem großen Teil der MGC-Metrik \ref{section-mgc} zu verdanken. Puzzles mit bis zu 1000 Stücken werden aufgrund einer effizienten Implementation der Datenstruktur in wenigen Sekunden assembliert. Mögliche Verbesserungen und Erweiterungen bezüglich der Genauigkeit, Laufzeit und auch Speicherverbrauch (zur Speicherung der berechneten Distanzen zwischen Puzzlestücken) sind für das Lösen von sehr großen Puzzles (mehrere tausend Stücke) möglich, jedoch hier nicht nötig. Mit der Hauptmotivation diese Assemblierung als Zwischenschritt für das Lösen von Bild-Schiebepuzzles zu verwenden, sollte bewusst sein, dass die Anzahl der Puzzlestücke von Schiebepuzzles in der Regel nicht viel mehr als etwa $20$ sein dürfen, sofern dieses Puzzle optimal von einem Suchalgorithmus gelöst werden soll.
+\chapter{Lösbarkeit eines Schiebepuzzles}
+In diesem Kapitel wird kurz erklärt, wie geprüft werden kann, ob ein Schiebepuzzle mit einem bestimmten Anfangszustand und einem bestimmten Endzustand lösbar ist. Mit den Ergebnissen der vorherigen Kapitel lässt sich ein $m\times n$ Puzzle aus einer Menge von $N-1=mn-1$ Puzzlestücken zusammensetzen. Diese Zusammensetzung wird als Endzustand anerkannt. Der Startzustand sei beliebig, weshalb deshalb von Interesse ist, ob und wann es überhaupt möglich ist durch eine Reihe von legalen Zügen einen Startzustand in den Endzustand zu bringen. Im Zusammenhang damit ist dann auch interessant, wie sich aus einem Bild (und damit mit einem festen Endzustand) Startzustände generieren lassen, welche immer lösbar sind (dies ist nützlich um Algorithmen zur Lösung des Puzzles zu testen).
+
+Dazu wird angenommen, dass die $N-1$ Puzzlestücke von $1$ bis $N-1$ nummeriert sind (das leere Feld im Puzzle wird als $0$ definiert). Sowohl der Anfangs- als auch der Endzustand ist dann lediglich eine Permutation dieser Zahlen. Es werden dann für beide Zustände die Permutation betrachtet, die beim abtragen der Zahlen in Leserichtung (also von oben nach unten und innerhalb einer Zeile von links nach rechts) entsteht. Das freie Feld wird dabei ignoriert. Damit entstehen für beide Zustände eine Permutation der Form $\alpha,\beta:\{1,\dots,N-1\}\longrightarrow\{1,\dots,N-1\}$.
+
+Zwischen diesen beiden Permutationen wird die Kendall-Tau-Distanz betrachtet, welche die Summe aller Paare der beiden Permutationen zählt, welche nicht in der gleichen Reihenfolge in den Permutationen vorkommt. Es wird also jedes Paar gezählt, dessen Reihenfolge in den beiden Permutationen verschieden ist. Die Kendall-Tau-Distanz zwischen den beiden Permutationen $(2,1,4,3)$ und $(4,1,3,2)$ ist beispielsweise $4$, da die folgenden Paare an Zahlen in verschiedener Reihenfolge in den beiden Permutationen auftreten: $(1,2),(1,4),(2,3),(2,4)$. Formal lässt sich die Kendall-Tau-Distanz folgendermaßen für die beiden Permutationen $\alpha,\beta$ berechnen:\cite{sedge}
+\begin{align}\label{eq-kendall}
+    K(\alpha,\beta)=\sum_{i<j<N}\left[\beta^{-1}\left(\alpha\left(i\right)\right)>\beta^{-1}\left(\alpha\left(j\right)\right)\right]
+\end{align}
+Wobei $[\cdot]$ für das Iverson-Bracket steht, welches $1$ ergibt, wenn die Bedingung in den eckigen Klammern erfüllt ist und $0$ wenn nicht.
+
+Substituiert man nun $\pi=\beta^{-1}\circ\alpha$, erhält man die Definition der Anzahl der Inversionen einer Permutation:\cite{inv}
+\begin{align}\label{eq-inv}
+    inv(\pi)=\sum_{i<j<N}[\pi(i)>\pi(j)]
+\end{align}
+Der Zusammenhang dieser beiden Operationen ist, dass die Anzahl der Inversionen einer Permutation die Kendall-Tau-Distanz dieser Permutation mit der Identitätspermutation $id(x)=x$ darstellt.
+
+Die Substitution bewirkt quasi, dass man nun zwei andere Zustände der Schiebepuzzle hat (bezüglich der Zahlenwerte her, das leere Feld bleibt unverändert), indem man den Endzustand als Identitätspermutation definiert hat. Der Startzustand wird durch die Permutation $\pi$ repräsentiert. Ein $\pi(k)$ ist dann anschaulich der Index aus $\beta$ an dem der Wert $\alpha(k)$ steht. Hat unser alte Anfangszustand beispielsweise die Zahl $5$ im ersten Feld (erste Zeile, erste Spalte) und befindet sich die $5$ im Endzustand im dritten Feld (erste Zeile, dritte Spalte), so steht der Wert $3$ im ersten Feld des neu definierten Anfangszustands. Diese \textit{umbenennung} dient lediglich der einfacheren Handhabung einer Permutation (und einer impliziten Identitätspermutation).
+
+Um das Schiebepuzzle zu lösen, ist es notwendig die Permutation $\pi$ in die Identitätspermutation zu transformieren. Dies ist noch nicht hinreichend, weil dann noch sichergestellt werden muss, dass nicht nur die Reihenfolge der Zahlenwerte stimmt, sondern auch das leere Feld sich an der richtigen Stelle befindet.
+
+Da die Anzahl der Inversionen einer Permutation nur dann gleich $0$ sind, wenn es sich um die Identitätspermutation handelt, lässt sich auch sagen, dass das Ziel ist $inv(\pi)$ auf $0$ zu bringen.
+
+Beim Schiebepuzzle sind zwei Arten von Zügen zugelassen: Züge innerhalb einer Zeile und Züge innerhalb einer Spalte. An dieser Stelle lässt sich der Vorteil der Repräsentation als Permutation ohne leeres Feld erkennen, denn ein Zug innerhalb einer Zeile des Puzzles ändert nichts an der Permutation und somit auch nichts an der Anzahl der Inversionen der Permutation.
+
+Für Spaltenzüge wird ein Puzzlestück betrachtet mit Koordinaten $(i,j)$, wobei $i$ der nullbasierte Zeilenindex ist und $j$ der nullbasierte Spaltenindex. Der nullbasierte Index $k$ in Leserichtung (und diesmal mit dem leeren Element) berechnet sich zu $k=n\:i+j$. Soll dieses Stück innerhalb seiner Spalte bewegt werden, so muss sich das leere Element an der Stelle $(i\pm1,j)$ befinden oder auch $l=n\:(i\pm1)+j$. Die Anzahl der Elemente zwischen dem Puzzlestück und dem leeren Feld ist $|k-l|-1=|n\:i+j-[n\:(i\pm1)+j]|-1=|\mp n|-1=n-1$. In der Permutation bedeutet dies, dass das Puzzlestück um $n-1$ Stellen nach links oder rechts rutscht. Damit ändert sich die relative Position von diesem Puzzlestück mit jedem der $n-1$ Elemente: Hat eines der Elemente vorher eine Inversion mit dem Stück gebildet, so ist dies jetzt nicht mehr der Fall und umgekehrt auch. Die Anzahl der Inversionen ändert sich also. Es gilt
+\begin{align}\label{eq-parity}
+    inv(\pi^\prime)=inv(\pi)\underbrace{\pm1\pm1\pm\dots\pm1\pm1}_{n-1\text{ mal}}
+\end{align}
+An dieser Stelle wird unterschieden zwischen Schiebepuzzles mit einer geraden Anzahl von Spalten geraden $n$ und Schiebepuzzles mit einer ungeranden Anzahl an Spalten.
+
+Für ungerade $n$ ist $n-1$ gerade. Da eine Summe mit einer geraden Anzahl an ungeraden Summanden stets gerade ist, ist der Ausdruck über der geschweiften Klammer in \ref{eq-parity} somit auch gerade. Dann ist die Parität von $inv(\pi^\prime)$ aber gleich der Parität von $inv(\pi)$. Anders gesagt gilt$$inv(\pi^\prime)\equiv inv(\pi)\pmod2$$
+Damit ändert sich die Anzahl der Inversionen für ungerade $n$ bei einem Zeilenzug garnicht womit die Parität der Anzahl der Inversionen trivialerweise gleich bleibt. Und da diese auch bei einem Spaltenzug gleich bleibt, lässt sich sagen, dass die Parität der Anzahl der Inversionen einer Permutation unter allen legalen Zügen des Schiebepuzzles invariant ist. Um die Anzahl der Inversionen also auf $0$ (eine gerade Zahl) bringen zu können (und das Puzzle damit zu lösen), muss die Permutation des Anfangszustand eine gerade Anzahl an Inversionen aufweisen.
+
+Im anderen Fall ($n$ ist ungerade), lässt sich sagen, dass die Summe über der geschweiften Klammer in \ref{eq-parity} stets ungerade ist, wodurch sich die Parität mit jedem Spaltenzug ändert. Deshalb werden für ungerade $n$ auch noch die Zeilenindizes $r,s$ der leeren Felder in beiden Zuständen betrachtet. Um das Puzzle zu lösen ist es auch notwendig das leere Feld an der richtigen Stelle zu haben (und damit besonders in der richtigen Zeile). Betrachtet man den Zeilenabstand der beiden leeren Felder, also $|r-s|$, so ist klar, dass auch dieser notwendigerweise $0$ sein muss. Dieser Zeilenabstand ändert sich aber bei jedem Spaltenzug um $\pm1$. Damit ändert sich die Parität von $|r-s|$ bei jedem Spaltenzug. Zusammengefasst lässt sich schließen, dass die Puzzles mit ungeraden $n$ die Parität der Anzahl der Inversionen gleich der Parität des Zeilenabstand beider leeren Felder sein muss. Da beide Attribute auf $0$ gebracht werden müssen beim Lösen und somit am Ende auf eine gerade Parität kommen müssen, beide aber in jedem Spaltenzug ihre Parität ändern, würde eine ungleiche Parität der beiden dazu führen, dass in jedem Schritt genau einer von beiden dafür sorgt, dass das Puzzle nicht gelöst sein kann.
+
+Die obigen Bedingungen müssen damit notwendigerweise von lösbaren Schiebepuzzles erfüllt sein. Die andere Richtung (dass diese Bedingungen tatsächlich auch hinreichend sind) wurde von Johnson \& Story \cite{fift} gezeigt. Dementsprechend gilt für alle Schiebepuzzle, dass diese dann und nur dann lösbar sind, wenn diese die obigen Bedingungen erfüllen. Tatsächlich lässt sich die Menge in zwei Äquivalenzklassen
 
 \backmatter
 
