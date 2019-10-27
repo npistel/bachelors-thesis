@@ -5,3 +5,7 @@
 \contentsline {algorithm}{\numberline {5}{\ignorespaces Erweiterte InitForest Operation\relax }}{38}{algorithm.5}% 
 \contentsline {algorithm}{\numberline {6}{\ignorespaces Erweiterte FindRoot Operation\relax }}{39}{algorithm.6}% 
 \contentsline {algorithm}{\numberline {7}{\ignorespaces Erweiterte Union Operation\relax }}{41}{algorithm.7}% 
+\contentsline {algorithm}{\numberline {8}{\ignorespaces Breadth-First Search (BFS)\relax }}{55}{algorithm.8}% 
+\contentsline {algorithm}{\numberline {9}{\ignorespaces Iterative Deepening Depth-First Search (IDDFS)\relax }}{57}{algorithm.9}% 
+\contentsline {algorithm}{\numberline {10}{\ignorespaces A*\relax }}{61}{algorithm.10}% 
+\contentsline {algorithm}{\numberline {11}{\ignorespaces Iterative Deepening A* (IDA*)\relax }}{62}{algorithm.11}% 

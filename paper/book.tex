@@ -24,6 +24,8 @@
 \usepackage{slashbox}
 \usepackage{hyperref}
 \usepackage{esvect}
+\usepackage[makeroom]{cancel}
+\usepackage{pdfpages}
 
 \title[Bericht]{Classcon Consulting GmbH}
 \subtitle{d.velop AG}
@@ -68,14 +70,14 @@ basicstyle=\ttfamily\small
 \cfoot*{\pagemark}
 
 \begin{document}
-
+%\includepdf[pages=-]{deckblatt.pdf}
 \frontmatter
 
-\maketitle
+%\maketitle
 
 \cleardoublepage
 \chapter*{Abstract}
-Nope.
+Schiebepuzzles - besonders das bekannte 15-Puzzle - stellen bereits seit Jahrzehnten eine Faszination für Puzzleliebhaber dar. Über die Jahre hat sich der Trend so entwickelt, dass die meisten Schiebepuzzle nicht mehr simple Zahlen oder Buchstaben abbilden, sondern ganze Bilder zerlegen. In dieser Arbeit werden zwei bekannte Probleme der Informatik untersucht und so kombiniert, dass diese einen möglichen Lösungsansatz zu dem bildbasierten Schiebepuzzle-Problem geben.
 
 \tableofs
 \lstlistoflistings
@@ -881,7 +883,7 @@ Der interessante Teil des Algorithmus läuft zwischen Zeile 12 und 19 ab. Kommt 
 \end{align}
 Es ist also der Vektor $\vv{r_j r_i}$ gesucht (die relative Position von der Wurzel $r_i$ zu $r_j$). Diese standen zuvor in keinerlei Beziehung, da jede Menge ihr eigenes Koordinatensystem besitzt. Bei der Zusammensetzung von $v_i$ und $v_j$ lässt sich jedoch eine Beziehung der beiden Wurzeln beschreiben. Zunächst sei gesagt, dass der Parameter $r$ der Methode (die räumliche Beziehung der beiden Elemente) exakt den Vektor $\vv{v_j v_i}$ bestimmt. Dieser lässt sich direkt der Tabelle \ref{tbl-spatial-relation} entnehmen. Beispielsweise ist $\vv{v_j v_i}=(-1,0)$ genau dann wenn $r=0$.
 
-Da beide Wurzeln alle Koordinaten ihrer Elemente kennen (und somit auch die Koordinaten der entsprechenden $v$'s), könnte diese Menge durchsuchen. Dies dauert aber zu lange und ist dank der neuen erweiterten Pfadkomprimierung aus Algorithmus \ref{alg-dsf-find2} nicht nötig. In Zeile 2 und 3 von Algorithmus \ref{alg-dsf-union2} werden die Indizes von $r_i,r_j$ bestimmt dabei werden $v_i,v_j$ aber direkte Kinder ihrer entsprechenden Wurzeln. Dank der Koordinatentransformation nach Abbildung \ref{fig-dsf-vec} stehen die Koordinaten $\vv{r_i v_i}$ und $\vv{r_j v_j}$ direkt als Attribut in den jeweiligen Elementen drin. Damit sind alle Informationen zur Berechnung von $\vv{r_j r_i}$ vollständig und es gilt:
+Da beide Wurzeln alle Koordinaten ihrer Elemente kennen (und somit auch die Koordinaten der entsprechenden $v$'s), könnte man diese Menge durchsuchen. Dies dauert aber zu lange und ist dank der neuen erweiterten Pfadkomprimierung aus Algorithmus \ref{alg-dsf-find2} nicht nötig. In Zeile 2 und 3 von Algorithmus \ref{alg-dsf-union2} werden die Indizes von $r_i,r_j$ bestimmt dabei werden $v_i,v_j$ aber direkte Kinder ihrer entsprechenden Wurzeln. Dank der Koordinatentransformation nach Abbildung \ref{fig-dsf-vec} stehen die Koordinaten $\vv{r_i v_i}$ und $\vv{r_j v_j}$ direkt als Attribut in den jeweiligen Elementen drin. Damit sind alle Informationen zur Berechnung von $\vv{r_j r_i}$ vollständig und es gilt:
 \begin{align}\label{eq-dsf-trans2}
     \vv{r_j r_i}&=\vv{r_j v_j}+\vv{v_j v_i}+\underbrace{\vv{v_i r_i}}_{=-\vv{r_i v_i}}\nonumber\\
     \vv{r_j r_i}&=\vv{r_j v_j}+\vv{v_j v_i}-\vv{r_i v_i}
@@ -920,7 +922,7 @@ Aus diesem Zwischenergebnis soll dann ein Rechteck extrahiert werden, welches di
 
 Im nächsten Schritt wird das Puzzle aus \ref{fig-dsf-stages-2} so getrimmt, dass der Teil des Puzzles, welcher sich innerhalb dieses Sliding-Windows (welches an der zuvor bestimmten Position angebracht wird) befindet, in ein neues Zwischenergebnis übernommen wird. Das dabei entstehende Bild besitzt nun die gewünschten Dimensionsgrößen, enthält aber noch nicht belegte Plätze (vgl. Abbildung \ref{fig-dsf-stages-3}). Alle Stücke die nicht übernommen wurden, werden in einer Menge zwischengespeichert. Es gilt nun im nächsten Schritt, alle Stücke dieser Menge bestmöglich auf die freihen Plätze des Puzzles zu verteilen.
 \section{Filling}
-Bevor das Puzzle gefüllt wird, sollen zunächst die möglichen Plätze für Stücke analyisert werden. Die freien Plätze werden dabei in $5$ Buckets eingeteilt: Buckets $0\dots4$. Die Nummer des Bucket steht für die Anzahl der benachbarten belegten Felder. Die Idee dabei ist, zunächst die Buckets in absteigender Reihenfolge abzuarbeiten, da die Felder mit mehr Nachbarn auch mehr Informationen darüber liefern können, wie gut ein Stück in das Feld passt. Außerdem gilt zu beachten, dass im Laufe dieses Verfahren Puzzlestücke aus den niedrigen Buckets durch das Füllen der Plätze wiederrum Nachbarn bekommen und somit solange \textit{promoted} werden, bis diese Stücke selber platziert werden.
+Bevor das Puzzle gefüllt wird, sollen zunächst die möglichen Plätze für Stücke analyisert werden. Die freien Plätze werden dabei in $5$ Buckets eingeteilt: Buckets $0\dots4$. Die Nummer des Bucket steht für die Anzahl der benachbarten belegten Felder. Die Idee dabei ist, zunächst die Buckets in absteigender Reihenfolge abzuarbeiten, da die Felder mit mehr Nachbarn auch mehr Informationen darüber liefern können, wie gut ein Stück in das Feld passt. Außerdem gilt zu beachten, dass im Laufe dieses Verfahren Puzzlestücke aus den niedrigen Buckets durch das Füllen der Plätze wiederum Nachbarn bekommen und somit solange \textit{promoted} werden, bis diese Stücke selber platziert werden.
 
 Dieses Verfahren funktioniert wie von \cite{gallagher,crisjim} gezeigt, gut für Puzzle, die keine fehlenden Puzzlestücke haben. Damit ist dies der erste (und auch einzige Schritt) im ganzen Algorithmus, der hier leicht abgeändert werden muss. Schließlich fehlt bei Schiebepuzzles immer exakt ein Puzzlestück. Der Algorithmus wird dementsprechend angepasst. Es sei aber gesagt, dass dieses Verfahren nicht gut erweiterbar ist auf mehrere fehlende Puzzlestücke. Diese Problemstellung ist ein viel schwierigeres Problem, welches auch schon entsprechend Aufmerksamkeit in der Literatur bekommen hat. \cite{paikin}
 
@@ -938,29 +940,33 @@ An dieser Stelle ist klar, dass dies bei einem Schiebepuzzle ziemlich schief geh
     \caption{Fehler beim Filling Algorithmus}
     \label{fig-dsf2}
 \end{figure}
-Um dieses Problem zu lösen, wird das Verfahren nur leicht angepasst. Anstatt den höchsten Bucket mit mindestens einem Element zu nehmen (was dazu führt, dass dieser Platz auf jeden Fall belegt wird, was wiederrum zu den Fehler in Abb. \ref{fig-dsf2} führt), wird der höchste Bucket mit mindestens zwei Elementen genommen und sofern ein höherer Bucket mit exakt einem Element existiert, dann konkurriert dieses Element mit allen Elementen des niedrigeren Buckets. Existiert der freie Platz des Schiebepuzzles etwa in Bucket 4, so würden zunächst alle anderen freien Plätze mit vier Nachbarn vergeben werden sofern die Metrik stimmt (da es kein passendes Stück für diesen Platz gibt). Danach ist dieses Element alleine im Bucket, wird aber nicht automatisch ausgewählt, sondern wird jetzt zusammen mit den Elementen aus Bucket 3 gegen die noch nicht platzierten Stücke verglichen. Somit ist sichergestellt, dass das Element was am Ende der Prozedur über bleibt, nicht irgendein Element ist, sondern das Element, was im Vergleich zu allen anderen Elementen immer die schlechteste Kompatibilität mit den Puzzlestücken hatte.
+Um dieses Problem zu lösen, wird das Verfahren nur leicht angepasst. Anstatt den höchsten Bucket mit mindestens einem Element zu nehmen (was dazu führt, dass dieser Platz auf jeden Fall belegt wird, was wiederum zu den Fehler in Abb. \ref{fig-dsf2} führt), wird der höchste Bucket mit mindestens zwei Elementen genommen und sofern ein höherer Bucket mit exakt einem Element existiert, dann konkurriert dieses Element mit allen Elementen des niedrigeren Buckets. Existiert der freie Platz des Schiebepuzzles etwa in Bucket 4, so würden zunächst alle anderen freien Plätze mit vier Nachbarn vergeben werden sofern die Metrik stimmt (da es kein passendes Stück für diesen Platz gibt). Danach ist dieses Element alleine im Bucket, wird aber nicht automatisch ausgewählt, sondern wird jetzt zusammen mit den Elementen aus Bucket 3 gegen die noch nicht platzierten Stücke verglichen. Somit ist sichergestellt, dass das Element was am Ende der Prozedur über bleibt, nicht irgendein Element ist, sondern das Element, was im Vergleich zu allen anderen Elementen immer die schlechteste Kompatibilität mit den Puzzlestücken hatte.
 \section{Kanten-Vorverarbeitung}
-Hier kommt noch was.
+An dieser Stelle sind noch zwei Dinge zu erledigen, die einerseits die Qualität des Algorithmus verbessern und andererseits die Laufzeit durchschnittlich verringern.
+
+Da der Algorithmus keine Form von Backtracking hat (außer in Form von Trimming \& Filling), kann selbst eine einzige falsche Zuordnung von Puzzleteilen, welche sehr früh im Algorithmus auftritt, später zu sehr falschen Ergebnissen führen. Intuitiv lässt sich das damit begründen, dass der Fehler nie behoben werden kann (zwei verbundene Stücke bleiben immer verbunden) und der Algorithmus somit um den Fehler herumarbeiten muss, wodurch weitere falsche Entscheidungen getroffen werden (die in diesem Zeitpunkt als das geringste Übel aussehen und der Algorithmus schließlich greedy vorgeht). Damit pflanzen sich diese Fehler immer weiter fort. Dies ist besonders bei Bildern der Fall, wo viele Stücke ähnlich gute Kompatibilitäten zueinander besitzen. Beispielsweise Puzzlestücke mit Teilen vom Himmel oder wo nur Wasser abgebildet ist. Um diesem Effekt entgegenzuwirken werden die Distanzen der Puzzlestücke nach der initialen Berechnung angepasst. Dazu wird zu jedem Paar von Puzzlestück und Position des Puzzlestücks die Kante mit der zweitniedrigsten Distanz aller dieser Kanten ermittelt (beispielsweise die Kante mit der zweitbesten Distanz von allen Kanten die bei denen ein Teil $x_i$ links vom anderen Puzzlestück liegt).\cite{gallagher,crisjim} Damit werden die Kantengewichte so normalisiert, dass nur die besten Kanten eine Distanz $<1$ aufweisen und alle anderen Distanzen nun $\geq1$ sind. Damit würde der Algorithmus in einem Bild mit einem klaren Himmel also nicht probieren zunächst diesen Himmel komplett anzuordnen (obwohl die Kanten dort sehr niedrige absolute Distanzen aufweisen), was mit hoher Wahrscheinlichkeit nicht fehlerlos passieren würde.
+
+Da die Datenstruktur fast den kompletten Algorithmus übernimmt, muss der eigentliche Algorithmus (Kruskal) nur über die Kanten iterieren und die entsprechende \texttt{Union} Operation der Datenstruktur aufrufen, sofern noch kein Spannbaum entstanden ist. Da die Kanten in aufsteigender Reihenfolge (bezüglich der Distanz) abgearbeitet werden sollen, wird dafür oft zunächst die Kantentabelle sortiert (was $\Theta(|E|\log|E|)$ ist). Da der Graph des Puzzles jedoch unglaublich dicht ist (jedes Paar zweier Vertices wird durch $4$ Kanten verbunden), werden nur ein Bruchteil dieser Kanten benötigt, um den Graphen zu spannen. Daher bietet es sich an eine Priority-Queue zu verwenden, womit zunächst nur ein $\Theta(|E|)$ Aufwand nötig ist, um die Heapbedingung der Kantentabelle herzustellen und dann das Entfernen einer Kante dann $\mathcal{O}(\log|E|)$ ist. Selbst in dem Fall, dass doch fast alle Kanten betrachtet werden müssen ist dieser Ansatz von der Komplexität her trotzdem nicht schlechter als der Ansatz mit vorherigem Sortieren, da es sich dann lediglich ein Heapsort ergibt, welcher optimales Laufzeitverhalten besitzt.
 \section{Ergebnis}
 Wie bereits in Abbildung \ref{fig-dsf-stages} gezeigt wurde, ist der Algorithmus in der Lage Puzzles von bis zu 1000 Puzzlestücken (die Abbildung zeigt in $30\times30$ Beispiel) perfekt zu lösen. Diese Genauigkeit ist zu einem großen Teil der MGC-Metrik \ref{section-mgc} zu verdanken. Puzzles mit bis zu 1000 Stücken werden aufgrund einer effizienten Implementation der Datenstruktur in wenigen Sekunden assembliert. Mögliche Verbesserungen und Erweiterungen bezüglich der Genauigkeit, Laufzeit und auch Speicherverbrauch (zur Speicherung der berechneten Distanzen zwischen Puzzlestücken) sind für das Lösen von sehr großen Puzzles (mehrere tausend Stücke) möglich, jedoch hier nicht nötig. Mit der Hauptmotivation diese Assemblierung als Zwischenschritt für das Lösen von Bild-Schiebepuzzles zu verwenden, sollte bewusst sein, dass die Anzahl der Puzzlestücke von Schiebepuzzles in der Regel nicht viel mehr als etwa $20$ sein dürfen, sofern dieses Puzzle optimal von einem Suchalgorithmus gelöst werden soll.
-\chapter{Lösbarkeit eines Schiebepuzzles}
+\chapter{Lösbarkeit eines Schiebepuzzles}\label{ch-perm}
 In diesem Kapitel wird kurz erklärt, wie geprüft werden kann, ob ein Schiebepuzzle mit einem bestimmten Anfangszustand und einem bestimmten Endzustand lösbar ist. Mit den Ergebnissen der vorherigen Kapitel lässt sich ein $m\times n$ Puzzle aus einer Menge von $N-1=mn-1$ Puzzlestücken zusammensetzen. Diese Zusammensetzung wird als Endzustand anerkannt. Der Startzustand sei beliebig, weshalb deshalb von Interesse ist, ob und wann es überhaupt möglich ist durch eine Reihe von legalen Zügen einen Startzustand in den Endzustand zu bringen. Im Zusammenhang damit ist dann auch interessant, wie sich aus einem Bild (und damit mit einem festen Endzustand) Startzustände generieren lassen, welche immer lösbar sind (dies ist nützlich um Algorithmen zur Lösung des Puzzles zu testen).
 
 Dazu wird angenommen, dass die $N-1$ Puzzlestücke von $1$ bis $N-1$ nummeriert sind (das leere Feld im Puzzle wird als $0$ definiert). Sowohl der Anfangs- als auch der Endzustand ist dann lediglich eine Permutation dieser Zahlen. Es werden dann für beide Zustände die Permutation betrachtet, die beim abtragen der Zahlen in Leserichtung (also von oben nach unten und innerhalb einer Zeile von links nach rechts) entsteht. Das freie Feld wird dabei ignoriert. Damit entstehen für beide Zustände eine Permutation der Form $\alpha,\beta:\{1,\dots,N-1\}\longrightarrow\{1,\dots,N-1\}$.
 
 Zwischen diesen beiden Permutationen wird die Kendall-Tau-Distanz betrachtet, welche die Summe aller Paare der beiden Permutationen zählt, welche nicht in der gleichen Reihenfolge in den Permutationen vorkommt. Es wird also jedes Paar gezählt, dessen Reihenfolge in den beiden Permutationen verschieden ist. Die Kendall-Tau-Distanz zwischen den beiden Permutationen $(2,1,4,3)$ und $(4,1,3,2)$ ist beispielsweise $4$, da die folgenden Paare an Zahlen in verschiedener Reihenfolge in den beiden Permutationen auftreten: $(1,2),(1,4),(2,3),(2,4)$. Formal lässt sich die Kendall-Tau-Distanz folgendermaßen für die beiden Permutationen $\alpha,\beta$ berechnen:\cite{sedge}
 \begin{align}\label{eq-kendall}
-    K(\alpha,\beta)=\sum_{i<j<N}\left[\beta^{-1}\left(\alpha\left(i\right)\right)>\beta^{-1}\left(\alpha\left(j\right)\right)\right]
+    K(\alpha,\beta)=\sum_{0<i<j<N}\left[\beta^{-1}\left(\alpha\left(i\right)\right)>\beta^{-1}\left(\alpha\left(j\right)\right)\right]
 \end{align}
 Wobei $[\cdot]$ für das Iverson-Bracket steht, welches $1$ ergibt, wenn die Bedingung in den eckigen Klammern erfüllt ist und $0$ wenn nicht.
 
 Substituiert man nun $\pi=\beta^{-1}\circ\alpha$, erhält man die Definition der Anzahl der Inversionen einer Permutation:\cite{inv}
 \begin{align}\label{eq-inv}
-    inv(\pi)=\sum_{i<j<N}[\pi(i)>\pi(j)]
+    inv(\pi)=\sum_{0<i<j<N}[\pi(i)>\pi(j)]
 \end{align}
 Der Zusammenhang dieser beiden Operationen ist, dass die Anzahl der Inversionen einer Permutation die Kendall-Tau-Distanz dieser Permutation mit der Identitätspermutation $id(x)=x$ darstellt.
 
-Die Substitution bewirkt quasi, dass man nun zwei andere Zustände der Schiebepuzzle hat (bezüglich der Zahlenwerte her, das leere Feld bleibt unverändert), indem man den Endzustand als Identitätspermutation definiert hat. Der Startzustand wird durch die Permutation $\pi$ repräsentiert. Ein $\pi(k)$ ist dann anschaulich der Index aus $\beta$ an dem der Wert $\alpha(k)$ steht. Hat unser alte Anfangszustand beispielsweise die Zahl $5$ im ersten Feld (erste Zeile, erste Spalte) und befindet sich die $5$ im Endzustand im dritten Feld (erste Zeile, dritte Spalte), so steht der Wert $3$ im ersten Feld des neu definierten Anfangszustands. Diese \textit{umbenennung} dient lediglich der einfacheren Handhabung einer Permutation (und einer impliziten Identitätspermutation).
+Die Substitution bewirkt quasi, dass man nun zwei andere Zustände der Schiebepuzzle hat (bezüglich der Zahlenwerte her, das leere Feld bleibt unverändert), indem man den Endzustand als Identitätspermutation definiert hat. Der Startzustand wird durch die Permutation $\pi$ repräsentiert. Ein $\pi(k)$ ist dann anschaulich der Index aus $\beta$ an dem der Wert $\alpha(k)$ steht. Hat unser alte Anfangszustand beispielsweise die Zahl $5$ im ersten Feld (erste Zeile, erste Spalte) und befindet sich die $5$ im Endzustand im dritten Feld (erste Zeile, dritte Spalte), so steht der Wert $3$ im ersten Feld des neu definierten Anfangszustands. Diese Umbenennung dient lediglich der einfacheren Handhabung einer Permutation (und einer impliziten Identitätspermutation).
 
 Um das Schiebepuzzle zu lösen, ist es notwendig die Permutation $\pi$ in die Identitätspermutation zu transformieren. Dies ist noch nicht hinreichend, weil dann noch sichergestellt werden muss, dass nicht nur die Reihenfolge der Zahlenwerte stimmt, sondern auch das leere Feld sich an der richtigen Stelle befindet.
 
@@ -979,11 +985,228 @@ Damit ändert sich die Anzahl der Inversionen für ungerade $n$ bei einem Zeilen
 
 Im anderen Fall ($n$ ist ungerade), lässt sich sagen, dass die Summe über der geschweiften Klammer in \ref{eq-parity} stets ungerade ist, wodurch sich die Parität mit jedem Spaltenzug ändert. Deshalb werden für ungerade $n$ auch noch die Zeilenindizes $r,s$ der leeren Felder in beiden Zuständen betrachtet. Um das Puzzle zu lösen ist es auch notwendig das leere Feld an der richtigen Stelle zu haben (und damit besonders in der richtigen Zeile). Betrachtet man den Zeilenabstand der beiden leeren Felder, also $|r-s|$, so ist klar, dass auch dieser notwendigerweise $0$ sein muss. Dieser Zeilenabstand ändert sich aber bei jedem Spaltenzug um $\pm1$. Damit ändert sich die Parität von $|r-s|$ bei jedem Spaltenzug. Zusammengefasst lässt sich schließen, dass die Puzzles mit ungeraden $n$ die Parität der Anzahl der Inversionen gleich der Parität des Zeilenabstand beider leeren Felder sein muss. Da beide Attribute auf $0$ gebracht werden müssen beim Lösen und somit am Ende auf eine gerade Parität kommen müssen, beide aber in jedem Spaltenzug ihre Parität ändern, würde eine ungleiche Parität der beiden dazu führen, dass in jedem Schritt genau einer von beiden dafür sorgt, dass das Puzzle nicht gelöst sein kann.
 
-Die obigen Bedingungen müssen damit notwendigerweise von lösbaren Schiebepuzzles erfüllt sein. Die andere Richtung (dass diese Bedingungen tatsächlich auch hinreichend sind) wurde von Johnson \& Story \cite{fift} gezeigt. Dementsprechend gilt für alle Schiebepuzzle, dass diese dann und nur dann lösbar sind, wenn diese die obigen Bedingungen erfüllen. Tatsächlich lässt sich die Menge in zwei Äquivalenzklassen
+Die obigen Bedingungen müssen damit notwendigerweise von lösbaren Schiebepuzzles erfüllt sein. Die andere Richtung (dass diese Bedingungen tatsächlich auch hinreichend sind) wurde von Johnson \& Story \cite{fift} gezeigt. Dementsprechend gilt für alle Schiebepuzzle, dass diese dann und nur dann lösbar sind, wenn diese die obigen Bedingungen erfüllen. Tatsächlich wurde in diesem Paper auch gezeigt, dass die Menge aller Puzzlezustände sich in zwei gleich große Äquivalenzklassen partitionieren lässt. Die Zustände dieser Äquivalenzklassen lassen sich stets unter Verwendung legaler Züge nur in andere Zustände der selben Äquivalenzklasse transformieren. Damit ist immer genau die Hälfte aller Permutationen eines Schiebepuzzles lösbar.
+
+Um die Lösbarkeit eines Schiebepuzzles zu bestimmen muss also lediglich die Parität der Anzahl der Inversionen der Permutation des Schiebepuzzles (und je nach Spaltenanzahl auch noch die Parität des Zeilenabstandes der beiden leeren Felder) überprüft werden. Da diese Überprüfungen alle konstant sind, hängt die Laufzeit- und Speicherkomplexität lediglich von der Bestimmung der zusammengesetzten Permutation $\pi$ ab (dies ist ein linearer Zeit mit linearem Speicher möglich) und der Berechnung der Parität.
+
+Eine triviale Möglichkeit die Parität zu bestimmen basiert auf der Berechnung der Inversionen nach Gleichung \ref{eq-inv}. Da die Summe jedoch über $\binom{N-1}{2}$ geht, ist die Laufzeitkomplexität hier mit $\Theta(N^2)$ quadratisch. Dafür wird aber an dieser Stelle nicht noch weiterer zusätzlicher Speicher benötigt.
+
+Eine Möglichkeit die Anzahl der Inversionen zu bestimmen ergibt sich durch eine Erweiterung des Mergesort-Algortihmus.\cite{sedge} Die Permutation wird in zwei gleich große Hälften zerlegt. Die gesamte Anzahl an Inversionen lässt sich dann in drei Summanden zerlegen: Alle Inversionen die in der linke Hälfte auftreten, alle Inversionen die in der rechten Hälfte auftreten und alle Inversionen, die übergreifend der Hälften auftreten. Die ersten beiden Summanden ergeben sich durch die Rekursion (der Basisfall der Rekursion sind Permutation mit weniger als zwei Elementen, welche trivialerweise keine Inversionen haben können). Die Inversionen, welche zwischen den beiden (nun auch sortierten) Hälften auftreten, lassen sich in dem Merge-Schritt des Algorithmus mitzählen. Da jedes Element aus der linken Hälfte in der Permutation vor jedem Element aus der rechten Hälfte kam, so entstehen genau dann Inversionen, wenn das aktuell betrachtete Element aus der rechten Hälfte kleiner ist als das aktuell betrachtete Element aus der linken Hälfte. Dieses Element der rechten Hälfte bildet dann mit allen verbleibenden Elementen der linken Hälfte eine Inversion, da es in der Permutation zwar rechts von diesen Elementen stand, jedoch kleiner als alle dieser Elemente ist. Es folgt ein Beispiel mit der Permutation $\pi=(3,4,7,9,2,5,6,8)$. Beide Hälften $\lambda=(3,4,7,9),\mu=(2,5,6,8)$ sind bereits sortiert, womit innerhalb der beiden Hälften keine Inversionen auftreten. Es gilt nun diese zusammenzufügen, um die Inversionen zwischen den beiden Hälften zu zählen.
+\begin{align*}
+    \lambda&=(3,4,7,9),&\mu&=(\underline{2},5,6,8),&\pi^\prime&=(),&inv(\pi)&=0\\
+    \shortintertext{$2$ ist das Minimum und bildet mit allen restlichen Elementen aus $\lambda$ eine Inversion. Damit ergeben sich $4$ Inversionen beim Merge.}
+    \lambda&=(\underline{3},4,7,9),&\mu&=(\cancel{2},5,6,8),&\pi^\prime&=(2),&inv(\pi)&=4\\
+    \shortintertext{Das nächste Minimum kommt aus der linken Hälfte und bildet somit keine neuen Inversionen.}
+    \lambda&=(\cancel{3},\underline{4},7,9),&\mu&=(\cancel{2},5,6,8),&\pi^\prime&=(2,3),&inv(\pi)&=4\\
+    \lambda&=(\cancel{3},\cancel{4},7,9),&\mu&=(\cancel{2},\underline{5},6,8),&\pi^\prime&=(2,3,4),&inv(\pi)&=4\\
+    \shortintertext{$5$ bildet mit den restlichen beiden Elementen aus $\lambda$ (Elemente $7,9$) Inversionen.}
+    \lambda&=(\cancel{3},\cancel{4},7,9),&\mu&=(\cancel{2},\cancel{5},\underline{6},8),&\pi^\prime&=(2,3,4,5),&inv(\pi)&=6\\
+    \lambda&=(\cancel{3},\cancel{4},\underline{7},9),&\mu&=(\cancel{2},\cancel{5},\cancel{6},8),&\pi^\prime&=(2,3,4,5,6),&inv(\pi)&=8\\
+    \lambda&=(\cancel{3},\cancel{4},\cancel{7},9),&\mu&=(\cancel{2},\cancel{5},\cancel{6},\underline{8}),&\pi^\prime&=(2,3,4,5,6,7),&inv(\pi)&=8\\
+    \lambda&=(\cancel{3},\cancel{4},\cancel{7},\underline{9}),&\mu&=(\cancel{2},\cancel{5},\cancel{6},\cancel{8}),&\pi^\prime&=(2,3,4,5,6,7,8),&inv(\pi)&=9\\
+    \lambda&=(\cancel{3},\cancel{4},\cancel{7},\cancel{9}),&\mu&=(\cancel{2},\cancel{5},\cancel{6},\cancel{8}),&\pi^\prime&=(2,3,4,5,6,7,8,9),&inv(\pi)&=9
+\end{align*}
+Es ergibt sich für $\pi$ eine Inversionszahl von $9$.
+
+Der Algorithmus besitzt somit die gleichen Eigenschaften wie ein normaler Mergesort, womit sich eine Laufzeitkomplexität von $\Theta(N\log N)$ ergibt. Es ist zusätzlich noch linearer Speicheraufwand nötig (für das temporäre Array, welches zum Mergen benötigt wird). Da die Berechnung der zusammengesetzten Permutation $\pi$ jedoch bereits linearen Speicher braucht, ändert dies nichts an der Speicherkomplexität der kompletten Prozedur.
+
+Um die komplette Prozedur sowohl in Zeit, als auch in Speicher linear zu halten, muss ein anderer Ansatz her. Die entscheidende Beobachtung dafür ist, dass die exakte Anzahl der Inversionen garnicht nötig ist und lediglich die Parität dieser Anzahl eine Rolle spielt. Diese Parität der Inversionen wird tatsächlich als Parität der Permutation definiert und es gibt viele equivalente Definitionen der Parität einer Permutation. Eine dieser Definitionen definiert die Parität einer Permutation als die Parität der Anzahl der Transpositionen\footnote{Eine Transposition $\tau_{a,b}$ ist eine Permutation, welche zwei Elemente tauscht (also $a$ auf $b$ abbildet und $b$ auf $a$ abbildet) und alle anderen Elemente gleich lässt (also alle anderen Elemente $c$ wiederum auf $c$ abbildet).}, die nötig sind, um die Identitätspermutation in diese Permutation zu transformieren. Es sei zu beachten, dass die Anzahl der Transpositionen dabei (im Gegensatz zu der Annzahl der Inversionen) für eine Permutation nicht eindeutig ist. Die Parität dieser Anzahl ist jedoch immer gleich. Eine Permutation die beispielsweise $5$ Transpositionen benötigt, lässt sich auch in $7$ Transpositionen erstellen, indem am Ende der ersten $5$ noch eine willkürliche Transposition durchgeführt wird und dann sofort die inverse dieser Transposition angewendet wird.
+
+Um die Äquivalenz der beiden Definitionen zu zeigen wird ein induktiver Ansatz gewählt. Offensichtlich lässt sich die Identitätspermutation durch das anwenden von $0$ Transpositionen in die Identitätspermutation transformieren. Außerdem hat die Identitätspermutation auch $0$ Inversionen, beide Definitionen liefern also die gleiche Parität. Sind beide Paritäten für eine Permutation $\pi$ nun gleich und wird eine beliebige Transposition $\tau_{\pi(i),\pi(j)}$ mit $i<j$ auf $\pi$ angewandt, so erhöht sich die Anzahl der Transpositionen um $1$ und $\tau_{\pi(i),\pi(j)}\circ\pi$ besitzt die inverse Parität von $\pi$. Nun gilt es zu betrachtet, was mit $inv(\pi)$ bei der Anwendung der Transposition passiert. Alle Inversionen der Permutation mit Elementen links von $i$ oder rechts von $j$ bleiben bei der Transposition erhalten. Nun befinden sich zwischen $i$ und $j$ genau $h=j-i-1$ Elemente. Jedes dieser Elemente könnte sowohl mit dem Element an der Stelle $i$, als auch mit dem Element an der Stelle $j$ eine Inversion gebildet haben. Sei nun $p$ die Anzahl dieser Elemente, welche eine Inversion mit dem Element an der Stelle $i$ gebildet haben und $q$ die Anzahl der Elemente, die eine Inversion mit $j$ formen. Beim Durchführen der Transposition gehen somit $p+q$ Inversionen verloren, es entstehen aber dafür $(h-p)+(h-q)$ neue Inversionen. Nun ist noch zu beachten, dass die Elemente an den Stellen $i$ und $j$ selber ihre relative Position ändern und somit die Anzahl der neuen Inversionen entweder inkrementieren oder dekrementieren. Die neue Anzahl der Inversionen ist also $inv(\tau_{\pi(i),\pi(j)}\circ\pi)=inv(\pi)-(p+q)+(h-p)+(h-q)\pm1=inv(\pi)+2h-2p-2q\pm1=inv(\pi)+2(h-p-q)\pm1$. Es wird also eine ungerade Zahl auf die (alte) Anzahl der Inversionen addiert. Damit ändert sich die Parität der Anzahl der Inversionen bei jeder Anwendung einer Transposition. Da beide Definition für die Identitätspermutation die gleiche Parität liefern, die Anwendung jeder Transposition auf eine Permutation beide Paritäten invertiert und jede Permutation sich als die Komposition endlich vieler Transpositionen darstellen lässt, sind beide Definitionen der Parität einer Permutation für alle Permutationen gleich.
+
+Es reicht also, einen Algorithmus zu finden, der eine (beliebige) Zerlegung einer Permutation in Transpositionen findet. Die Anzahl dieser Transpositionen könnte sich zählen lassen, womit die Parität bekannt wäre. Dazu wird noch eine finale Eigenschaft von Permutationen betrachtet.
+
+Permutationen lassen sich (da diese bijektive Funktionen sind) in disjunkte Zyklen zerlegen. Die Permutation $\pi=(3,6,1,2,5,4)$ bildet etwa $1$ auf $3$ ab, $3$ wird aber wiederum auf $1$ abgebildet, womit der Zyklus $(1,3)$ entsteht (dies entspricht einer Transposition). Auch gilt $2\mapsto6,6\mapsto4,4\mapsto2$ womit der nächste Zyklus $(2,6,4)$ ensteht. Als letztes wird $5$ auf $5$ abgebildet, was auch ein Zyklus darstellt $(5)$ (ein sogenannter \textit{fixed-point}). Die Permutation kann dann als das Produkt solcher Zyklen ausgedruckt werden (Zyklenschreibweise). Eine Möglichkeit dies auszudrücken wäre nach oben dann $\pi=(1,3)(2,6,4)(5)$.
+
+Ein Zyklus $\sigma=(a_1,a_2,\dots,a_k,\dots,a_{n-1},a_n)$ der Länge $n$ lässt sich aber als die Komposition von Transpositionen darstellen. Von besonderem Interesse ist die Anzahl der Transpositionen die dafür nötig sind. Diese ist zwar nicht klar definiert, die Parität der Anzahl aber schon, womit es hinreichend ist eine solche Komposition zu finden. Zwei solcher Kompositionen wären beispielsweise $\sigma=\tau_{a_1,a_n}\circ\tau_{a_1,a_{n-1}}\dots\circ\tau_{a_1,a_k}\dots\circ\tau_{a_1,a_3}\circ\tau_{a_1,a_2}$ oder auch $\sigma=\tau_{a_1,a_2}\circ\tau_{a_2,a_3}\circ\dots\tau_{a_k,a_{k+1}}\dots\circ\tau_{a_{n-2},a_{n-1}}\circ\tau_{a_{n-1},a_n}$. Beide Zerlegungen haben die Länge $n-1$.
+
+Eine Permutation lässt sich also in disjunkte Zyklen zerlegen, welche sich alle wiederum in Transpositionen zerlegen lassen können. Die Parität der Anzahl aller Transpositionen ist dann die gesuchte Parität der Permutation. Da die Parität einer Summe durch die Anzahl der ungeraden Summanden bestimmt ist, ist die Parität der Permutation die Parität der Anzahl der Zyklen mit einer ungeraden Anzahl an Transpositionen. Da eine mögliche Zerlegung eines Zyklus der Länge $n$ aber $n-1$ Transpositionen aufweist, ist die Anzahl der Transpositionen für einen Zyklus genau dann ungerade, wenn die Länge des Zyklus gerade ist. Zusammengefasst ist die Parität einer Permutation also die Parität der Anzahl der Zyklen mit gerader Länge. Das Beispiel $\pi=(1,3)(2,6,4)(5)$ ist eine ungerade Permutation, da es genau einen Zyklus mit gerader Länge gibt $(1,3)$ und die Anzahl der Zyklen mit gerader Länge somit ungerade ist.
+
+Ein Algorithmus zur Bestimmung der Zerlegungen einer Permutation in disjunkte Zyklen geht so vor, dass beim ersten Element $i$ der Menge gestartet wird und dies als \textit{gesehen} markiert wird. Dann wird das Element $\pi(i)$ betrachtet, dann $\pi(\pi(i))$ und so weiter, bis die Permutation ein Element wieder auf $i$ abgebildet hat. Auf dem Weg werden alle betrachteten Elemente als \textit{gesehen} markiert. Außerdem wird mitgezählt wie viele Kompositionen von $\pi$ nötig waren, um den Zyklus zu schließen. Diese Anzahl ist die Länge des Zyklus. Außerdem wird insgesamt mitgezählt wieviele dieser Zyklen eine gerade Länge hatten. Nachdem der erste Zyklus traversiert wurde, werden die nächsten Elemente der Menge betrachtet und sofern diese noch nicht als \textit{gesehen} markiert wurden (diese Elemente sind Teil eines bereits betrachteten Zyklus), wird die beschriebene Prozedur von diesem Element aus durchgeführt. Am Ende ergibt sich die Anzahl der Zyklen mit gerader Länge. Die Parität dieser Anzahl ist die gesuchte Parität der Permutation.
+
+Dieser Algorithmus benötigt zwar für das \textit{gesehen}-Array linearen Speicher (was jedoch nicht schlechter ist als der Mergesort-Ansatz), da jedoch jeder Zyklus nur ein einziges mal traversiert wird, werden die Elemente der Permutation auch nicht mehr als zwei mal betrachtet, womit der Algorithmus linear in der Länge der Permutation ist.
+
+Damit lässt sich in linearer Zeit und mit linearem Speicher sagen, ob ein gegebenes Puzzle lösbar ist oder nicht. Um zusätzlich noch gezielt Anfangszustände generieren zu können, die (bezüglich eines gegebenen Endzustand) immer lösbar oder nicht lösbar sein sollen, so lässt sich einfach eine zufällige Permutation generieren. Diese wird dann auf Lösbarkeit überprüft. Ist diese Lösbarkeit verschieden von der gewünschten Lösbarkeit, so wird exakt eine Transposition durchgeführt. Es werden also zwei beliebige Elemente vertauscht (wobei keines der beiden Elemente das leere Feld ist und die beiden Elemente auch verschieden sind). Wie bereits erwähnt, ändert jede Transposition die Parität einer Permutation. Damit hat der Anfangszustand nun die gewünschte Lösbarkeit.
+\chapter{Lösen des Schiebepuzzles}
+Nachdem die einzelnen Puzzlestücke zu einem gewünschten Endzustand des eigentlichen Schiebepuzzles assembliert worden sind und nachdem außerdem sichergestellt wurde, dass das Puzzle unter einem gegebenem Anfangszustand auch lösbar ist, soll nun die eigentliche Lösung des Schiebepuzzles ermittelt werden. Gesucht ist dabei eine Lösung (also eine Sequenz von legal Zügen), die den Anfangszustand in den Endzustand überführt. Diese Lösung soll außerdem optimal sein. Es darf also keine andere Lösung exisiteren, die das Schiebepuzzle in weniger Schritten löst.
+
+Dazu werden in diesem Kapitel kurz bekannte Suchalgorithmen aus dem Feld der künstlichen Intelligenz angesprochen und gezeigt, wie diese genutzt werden können, um das Schiebepuzzle optimal zu lösen.
+
+Das Problem des Schiebepuzzles lässt sich mit einem sogenannten Zustandsgraphen beschreiben. Ein Zustand des Schiebepuzzles entspricht einer möglichen Anordnung der Felder. Bei einem $N=m\times n$ Puzzle sind $N!$ Anordnungen möglich. Da vom Startzustand aus aber nur die Hälfte dieser Anordnungen auch wirklich erreichbar sind (vgl. Kapitel \ref{ch-perm}), besitzt der Zustandsgraph eines Puzzles $\frac{N!}{2}$ Vertices. Jeder Zustand lässt sich durch das Schieben eines Puzzlestückes in das leere Feld in eineren anderen Zustand überführen. Diese Verbindung wird als Kante im Zustandsgraphen dargestellt. Diese Kante ist im konkreten Fall hier ungerichtet (da jeder Zug wieder umkehrbar ist). Da als das Kriterium für das Optimum einer Lösung die Anzahl der nötigen Züge genommen wird, lässt sich sagen, dass es sich um einen gewichteten Graphen handelt, wobei jede Kante ein Kantengewicht von $1$ besitzt. Damit entspricht die Anzahl der Züge dann die Kantengewichtssumme eines Weges durch den Graphen. Beim Schiebepuzzle besitzt jeder Zustandsvertex einen Grad (Anzahl der ausgehenden Kanten des Vertex) der Werte zwischen $2$ (bei Zuständen, wo das leere Feld in einer Ecke ist) und $4$ (bei Zuständen, wo das leere Feld sich nicht an der Seite des Puzzles befindet) annehmen kann. In der künstlichen Intelligenz wird dieser Wert auch als \textit{Branching-Faktor} $b$ bezeichnet. Es ist außerdem von Bedeutung zu erwähnen, dass der Zustandsgraph des Schiebepuzzles Zyklen enthält.
+
+Das Problem der Lösungsfindung im Schiebepuzzle lässt sich nun als ein Suchproblem in einem Graphen formulieren. Es ist ein Suchalgorithmus gefragt, der den kürzesten Weg vom Startzustand zum Endzustand im Zustandsgraphen findet. Dafür werden im Folgenden zunächst zwei triviale uninformierte Suchverfahren betrachtet und daraufhin zwei informiert Suchverfahren, welche auf einer Heuristikfunktion basieren.
+\section{Breadth-First Search (BFS)}
+Der bekannte Breadth-First Search (BFS) Algorithmus zur Traversierung eines Graphen kann genutzt werden, um eine optimale Lösung des Schiebepuzzles aufzufinden. Dazu wird der Zustandsgraph $G=(V,E)$ betrachtet mit Startzustand $s$ und Endzustand $g$ (Goal-State). Alle entdeckten, aber noch nicht abgearbeiteten Knoten (die Nachbarn der Knoten wurden noch nicht \textit{expanded}) werden in einer Datenstruktur verwaltet. Beim BFS ist diese Datenstruktur eine (FIFO-) Queue. Diese Menge der Knoten, welche noch entdeckt worden sind, aber nicht untersucht wurden, wird auch als \textit{Fringe}, \textit{Open-Set} oder \textit{Frontier} bezeichnet. Obwohl BFS immer eine Lösung findet (sofern diese existiert) und nicht in Schleifen gefangen werden kann (wie etwa DFS) wird in der Regel auch in \textit{Closed-Set} eingeführt, welches verhindern soll, dass ein Zustand mehr als ein mal expanded wird. Um später den eigentlichen Lösungsweg ausgeben zu können, lässt sich dies damit verbinden, das \textit{Closed-Set} zur einer \textit{Parent-Map} erweitert wird, wo auch noch zu jedem Zustand mitgespeichert wird, von welchem Zustand aus dieser Zustand entdeckt wurde. Dann lässt sich vom Endzustand aus dieser Weg (rückwerts) zurückverfolgen. Es folgt ein Ausschnitt an Pseudocode, welcher BFS darstellt.
+\begin{algorithm}[H]
+    \caption{Breadth-First Search (BFS)}\label{alg-bfs}
+    \begin{algorithmic}[1]
+        \Function{BFS}{$s,g$}
+            \State frontier $\gets$ Queue$\{s\}$
+            \State parent $\gets$ Map$\{(s,\varnothing)\}$
+            \Repeat
+                \State $v\gets$ frontier.dequeue()
+                \If{$v=g$}
+                    \State \Return \texttt{SUCCESS}
+                \EndIf
+                \ForAll{$(v,u)\in E$}
+                    \If{$\forall w\in V:(u,w)\notin$ parent}
+                        \State parent $\gets$ parent $\cup\:\{(u,v)\}$
+                        \State frontier.enqueue($u$)
+                    \EndIf
+                \EndFor
+            \Until{frontier $=\varnothing$}
+            \State \Return \texttt{FAILURE}
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+BFS findet zwar eine optimale Lösung, dafür wächst aber sowohl das Laufzeit- als auch das Speicherverhalten des Algorithmus exponentiell mit der Suchtiefe. Bezüglich einer Suchtiefe $d$ im Graphen hat BFS ein exponentielle Laufzeitverhalten der Form $\mathcal{O}(b^d)$. Die Laufzeit ist an dieser Stelle nicht das Problem (es wird auch in mit besseren Algorithmen asymptotisch exponentiell bleiben). BFS benötigt aber bereits zur Erhaltung des Frontiers auch einen exponentiellen Speicheraufwand (in der letzten Tiefe befinden sich $b^d$ Elemente, welche zu einem Zeitpunkt alle gleichzeitig im Frontier liegen werden). Deshalb wird im nächsten Schritt eine simple Alternative zum BFS untersucht.
+\section{Iterative Deepening Depth-First Search (IDDFS)}
+Die Tiefensuche (Depth-First Search - DFS) stellt das Gegenstück zur Breitensuche (BFS) dar. Da diese jedoch generell keine optimalen Lösungen liefert, ist der reine Algorithmus hier ungeeignet. Wird dieser Suchalgorithmus jedoch mit Iterative Deepening kombiniert, so stellet der entstehende Algorithmus (IDDFS) eine gute Alternative zu BFS dar. Dazu wird die gängige DFS Implementation (welche in der Regel rekursiv implementiert wird) durch einen weiteren Parameter $d_{max}$ erweiter, welcher das Tiefenlimit darstellt. Wird dieses innerhalb der Suche erreicht, so wird nicht rekursiv noch tiefer gesucht. Dann lässt sich diese Version von DFS mit immer größer werdender Tiefe aufgerufen. Es entsteht quasi eine Art Pseudo-BFS. Dazu wird zunächst ein limitierter DFS Algorithmus implementiert und dann der eigentliche IDDFS.
+\begin{algorithm}[H]
+    \caption{Iterative Deepening Depth-First Search (IDDFS)}\label{alg-iddfs}
+    \begin{algorithmic}[1]
+        \Function{DFS}{$v,g,d,d_{max}$,parent}
+            \If{$d>d_{max}$}
+                \State \Return \texttt{FAILURE}
+            \EndIf
+            \If{$v=g$}
+                \State \Return \texttt{SUCCESS}
+            \EndIf
+            \ForAll{$(v,u)\in E$}
+                \If{$\forall w\in V:(u,w)\notin$ parent}
+                    \State parent $\gets$ parent $\cup\:\{(u,v)\}$
+                    \If{DFS($u,g,d+1,d_{max}$,parent)}
+                        \State \Return \texttt{SUCCESS}
+                    \EndIf
+                    \State parent $\gets$ parent $\setminus\:\{(u,v)\}$
+                \EndIf
+            \EndFor
+            \State \Return \texttt{FAILURE}
+        \EndFunction
+        \Function{IDDFS}{$s,g$}
+            \State parent $\gets$ Map$\{(s,\varnothing)\}$
+            \For{$d_{max}=0\dots\infty$}
+                \If{DFS($s,g,0,d_{max}$,parent) $=$ \texttt{SUCCESS}}
+                    \State \Return \texttt{SUCCESS}
+                \EndIf
+            \EndFor
+            \State \Return \texttt{FAILURE}
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+Man könnte meinen, dass das Laufzeitverhalten darunter leidet, dass Knoten in den höheren Tiefen mehrmals besucht werden. Tatsächlich stellt sicher aber heraus, dass der Aufwand lediglich um einen konstanten Faktor (abhängig von $b$, nicht jedoch von $d$) wächst.\cite{ai}
+
+Im Gegensatz zum DFS ist nun aber die Speicherkomplexität nicht mehr exponentiell, da es einerseits kein Frontier mehr gibt und andererseits nicht alle besuchten Knoten in der Parent-Map gespeichert werden, sondern nur die Knoten des Pfades, der aktuell in der Rekurion untersucht wird (man beachte Zeilen 10 und 14 aus Algorithmus \ref{alg-iddfs}). Damit ist die Speicherkomplexität linear bezüglich der Tiefe $d$ und somit $\mathcal{O}(d)$.
+\section{Heuristiken}
+Um eine Lösung des Puzzles doch schneller finden zu können, werden an dieser Stelle informierte Suchalgorithmen eingeführt, also Suchalgorithmen die auf Heuristiken basieren. Dies bewirkt keine Veränderung der Laufzeitkomplexität, sorgt aber dafür, dass der richtige Weg zum Ziel in der Regel schneller gefunden wird, indem schlecht aussehende Wege erst dann weiter verfolgt werden, wenn auch die guten Wege beim weiterverfolgen kein besseres Ergebnis liefern. Abstrakt lässt sich sagen, dass der Branching-Faktor $b$ in einen neuen kleineren \textit{effective} Branching-Faktor $b^*$ überführt wird.
+
+Eine Heuristikfunktion $h(n)$ ordnet jedem Vertex im Zustandsgraphen eine nicht-negative Zahl zu ($\forall n\in V:h(n)\geq0$). Der Wert dieser Zahl gilt als Abschätzung dafür, wie weit $n$ vom Endzustand entfernt ist. Die Heuristikfunktion nimmt beim Endzustand den Wert $0$ an, also $h(g)=0$.
+
+Es sind zwei Eigenschaften von Heuristikfunktionen zu untersuchen, welche bei der Optimalität von informierten Suchalgorithmen von großer Bedeutung sind: \textit{Admissibility} (Zulässigkeit) und \textit{Consistency} (Konsistenz).
+
+Eine \textit{admissible} Heuristik überschätzt niemals die echte Distanz, die ein Knoten $n$ zum Ziel hat. Sei $h^*(n)$ die \textit{perfekte} Heuristikfunktion (die Heuristik, die jedem Knoten die exakte Distanz zum Ziel zuordnet), dann ist eine Heuristik dann und nur dann Zulässig, wenn
+\begin{align}\label{eq-ad}
+    \forall n\in V:h(n)\leq h^*(n)
+\end{align}
+Eine \textit{consistent} Heuristik erfüllt in gewisser Maßen eine Form der Dreiecksungleich. Bei solchen Heuristiken sind die totalen Kosten (Summe der absoluten Kosten vom Startzustand bis zu einem Knoten und der geschätzten Kosten der Heuristikfunktion an diesem Knoten) entlang eines Weges im Graphen stets monoton steigend. Dafür darf die Änderung in der Heurstik beim traversieren einer Kante nicht größer sein als die Kosten dieser Kante. Wenn $C(a,b)$ die Kosten einer Kante $(a,b)$ sind, gilt also:
+\begin{align}
+    &\forall(a,b)\in E:h(a)-h(b)\leq C(a,b)\label{eq-con1}\\
+    \Longleftrightarrow&\forall(a,b)\in E:h(a)\leq C(a,b)+h(b)\label{eq-con2}
+\end{align}
+Nun lässt sich induktiv zeigen, dass die \textit{Consistency} einer Heuristik die \textit{Admissibility} dieser Heuristik impliziert (der umgekehrte Fall ist nicht unbedingt wahr).
+
+Es ist offensichtlich, dass eine Heuristik $h$ am Endzustand stets Kriterium \ref{eq-ad} erfüllt, da dort $h(g)=0=h^*(g)$ und damit $h(g)\leq h^*(g)$ wahr ist. Für einen Zustand $a$, der den Endzustand optimal in exakt $n+1$ Schritten erreicht, existiert ein Zustand $b$, der den Endzustand optimal in $n$ Schritten erreicht (der direkte Nachfolger von $a$ auf diesem Weg). Ist die Heuristik nun admissible für alle Zustände, die den Endzustand optimal in $n$ Schritten erreichen, dann gilt nach \ref{eq-ad} $h(b)\leq h^*(b)$. Wenn $h$ aber auch konsistent ist, dann gilt nach \ref{eq-con2} $h(a)\leq C(a,b)+h(b)$. Dann gilt insgesamt $h(a)\leq C(a,b)+h^*(b)$ und somit $h(a)\leq h^*(a)$. Die Heuristik ist also auch für $a$ admissible. Da $a$ beliebig war, ist die Heuristik $h$ für alle Vertices admissible, die den Endzustand optimal in $n+1$ Schritten erreichen, wenn dies bereits für alle Vertices gilt, die den Endzustand optimal in $n$ Schritten erreichen. Da aber der Endzustand sich selber optimal in $0$ Schritten erreicht und die Heuristik dort admissible ist, ist die Induktion vollständig und eine konsistente Heuristik erfüllt das Admissibility-Kriterium für alle Vertices des Graphen.
+
+An dieser Stelle werden noch zwei simple Heuristiken für das Schiebepuzzle betrachtet.
+\subsection{Hamming-Distanz}
+Die Hamming Distanz zählt lediglich wie viele der Puzzlestücke sich nicht an der richtigen Stelle befinden. Bei einem $N=m\times n$ Schiebepuzzle nimmt die Heuristikfunktion also stets Werte zwischen $0$ (das Puzzle ist gelöst) und $N-1$ (kein Stück befindet sich an der richtigen Stelle) an.
+
+Um zu zeigen, dass diese Heuristik admissible und konsistent ist, reicht es zu zeigen, dass die Heuristik konsistent ist. Dazu wird Gleichung \ref{eq-con1} betrachtet, welche aussagt, dass die Änderung in der Heuristik beim Durchführen eines Zuges nicht größer sein darf, als die Kosten dieses Zuges. Da die Kosten beim Schiebepuzzle für alle Züge stets $1$ ist, muss also $h(a)-h(b)\leq1$ gelten. Die Heuristik darf also beim Zug um nicht mehr als $1$ verringert werden. Da es beim Schiebepuzzle nicht möglich ist, innerhalb von nur einem Zug zwei Puzzlestücke, welche zuvor beide an der falschen Stelle waren, an die richtige Position zu bringen, kann die Differenz der Heuristik nicht größer als $1$ sein. Damit ist die Hamming-Distanz eine konsistente und auch admissible Heuristik für das Schiebepuzzle.
+\section{Summe der Manhatten-Distanzen}
+Es wird die Manhatten-Distanz zwischen einem Puzzlestück im Anfangszustand und dem gleichen Puzzlestück im Endzustand gebildet. Diese Distanz ist die Summe der absoluten Zeilendifferenz und der absoluten Spaltendifferenz dieser Stücke. Diese Summe wird weiterhin für alle Puzzlestücke gebildet und aufsummiert.
+
+Auch diese Heuristik ist konsistent (und admissible), da ein Zug diese Summe niemals um mehr als $1$ verringern kann, weil bei jedem Zug schließlich nur die Manhatten-Distanz von einem Puzzlestück beeinflusst wird und dies nur entlang einer Achse, womit die Manhatten-Distanz dieses einen Stücks sich um $\pm1$ verändert.
+
+Nun lässt sich weiterhin noch sagen, dass die Summe der Manhatten Distanzen niemals kleiner sein kann als die Hamming-Distanz des gleichen Puzzles. Während die Hamming-Distanz für jedes Paar an Puzzlestücken, welches nicht an der richtigen Stelle ist, $1$ aufsummiert, wird bei der Manhatten-Distanz ein Wert aufsummiert, welcher auch mindestens $1$ ist (da das Stück nicht an der richtigen Stelle steht und somit mindestens entlang einer Achse ein Summand größer $0$ entsteht). Da dieser Wert in den meisten Fällen sogar echt größer als $1$ ist (das Stück befindet sich also nicht direkt links oder rechts oder unten oder oben von dem richtigen Platz), lässt sich sagen, dass die Summe der Manhatten-Distanzen eine strengere Heuristik ist. Da diese aber weiterhin noch admissible ist und somit die echte Distanz einer Zustands nicht überschätzt, ist diese Heurstik also insgesamt genauer (entspricht eher der Wahrheit als die Hamming-Distanz). Man sagt auch, dass eine die Summe der Manhatten-Distanzen die Hamming-Distanz als Heuristik \textit{dominiert}. Damit ist die Summe der Manhatten-Distanzen als Heuristik nie schlechter (und in der Regel besser) als die Hamming-Distanz. Diese Heuristik wird für die folgenden informierten Suchalgorithmen implementiert.
+\section{A*}
+Der A*-Suchalgorithmus ist ein optimaler Suchalgorithmus, welcher vom algorithmischen Aufbau her dem BFS-Algorithmus in \ref{alg-bfs} ähnelt. Der wichtige Unterschied dabei ist, dass Anstatt einer normalen FIFO-Queue eine Priority-Queue als Frontier genutzt wird und die Knoten somit entsprechend eines A*-Scores aus dieser Queue entfernt werden. Dieser A*-Score eines Knotens $n$ wird durch die Evaluationsfunktion $f(n)=g(n)+h(n)$ berechnet. Dabei ist $h$ die Heuristikfunktion (etwa die Manhatten-Distanz) und $g$ die Summe der Kosten vom Startzustand bis zum entsprechen Knoten.\footnote{Es wichtig zu beachten, dass ein Knoten des Frontiers zwar einen bestimmten Zustand aus dem Zustandsgraphen enthält, der Knoten jedoch genau genommen repräsentativ für einen ganzen Weg durch den Graphen steht. Nämlich ein Weg von Anfangszustand bis zum Zustand des Knotens. Es können viele verschiedene solcher Wege im Frontier sein.}
+
+Diese Evaluationsfunktion wurde so gewählt, dass A* unter bestimmten Voraussetzungen mit Sicherheit eine optimale Lösung findet. Die erste Bedingung dafür ist, dass die Heuristikfunktion $h$ admissible ist.\cite{ai} Dies garantiert, dass der erste Knoten der vom Frontier runtergeholt wird und den Endzustand enthält auch der Knoten ist, der den optimalen Pfad vom Anfangszustand zum Endzustand abschließt. Diese Bedingung ist hinreichend für die Optimalität von \textit{A*-Tree-Search}. Diese Implementation von A* benutzt kein Closed-Set, womit die gleichen Zustände öfters aus dem Frontier geholt werden können (und zum Teil auch müssen). Denn Admissibility ist nicht hinreichend, um zu garantieren, dass auch der erste Zwischenknoten, welcher aus dem Frontier geholt wird und einen bestimmten Zustand enthält, auch der Knoten ist, welcher den optimalen Weg vom Anfangszustand zum Zustand dieses Knotens repräsentiert. Eine Implementation mit Closed-Set würde dies falscherweise annehmen und somit trotz Admissibility zu einer nicht optimalen Lösung führen.
+
+Dementsprechend ist die Optimalitätsbedingung für die sogenannte \textit{A*-Graph-Search} Implementation (mit Closed-Set) die Konsistenz dieser Heuristik (welche schließlich auch die Admissibility impliziert).\cite{ai} Da die hier verwendete Heuristik (Summe der Manhatten-Distanzen) konsistent ist, wird eine Implementation mit Closed-Set vorgenommen. Es folgt eine Darstellung des Algorithmus in Pseudocode. Eine wichtige Änderung die im Vergleich zu BFS vorgenommen werden muss, ist, dass Knoten erst dann zum Closed-Set hinzugefügt werden, wenn diese von dem Frontier runtergeholt wurden.
+\begin{algorithm}[H]
+    \caption{A*}\label{alg-astar}
+    \begin{algorithmic}[1]
+        \Function{A*}{$s,g$}
+            \State frontier $\gets$ PriorityQueue$\{(s:0)\}$
+            \State parent $\gets$ Map$\{\}$
+            \Repeat
+                \State $v\gets$ frontier.dequeue()
+                \If{$\exists w\in V:(v,w)\in$ parent}
+                    \State \texttt{Continue Loop}
+                \EndIf
+                \State parent $\gets$ parent $\cup\:\{(v,v.parent)\}$
+                \If{$v=g$}
+                    \State \Return \texttt{SUCCESS}
+                \EndIf
+                \ForAll{$(v,u)\in E$}
+                    \State frontier.enqueue($u:g(v)+C(v,u)+h(u)$)
+                \EndFor
+            \Until{frontier $=\varnothing$}
+            \State \Return \texttt{FAILURE}
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+Leider leidet A* an dem gleichen Problem wie BFS: Das Frontier wächst exponentiell bezüglich der Suchtiefe. Dementsprechend ist auch die Speicherkomplexität von A* exponentiell (wenn auch mit einem besseren effektiven Branching-Faktor $b^*<b$). Es wird daher wie auch beim BFS ein alternativer Ansatz gewählt, welcher auf Iterative Deepening basiert.
+\section{Iterative Deepening A* (IDA*)}
+Die Iterative Deepening Version vom A*-Algorithmus (IDA*) weist zwar ähnliche Eigenschaften auf wie der A*-Algorithmus (etwa die nötige Admissibility der Heuristik für die Optimalität), programmiert sich aber eher wie ein DFS. Der hauptsächliche Unterschied zum IDDFS besteht in der Art und Weise, wie die Rekursion eingeschränkt wird. Während beim IDDFS alle Knoten bis zu einer bestimmten Tiefe betrachtet wurden, wird beim IDA* die Suche durch einen maximalen A*-Score ($f$-Wert) eingeschränkt. Dabei startet der IDA* die Suche mit dem $f$-Wert des Startknotens. Da die $g$-Kosten am Startknoten $0$ sind ist $f(s)=h(s)$. Der maximale $f$-Wert der dann bei der nächsten Suche verwendet wird, ergibt sich aus der vorherigen Suche. Dabei wird der minimale $f$-Wert aller $f$-Werte genommen, welche bei der vorherigen Suche die Rekursion abgebrochen haben (weil diese $f$-Werte größer als das vorherige Maximum waren).\cite{ai}
+\begin{algorithm}[H]
+    \caption{Iterative Deepening A* (IDA*)}\label{alg-idastar}
+    \begin{algorithmic}[1]
+        \Function{IDA*-Search}{$v,goal,g_{cost},f_{max},parent$}
+            \State $f\gets g_{cost}+h(v)$
+            \If{$f>f_{max}$}
+                \State \Return $f$
+            \EndIf
+            \If{$v=goal$}
+                \State \Return \texttt{SUCCESS}
+            \EndIf
+            \State $f_{min}\gets\infty$
+            \ForAll{$(v,u)\in E$}
+                \If{$\forall w\in V:(u,w)\notin parent$}
+                    \State $parent\gets parent\cup\{(u,v)\}$
+                    \State $f_{min}\gets\min\begin{cases}f_{min}\\IDA^*\text{-}Search(u,goal,g_{cost}+C(v,u),f_{max},parent)\end{cases}$
+                    \If{$f_{min}=\texttt{SUCCESS}$}
+                        \State \Return \texttt{SUCCESS}
+                    \EndIf
+                    \State $parent\gets parent\setminus\{(u,v)\}$
+                \EndIf
+            \EndFor
+            \State \Return $f_{min}$
+        \EndFunction
+        \Function{IDA*}{$s,g$}
+            \State $parent\gets Map\{(s,\varnothing)\}$
+            \State $f_{max}\gets h(s)$
+            \While{$f_{max}<\infty$}
+                \State $f_{max}\gets IDA^*\text{-}Search(s,g,0,f_{max},parent)$
+                \If{$f_{max}=\texttt{SUCCESS}$}
+                    \State \Return \texttt{SUCCESS}
+                \EndIf
+            \EndWhile
+            \State \Return \texttt{FAILURE}
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+Ähnlich wie beim IDDFS-Algorithmus ist die Speicherkomplexität auch beim IDA* lediglich linear in der Rekursionstiefe, womit der IDA*-Algorithmus einen guten Kompromiss zwischen Laufzeit- (langsamer als ein normaler A* aufgrund von Iterative Deepening, aber auch nur um einen konstanten Faktor) und Speicherverhalten trifft.
+\section{Ergebnis}
+Die besprochenen Algorithmen wurden zunächst an zufälligen (lösbaren) quadratischen Puzzlen der Größen $3\times3$ und $4\times4$ getestet. Zwar war das $3\times3$ Puzzle lösbar durch BFS, kompliziertere Anfangszustände haben jedoch den Speicherverbrauch des Algorithmus auf bis zu $2$ GB ansteigen lassen (man beachte, dass jeder Knoten im Frontier oder im Open-Set den kompletten Zustand eines Schiebepuzzles repräsentiert). Es hat sich tatsächlich gezeigt, dass IDDFS nicht sonderlich viel länger gebraucht hat als BFS zur Bestimmung einer Lösung. Das Lösen des $4\times4$ Puzzles mit den uninformierten Methoden hat sich als reine Glückssache rausgestellt (sofern das Puzzle nicht sehr einfach war, haben beide Verfahren in einem Zeitrahmen von mehreren Minuten keine Lösung gefunden). An dieser Stelle wurde erfolgreich der A*-Algorithmus eingesetzt, welcher zwar bei komplizierten Problemen schnell mehrere Gigabyte an Speicher benötigt hat, aber die meisten $4\times4$ Probleme in akzeptabler Zeit lösen konnte. IDA* ist dann in der Lage alle $4\times4$ Probleme zu lösen ohne dabei Unmengen an Arbeitsspeicher zu benötigen. Auch hier hat IDA* Probleme nicht viel langsamer gelöst als der normale A*. Das größte Problem was mit dem IDA* (und der Manhatten-Distanz als Metrik) im Verlauf des Projektes erfolgreich gelöst wurde, war ein $4\times5$ Puzzle. Dies war jedoch nicht mit allen Anfangszuständen reproduzierbar. Die Lösung eines $5\times5$ Puzzle steht damit an dieser Stelle außer Frage. Es sei jedoch erwähnt, dass anspruchsvollere Heuristikfunktionen und Verfahren, welche bekannte Teillösungen mit in die Heuristik einbeziehen (\textit{Pattern-Datenbanken}) es ermöglichen, auch das $5\times5$ Puzzle optimal zu lösen.\cite{korf}
+\chapter{Fazit \& Ausblick}
+Rawr X3 *nuzzles* How are you? *pounces on you* you're so warm o3o *notices you have a bulge* someone's happy! *nuzzles your necky wecky* ~murr~ hehe ;) *rubbies your bulgy wolgy* you're so big! *rubbies more on your bulgy wolgy* it doesn't stop growing .///. *kisses you and licks your neck* daddy likes ;) *nuzzle wuzzle* I hope daddy likes *wiggles butt and squirms* I wanna see your big daddy meat! *wiggles butt* I have a little itch o3o *wags tails* can you please get my itch? *put paws on your chest* nyea~ it's a seven inch itch *rubs your chest* can you pwease? *squirms* pwetty pwease? :( I need to be punished *runs paws down your chest and bites lip* like, I need to be punished really good *paws on your bulge as I lick my lips* I'm getting thirsty. I could go for some milk *unbuttons your pants as my eyes glow* you smell so musky ;) *licks shaft* mmmmmmmmmmmmmmmmmmm so musky ;) *drools all over your cawk* your daddy meat. I like. Mister fuzzy balls. *puts snout on balls and inhales deeply* oh my gawd. I'm so hard *rubbies your bulgy wolgy* *licks balls* punish me daddy nyea~ *squirms more and wiggles butt* I9/11 lovewas an yourinside muskyjob goodness *bites lip* please punish me *licks lips* nyea~ *suckles on your tip* so good *licks pre off your cock* salty goodness~ *eyes roll back and goes balls deep*
 
 \backmatter
 
 \preparebibliography
+\nocite{*}
 \bibliography{bibliography}
 
 \end{document}
