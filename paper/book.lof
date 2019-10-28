@@ -1,0 +1,58 @@
+\deactivateaddvspace 
+\babel@toc {ngerman}{}
+\ttl@tocsep 
+\ttl@tocsep 
+\ttl@tocsep 
+\ttl@tocsep 
+\ttl@tocsep 
+\ttl@tocsep 
+\ttl@tocsep 
+\contentsline {figure}{\numberline {\relax 1.1}{\ignorespaces Zwei Arten des 15-Puzzle\relax }}{1}{figure.caption.1}% 
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {15-Puzzle mit Zahlen (gemischt)}}}{1}{subfigure.1.1}% 
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {15-Puzzle mit Zahlen (gel\IeC {\"o}st)}}}{1}{subfigure.1.2}% 
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {15-Puzzle mit Bild (gemischt)}}}{1}{subfigure.1.3}% 
+\contentsline {subfigure}{\numberline {(d)}{\ignorespaces {15-Puzzle mit Bild (gel\IeC {\"o}st)}}}{1}{subfigure.1.4}% 
+\ttl@tocsep 
+\contentsline {figure}{\numberline {\relax 2.1}{\ignorespaces Ausgabe vom Mat und ROI Beispiel\relax }}{10}{figure.caption.2}% 
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {}}}{10}{subfigure.1.1}% 
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {}}}{10}{subfigure.1.2}% 
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {}}}{10}{subfigure.1.3}% 
+\contentsline {figure}{\numberline {\relax 2.2}{\ignorespaces Rotation als affine Transformation\relax }}{12}{figure.caption.3}% 
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {src}}}{12}{subfigure.2.1}% 
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {dst}}}{12}{subfigure.2.2}% 
+\contentsline {figure}{\numberline {\relax 2.3}{\ignorespaces Abbildung zweier Dreiecke als affine Transformation\relax }}{13}{figure.caption.4}% 
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {src}}}{13}{subfigure.3.1}% 
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {dst}}}{13}{subfigure.3.2}% 
+\ttl@tocsep 
+\contentsline {figure}{\numberline {\relax 3.1}{\ignorespaces Beispiel eines Jigsaw-Puzzles\relax }}{14}{figure.caption.5}% 
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {Ausgangspuzzle}}}{14}{subfigure.1.1}% 
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {Teill\IeC {\"o}sung}}}{14}{subfigure.1.2}% 
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {L\IeC {\"o}sung}}}{14}{subfigure.1.3}% 
+\contentsline {figure}{\numberline {\relax 3.2}{\ignorespaces Anzahl der Kanten bei einem Type 3 Puzzle\relax }}{16}{figure.caption.6}% 
+\contentsline {figure}{\numberline {\relax 3.3}{\ignorespaces Beispiel eines Type 1 Puzzles\relax }}{17}{figure.caption.7}% 
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {Permutiertes Puzzle}}}{17}{subfigure.3.1}% 
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {Gel\IeC {\"o}stes Puzzle}}}{17}{subfigure.3.2}% 
+\contentsline {figure}{\numberline {\relax 3.4}{\ignorespaces Lineare Approximierung der Pixel am rechten und am oberen Bildrand\relax }}{22}{figure.caption.9}% 
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {Originalbild}}}{22}{subfigure.4.1}% 
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {Obere rechte Ecke im Originalbild}}}{22}{subfigure.4.2}% 
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {Berechnung ohne Saturierung}}}{22}{subfigure.4.3}% 
+\contentsline {subfigure}{\numberline {(d)}{\ignorespaces {Berechnung mit Saturierung}}}{22}{subfigure.4.4}% 
+\contentsline {figure}{\numberline {\relax 3.5}{\ignorespaces Direkte Zuordnung der Pixel\relax }}{24}{figure.caption.10}% 
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {$R$}}}{24}{subfigure.5.1}% 
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {$S$}}}{24}{subfigure.5.2}% 
+\contentsline {figure}{\numberline {\relax 3.6}{\ignorespaces Euclidean Matching im Vergleich mit DTW\relax }}{25}{figure.caption.11}% 
+\contentsline {figure}{\numberline {\relax 3.7}{\ignorespaces Zuordnung der Pixel beim DTW-Algorithmus\relax }}{30}{figure.caption.13}% 
+\ttl@tocsep 
+\contentsline {figure}{\numberline {\relax 4.1}{\ignorespaces Koordinatentransformation im DSF bei Pfadkomprimierung\relax }}{40}{figure.caption.14}% 
+\contentsline {figure}{\numberline {\relax 4.2}{\ignorespaces Die 4 Stages eines Puzzles im Gesamtalgorithmus\relax }}{43}{figure.caption.15}% 
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {Ausgangspuzzle}}}{43}{subfigure.2.1}% 
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {Puzzle nach Spanning-Tree Algorithmus}}}{43}{subfigure.2.2}% 
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {Puzzle nach Trimming}}}{43}{subfigure.2.3}% 
+\contentsline {subfigure}{\numberline {(d)}{\ignorespaces {Puzzle nach Filling}}}{43}{subfigure.2.4}% 
+\contentsline {figure}{\numberline {\relax 4.3}{\ignorespaces Fehler beim Filling Algorithmus\relax }}{45}{figure.caption.16}% 
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {Gew\IeC {\"u}nschte L\IeC {\"o}sung}}}{45}{subfigure.3.1}% 
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {L\IeC {\"o}sung mit falschem Filling}}}{45}{subfigure.3.2}% 
+\ttl@tocsep 
+\ttl@tocsep 
+\ttl@tocsep 
+\ttl@tocsep 
